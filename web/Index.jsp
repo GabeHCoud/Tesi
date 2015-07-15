@@ -24,7 +24,7 @@
           
 <%  if(status.equals("view")){%>
    
-    <form name="form1" action="Process.jsp" method="post" enctype="multipart/form-data">      
+    <form name="form1" action="ProcessPDF.jsp" method="post" enctype="multipart/form-data">      
      
         <div id="titolo"><b>Tabella costi per telefono</b></div>         
         <div id="testo">Carica il file PDF<br/><br/><input type="file" name="file" />
@@ -34,7 +34,7 @@
         </div>
     </form>     
     <br/><br/><br/>
-    <form name="form2" action="Process.jsp" method="post" enctype="multipart/form-data">          
+    <form name="form2" action="ProcessCSV.jsp" method="post" enctype="multipart/form-data">          
         <div id="testo">Carica il file csv<br/><br/><input type="file" name="file"/>
             <span >
                 <input type="submit" value="ok"/>
