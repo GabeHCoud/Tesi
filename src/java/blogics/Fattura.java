@@ -1,50 +1,59 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package blogics;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import services.databaseservice.DataBase;
+import services.databaseservice.exception.DuplicatedRecordDBException;
+import services.databaseservice.exception.NotFoundDBException;
+import services.databaseservice.exception.ResultSetDBException;
 
-import services.databaseservice.*;
-import services.databaseservice.exception.*;
 /**
  *
- * @author Angela
+ * @author Massa
  */
 public class Fattura {
-    public String Telefono;
+    public int IdFattura;
     public String Data;
-    public double CRB;
-    public double AAA;
-    public double ABB;
-    public double Totale;
     
     public Fattura(){}
     
-    public Fattura(String Telefono, String Data, double CRB, double AAA, double ABB, double Totale)
+
+    public Fattura(String Data)
     {
-        this.Telefono=Telefono;
-        this.Data=Data;
-        this.CRB=CRB;
-        this.AAA=AAA;
-        this.ABB=ABB;
-        this.Totale=Totale;
+        this.Data = Data;
     }
     
     public Fattura(ResultSet resultSet)
     {
-        try {Telefono=resultSet.getString("Telefono");} catch (SQLException sqle) {}
+        try {IdFattura=resultSet.getInt("IdFattura");} catch (SQLException sqle) {}
         try {Data=resultSet.getString("Data");} catch (SQLException sqle) {}
-        try {CRB=resultSet.getDouble("CRB");} catch(SQLException sqle) {}
-        try {AAA=resultSet.getDouble("AAA");} catch(SQLException sqle) {}
-        try {ABB=resultSet.getDouble("ABB");} catch(SQLException sqle) {}
-        try {Totale=resultSet.getDouble("Totale");} catch(SQLException sqle) {}
     }
+    
     public void insert(DataBase database) throws NotFoundDBException,DuplicatedRecordDBException,ResultSetDBException 
     {
         String sql="";        
+        
+        sql +=  " SELECT * FROM fattura" +
+                " WHERE Data='"+Data+"'";
+        
+        ResultSet resultSet=database.select(sql);    
+        try {
+            if (resultSet.next()) {
+                throw new DuplicatedRecordDBException("Fattura: insert: Esiste già una fattura con la data specificata");
+            } 
+        } catch (SQLException ex) {
+            throw new ResultSetDBException("Fattura: insert():  Errore nel ResultSet: "+ex.getMessage(),database);
+        }        
 
-        sql+=" INSERT INTO tab_1 "+
-        "(Telefono,Data,CRB,AAA,ABB,Totale)"+       
-        " VALUES('"+Telefono+"','"+Data+"',"+CRB+","+AAA+","+ABB+","+Totale+")";
-    
+        sql =  " INSERT INTO fattura" +
+               " (Data)"+
+               " VALUES ('"+Data+"')";
+        
         database.modify(sql);        
     }
     
@@ -52,8 +61,7 @@ public class Fattura {
             throws NotFoundDBException ,ResultSetDBException 
     {
         String sql = "";
-        sql+= "DELETE FROM fattura WHERE Telefono='"+Telefono+"'"+
-              "AND Data = '"+Data+"'";
+        sql+= "DELETE FROM fattura WHERE IdFattura="+IdFattura;
         
         database.modify(sql); 
     }
@@ -63,15 +71,9 @@ public class Fattura {
         
         String sql = "";
         sql +=  " UPDATE fattura "+
-                " SET CRB = " + CRB + "," + 
-                " AAA = " + AAA + "," + 
-                " ABB = " + ABB + "," + 
-                " Totale = " + Totale +
-                " WHERE Telefono='"+Telefono+"'"+
-                " AND Data = '"+Data+"'";
+                " SET Data ='" + Data + "'" +                 
+                " WHERE IdFattura="+IdFattura;
         
         database.modify(sql);  
-    } 
-} 
-    
-
+    }
+}

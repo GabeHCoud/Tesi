@@ -29,7 +29,6 @@ import services.databaseservice.exception.ResultSetDBException;
  * @author Angela
  */
 public class UserService {
-    public UserService() {}   
 
     //UNI
     public static void mailConfirm(String Email, String messaggio)

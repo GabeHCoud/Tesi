@@ -20,7 +20,6 @@ import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 
 public class MailService {
-    public MailService(){}    
     
     public static ArrayList<Mail> getEmailsByData(DataBase database, String Data)
         throws NotFoundDBException,ResultSetDBException 

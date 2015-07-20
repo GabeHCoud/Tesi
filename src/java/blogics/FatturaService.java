@@ -1,100 +1,85 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package blogics;
 
-import java.sql.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import services.databaseservice.DataBase;
+import services.databaseservice.exception.DuplicatedRecordDBException;
+import services.databaseservice.exception.NotFoundDBException;
+import services.databaseservice.exception.ResultSetDBException;
 
-import services.databaseservice.*;
-import services.databaseservice.exception.*;
-
-
-
-public class FatturaService 
-{
-    public FatturaService() {}    
+public class FatturaService {    
     
-    public static Fattura getFatturaByTelefonoAndData(DataBase database,String Data,String Telefono) 
-            throws NotFoundDBException, ResultSetDBException
+    public static Fattura getFatturaById(DataBase database,int IdFattura) throws ResultSetDBException, NotFoundDBException
     {
         Fattura fattura;
+        
         String sql = "";
         sql += " SELECT * FROM fattura" +
-               " WHERE Data='"+Data+"'"+
-               " AND Telefono='"+Telefono+"'" ;
+               " WHERE IdFattura="+IdFattura;              
         
-        ResultSet resultSet=database.select(sql);
-    
+        ResultSet resultSet=database.select(sql);    
         try {
             if (resultSet.next()) {
               fattura=new Fattura(resultSet);
             } else 
                 return null; 
         } catch (SQLException ex) {
-            throw new ResultSetDBException("FatturaService: getFatturaByTelefonoAndData():  Errore nel ResultSet: "+ex.getMessage(),database);
+            throw new ResultSetDBException("FatturaService: getFatturaById():  Errore nel ResultSet: "+ex.getMessage(),database);
         }
 
         return fattura;
     }
     
-    
-    public static ArrayList<Fattura> getFattureByData(DataBase database,String Data)
-        throws NotFoundDBException,ResultSetDBException 
-    {        
-        ArrayList<Fattura> fatture = new ArrayList<Fattura>();
-        String sql = "";
-        sql += " SELECT * FROM fattura" +
-               " WHERE Data='"+Data+"'" ;
-
-        ResultSet resultSet = database.select(sql);
-        try 
-        {
-            while (resultSet.next()) 
-            { 
-
-                fatture.add(new Fattura(resultSet));
-
-            }
-            resultSet.close();
-        } catch (SQLException ex) 
-        {
-          throw new ResultSetDBException("FieldService: getFattureByData():  ResultSetDBException: "+ex.getMessage(), database);
-        }
-        return fatture;
-    }
-    
-    
-    public static ArrayList<Fattura> getFattureByTelefono(DataBase database, String Telefono)
-        throws NotFoundDBException,ResultSetDBException 
+    public static Fattura getFatturaByDate(DataBase database,String Data) throws ResultSetDBException, NotFoundDBException
     {
-
-        ArrayList<Fattura> f = new ArrayList<Fattura>();
+        Fattura fattura;
         
         String sql = "";
         sql += " SELECT * FROM fattura" +
-               " WHERE Telefono='"+Telefono+"'" ;
-
-        ResultSet resultSet = database.select(sql);
+               " WHERE Data='"+Data+"'";              
+        
+        ResultSet resultSet=database.select(sql);    
         try {
-            while (resultSet.next()) { 
-                Fattura field = new Fattura(resultSet);
-                f.add(field);
-
-            }
-            resultSet.close();
+            if (resultSet.next()) {
+              fattura=new Fattura(resultSet);
+            } else 
+                return null; 
         } catch (SQLException ex) {
-            throw new ResultSetDBException("FieldService: getFattureByTelefono():  ResultSetDBException: "+ex.getMessage(), database);
+            throw new ResultSetDBException("FatturaService: getFatturaByDate():  Errore nel ResultSet: "+ex.getMessage(),database);
         }
 
-    return f;   
-    }
-        
-    public static void InsertNewFattura(DataBase database,String Telefono,
-            String Data,double CRB,double AAA,double ABB,double Totale) 
-            throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException
-    {
-        Fattura f= new Fattura(Telefono,Data,CRB,AAA,ABB,Totale);        
-        f.insert(database);
+        return fattura;
     }
     
+    public static Fattura getLatestFattura(DataBase database) throws ResultSetDBException, NotFoundDBException
+    {
+        Fattura fattura;
+        
+        String sql = "";
+        sql += " SELECT * FROM fattura" +
+               " WHERE Data=''";              
+        
+        ResultSet resultSet=database.select(sql);    
+        try {
+            if (resultSet.next()) {
+              fattura=new Fattura(resultSet);
+            } else 
+                return null; 
+        } catch (SQLException ex) {
+            throw new ResultSetDBException("FatturaService: getLatestFattura():  Errore nel ResultSet: "+ex.getMessage(),database);
+        }
+
+        return fattura;
+    }
+    
+    public static void insertNewFattura(DataBase database,String data) throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException
+    {
+        Fattura fattura = new Fattura(data);        
+        fattura.insert(database);        
+    }
 }

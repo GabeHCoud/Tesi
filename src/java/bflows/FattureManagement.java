@@ -6,7 +6,14 @@
 package bflows;
 
 import blogics.ExtractedPdfPage;
+import blogics.Consumo;
+import blogics.ConsumoService;
 import blogics.Fattura;
+import blogics.FatturaService;
+import blogics.Telefono;
+import blogics.TelefonoService;
+import blogics.User;
+import blogics.UserService;
 import com.snowtide.PDF;
 import com.snowtide.pdf.Document;
 import com.snowtide.pdf.OutputTarget;
@@ -24,8 +31,17 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import services.databaseservice.DBService;
+import services.databaseservice.DataBase;
+import services.databaseservice.exception.DuplicatedRecordDBException;
+import services.databaseservice.exception.NotFoundDBException;
+import services.databaseservice.exception.ResultSetDBException;
+import services.errorservice.EService;
 
 /**
  *
@@ -36,9 +52,12 @@ public class FattureManagement implements Serializable {
     private ArrayList<String> lines;
     private InputStream inputStream;
     private File outputFile;
-    private ArrayList<ExtractedPdfPage> textualPdf;
-    private ArrayList<Fattura> fatture;
-    
+    private Fattura fattura;
+    private ArrayList<Consumo> consumi;    
+    ArrayList<User> utenti;
+    private String errorMessage;
+    private int result;
+    private String data;
     
     public FattureManagement() {}
     
@@ -46,7 +65,7 @@ public class FattureManagement implements Serializable {
     {
         Document pdf = null;
         BufferedWriter writer = null;
-        fatture = new ArrayList<>();
+        consumi = new ArrayList<>();        
         
         try{
             outputFile = File.createTempFile("result", ".txt"); 
@@ -56,15 +75,7 @@ public class FattureManagement implements Serializable {
             int pages = pdf.getPageCnt();            
             for(int j=0;j<pages;j++){
                 Page pagePDF = pdf.getPage(j);                
-                pagePDF.pipe(new OutputTarget(writer));                
-                writer.newLine();
-                writer.newLine();                
-                
-                writer.append("$$$$NEWPAGE$$$");
-                               
-                writer.newLine();
-                writer.newLine();    
-                
+                pagePDF.pipe(new OutputTarget(writer)); 
                 writer.flush();
             }                        
             pdf.close();            
@@ -75,10 +86,8 @@ public class FattureManagement implements Serializable {
         }
         
         BufferedReader br = null;
-        textualPdf = new ArrayList<>();        
         lines = new ArrayList<>();
         try {
-
                 String sCurrentLine;
 
                 br = new BufferedReader(new FileReader(outputFile.getAbsolutePath()));               
@@ -87,96 +96,114 @@ public class FattureManagement implements Serializable {
                     if(sCurrentLine.isEmpty())
                         continue;
                     
-                    if(!sCurrentLine.contains("$$$$NEWPAGE$$$"))
-                        lines.add(sCurrentLine.trim());
-                    else
-                    {
-                        textualPdf.add(new ExtractedPdfPage(lines));
-                        lines.clear();
-                    }                    
+                    lines.add(sCurrentLine.trim());                                
                 }
                 
                 br.close();
 
         } catch (IOException e) {
                 System.out.println("TestBean.process: "+e.getMessage());
-        } 
+        }         
         
         boolean startPointFound = false;
-        Fattura fattura = null;
-        for(int i=0;i<textualPdf.size();i++)
-        {                               
-            for(String line : textualPdf.get(i).getLines())
-            {
-                //RIEPILOGO UTENZA marks the start point of data
-                if(line.contains("RIEPILOGO PER UTENZA"))
-                    startPointFound = !startPointFound;
-
-                if(!startPointFound) continue;                    
-
-                //SERVIZI OPZIONALI marks the end point of data
-                if(line.matches("SERVIZI OPZIONALI")) return;
-
-                if(line.matches("(\\d{3}-\\d{7})((?:\\s+)(?:\\w+\\s+)+)(\\d+,\\d+)")) //(3 digits)-(7 digits)(any number of whitespaces)(any number of word followed by whitespace)(1+ digits),(1+digits)
-                //if(line.matches("((\\d{3})-(\\d{7}))(\\s+)(\\w+\\s+)+(\\d+),(\\d+)")) 
-                {                        
-                    //se entro qui significa che inizia una nuova fattura
-                    ArrayList<String> splitted = splitLine1(line);   
-                    
-                    if(fattura != null) //salvo la precedente
-                        fatture.add(fattura);
-                    
-                    fattura = new Fattura();
-                    fattura.Telefono = splitted.get(0);                    
-                    
-                    if(splitted.get(1).contains("Contributi"))
-                        fattura.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
-                    else if(splitted.get(1).contains("Altri"))
-                        fattura.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
-                    else if(splitted.get(1).contains("Abbonamenti"))
-                        fattura.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
-                    
-                }   
-
-                if(line.matches("((?:\\w+\\s+)+)(\\d+,\\d+)"))//(any number of words followed by whitespaces)(1+ digits),(1+ digits)
-                //if(line.matches("(\\w+\\s+)+(\\d+),(\\d+)")) 
-                {                  
-                    //continua la fattura precedente                    
-                    ArrayList<String> splitted = splitLine2(line); 
-                    
-                    if(fattura != null){
-                        if(splitted.get(0).contains("Contributi"))
-                            fattura.CRB = Double.parseDouble(splitted.get(1).replace(",","."));
-                        else if(splitted.get(0).contains("Altri"))
-                            fattura.AAA = Double.parseDouble(splitted.get(1).replace(",","."));
-                        else if(splitted.get(0).contains("Abbonamenti"))
-                            fattura.ABB = Double.parseDouble(splitted.get(1).replace(",","."));
-                        else if(splitted.get(0).contains("Totale"))
-                            fattura.Totale = Double.parseDouble(splitted.get(1).replace(",","."));
-                    }
-                } 
-            }                
-        }     
+        boolean dataFound = false;
+        Consumo consumo = null;             
         
-    }     
-    
-    
-    public void processCSV() throws IOException
-    {              
-        ArrayList<String> elementi= new ArrayList<>();
-        ArrayList<Integer> ok=new ArrayList<>();
-        ArrayList<Fattura> fatture= new ArrayList<>();
-        
-        String s=null,file=null,data=null;
-        
-        DataInputStream in = new DataInputStream(inputStream);
-        while(true)
+        for(String line : lines)
         {
-            s=in.readLine();
-            if(s==null)
-                break;
-            file=file+"\n"+s;
-        }              
+            //recupero data fattura
+            if(!dataFound)
+            {
+                if(line.contains("Emessa"))
+                {
+                    String cleanLine = line.replaceAll("\\s+"," ");
+                    String[] splitted = cleanLine.split(" ");
+                    for(String s :splitted){
+                        if(s.contains("/"))
+                        {
+                            s = s.replace("/","-");
+                            data = s;
+                        }                            
+                    }
+                }  
+            }          
+            
+            //RIEPILOGO UTENZA segna l'inizio della tabella
+            if(line.contains("RIEPILOGO PER UTENZA"))
+                startPointFound = !startPointFound;
+
+            if(!startPointFound) continue;                    
+
+            //SERVIZI OPZIONALI segna la fine della tabella
+            if(line.matches("SERVIZI OPZIONALI")) 
+            {
+                consumi.add(consumo);
+                return;
+            }
+
+            if(line.matches("(\\d{3}-\\d{7})((?:\\s+)(?:\\w+\\s+)+)(\\d+,\\d+)")) //(3 digits)-(7 digits)(any number of whitespaces)(any number of word followed by whitespace)(1+ digits),(1+digits)
+            //if(line.matches("((\\d{3})-(\\d{7}))(\\s+)(\\w+\\s+)+(\\d+),(\\d+)")) 
+            {                        
+                //se entro qui significa che inizia una nuova fattura
+                ArrayList<String> splitted = splitLine1(line);   
+
+                if(consumo != null) //salvo la precedente
+                {    
+                    consumi.add(consumo);
+                }
+                consumo = new Consumo();
+                consumo.Telefono = splitted.get(0); 
+                
+                if(splitted.get(1).contains("Contributi"))
+                    consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
+                else if(splitted.get(1).contains("Altri"))
+                    consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
+                else if(splitted.get(1).contains("Abbonamenti"))
+                    consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
+            }   
+
+            if(line.matches("((?:\\w+\\s+)+)(\\d+,\\d+)"))//(any number of words followed by whitespaces)(1+ digits),(1+ digits)
+            //if(line.matches("(\\w+\\s+)+(\\d+),(\\d+)")) 
+            {                  
+                //continua la fattura precedente                    
+                ArrayList<String> splitted = splitLine2(line); 
+
+                if(consumo != null){
+                    if(splitted.get(0).contains("Contributi"))
+                        consumo.CRB = Double.parseDouble(splitted.get(1).replace(",","."));
+                    else if(splitted.get(0).contains("Altri"))
+                        consumo.AAA = Double.parseDouble(splitted.get(1).replace(",","."));
+                    else if(splitted.get(0).contains("Abbonamenti"))
+                        consumo.ABB = Double.parseDouble(splitted.get(1).replace(",","."));
+                    else if(splitted.get(0).contains("Totale"))
+                        consumo.Totale = Double.parseDouble(splitted.get(1).replace(",","."));
+                }   
+            }   
+        }    
+    }   
+    
+    public void processCSV() 
+    {              
+        DataBase database = null;                    
+        ArrayList<String> elementi= new ArrayList<>();
+        String s=null,file=null,data=null;
+        consumi = new ArrayList<>();        
+        DataInputStream in = new DataInputStream(inputStream);
+        
+        try{
+            while(true)
+            {
+                s=in.readLine();
+                if(s==null)
+                    break;
+                file=file+"\n"+s;
+            }          
+        }catch(IOException ex)
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            return;
+        }
                 
         String []d= file.split("\n"); //separo le righe
         String [] d1;
@@ -192,51 +219,196 @@ public class FattureManagement implements Serializable {
                 elementi.add(d1[j]);//salvo nell'arraylist                     
            }
         }
-
-        for(int i=0;i<elementi.size();i++)//scorro l'array stringhe
+        
+        try
         {
-            String a1="300-0000000";
-            String a2="400-0000000";
+            database=DBService.getDataBase();
 
-
-            int f=0;
-            if((elementi.get(i).compareTo(a1)>0) && (elementi.get(i).compareTo(a2)<0) && (elementi.get(i).contains("-"))) //seleziono i numeri di telefono
+            for(int i=0;i<elementi.size();i++)//scorro l'array stringhe
             {
+                String a1="300-0000000";
+                String a2="400-0000000";
 
-                double aaa=0,totale=0,contributi=0,abb=0;
-                String conv;
-
-                int j=i+1;
-                while((elementi.get(j).contains("-"))==false)
+                int f=0;
+                if((elementi.get(i).compareTo(a1)>0) && (elementi.get(i).compareTo(a2)<0) && (elementi.get(i).contains("-"))) //seleziono i numeri di telefono
                 {
+                    double aaa=0,totale=0,contributi=0,abb=0;
+                    String conv;
 
+                    int j=i+1;
+                    while((elementi.get(j).contains("-"))==false)
+                    {
+                        if(elementi.get(j).contains("Contributi"))
+                        {
+                            conv=elementi.get(j+1).replaceAll(",",".");
+                            contributi=Double.parseDouble(conv);
+                        }
+                        if(elementi.get(j).contains("Altri"))
+                        {
+                            conv=elementi.get(j+1).replaceAll(",",".");
+                            aaa=Double.parseDouble(conv);
+                        }
+                        if(elementi.get(j).contains("Totale"))
+                        {
+                            conv=elementi.get(j+1).replaceAll(",",".");
+                            totale=Double.parseDouble(conv);                                    
+                        }
+                        if(elementi.get(j).contains("Abbonamenti"))
+                        {
+                            conv=elementi.get(j+1).replaceAll(",",".");
+                            abb=Double.parseDouble(conv);
+                        }
+                        j++;
+                    }
 
-                    if(elementi.get(j).contains("Contributi"))
-                    {
-                        conv=elementi.get(j+1).replaceAll(",",".");
-                        contributi=Double.parseDouble(conv);
-                    }
-                    if(elementi.get(j).contains("Altri"))
-                    {
-                        conv=elementi.get(j+1).replaceAll(",",".");
-                        aaa=Double.parseDouble(conv);
-                    }
-                    if(elementi.get(j).contains("Totale"))
-                    {
-                        conv=elementi.get(j+1).replaceAll(",",".");
-                        totale=Double.parseDouble(conv);                                    
-                    }
-                    if(elementi.get(j).contains("Abbonamenti"))
-                    {
-                        conv=elementi.get(j+1).replaceAll(",",".");
-                        abb=Double.parseDouble(conv);
-                    }
+                    Telefono t = TelefonoService.getTelefono(database, elementi.get(i));
+                    if(t != null)                    
+                        consumi.add(new Consumo(elementi.get(i),contributi,aaa,abb,totale,t.Email,-1));
+                    else
+                        consumi.add(new Consumo(elementi.get(i),contributi,aaa,abb,totale,null,-1));
                     j++;
+                    f++;
                 }
-                fatture.add(new Fattura(elementi.get(i),data,contributi,aaa,abb,totale));
-                j++;
-                f++;
             }
+            
+            database.commit();
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }         
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }    
+    
+    public void insert(){
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase();
+                       
+            //creo nuova fattura
+            if(data == null)
+                FatturaService.insertNewFattura(database, "");            
+            else            
+                FatturaService.insertNewFattura(database, data);    
+            
+            database.commit();            
+            
+            if(data != null)//recupero fattura generata da PDF            
+                fattura = FatturaService.getFatturaByDate(database,data);
+            else//recupero fattura generata da CSV
+                fattura = FatturaService.getLatestFattura(database);
+            
+            if(consumi != null)
+            {
+                for(Consumo c : consumi)
+                {                    
+                    Telefono t = TelefonoService.getTelefono(database, c.Telefono);
+                    if(t != null)
+                        c.Email = t.Email;
+                    
+                    ConsumoService.InsertNewConsumo(database,c.Telefono,c.CRB,c.AAA,c.ABB,c.Totale,c.Email,fattura.IdFattura);                    
+                }            
+            }
+            
+            database.commit();
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        } 
+        catch (DuplicatedRecordDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.RECOVERABLE_ERROR);
+            setErrorMessage("Esiste già una fattura per la data inserita");
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void setDate(){
+        DataBase database = null; 
+        
+        String[] splitted = data.split("-");//inverto data
+        data = splitted[2] + "-" + splitted[1] + "-" + splitted[0];
+        
+        try 
+        {
+            database=DBService.getDataBase();     
+            
+            //controllo che non esista già una fattura per la data selezionata
+            fattura = FatturaService.getFatturaByDate(database, data);
+            
+            if(fattura != null)
+            {
+                fattura = FatturaService.getLatestFattura(database);
+                fattura.delete(database);
+                
+                database.commit();
+                
+                setErrorMessage("Esiste già una fattura per la data inserita");
+                
+            }else{            
+                fattura = FatturaService.getLatestFattura(database);
+
+                if(fattura != null)
+                {
+                    fattura.Data = data;
+                    fattura.update(database);
+                }
+
+                database.commit();
+            }
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        } 
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        } 
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
         }
     }
     
@@ -325,33 +497,83 @@ public class FattureManagement implements Serializable {
         this.outputFile = outputFile;
     }
     
-    public ArrayList<ExtractedPdfPage> getTextualPdf()
+    public Fattura getFattura()
     {
-        return textualPdf;
+        return fattura;
     }
     
-    public void setTextualPdf(ArrayList<ExtractedPdfPage> textualPdf)
+    public void setFattura(Fattura fattura)
     {
-        this.textualPdf = textualPdf;
+        this.fattura = fattura;
+    }
+        
+    public Consumo getConsumo(int i)
+    {
+        return consumi.get(i);
     }
     
-    public Fattura getFattura(int i)
+    public void setConsumo(int i,Consumo consumo)
     {
-        return fatture.get(i);
+        consumi.set(i, consumo);
     }
     
-    public void setFattura(int i,Fattura fattura)
+    public ArrayList<Consumo> getConsumi()
     {
-        fatture.set(i, fattura);
+        return consumi;
     }
     
-    public ArrayList<Fattura> getFatture()
+    public void setConsumi(ArrayList<Consumo> consumi)
     {
-        return fatture;
+        this.consumi = consumi;
     }
     
-    public void setFatture(ArrayList<Fattura> fatture)
+    public String getErrorMessage() 
     {
-        this.fatture = fatture;
+        return this.errorMessage;
+    }
+    
+    public void setErrorMessage(String errorMessage) 
+    {
+        this.errorMessage = errorMessage;
+    }
+    
+    public void setResult(int result) 
+    {
+        this.result = result;
+    }
+    
+    public int getResult() 
+    {
+        return result;
+    }
+    
+    public User getUtente(int i)
+    {
+        return utenti.get(i);
+    }
+    
+    public void setUtente(int i,User utente)
+    {
+        utenti.set(i, utente);
+    }
+    
+    public ArrayList<User> getUtenti()
+    {
+        return utenti;
+    }
+    
+    public void setUtenti(ArrayList<User> utenti)
+    {
+        this.utenti = utenti;
+    }
+    
+    public String getData ()
+    {
+        return data;
+    }
+    
+    public void setData(String data)
+    {
+        this.data = data;
     }
 }

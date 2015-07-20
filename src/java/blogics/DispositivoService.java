@@ -19,7 +19,6 @@ import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 
 public class DispositivoService {
-    public DispositivoService(){}
     
     public static ArrayList<Dispositivo> getDispositiviByEmail(DataBase database, String Email)
     throws NotFoundDBException,ResultSetDBException 
