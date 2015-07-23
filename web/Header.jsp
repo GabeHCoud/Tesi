@@ -18,8 +18,7 @@
         
             
             <li ><a href="Index.jsp"> Carica Fattura</a></li>
-            <li><a href="Fattura.jsp">Fattura</a></li>
-            <li ><a href="mail.jsp">Invia Mail</a>
+            <li><a href="Fatture.jsp">Fatture</a></li>
             <li><a href="UtenteNew.jsp">Nuovo Utente</a></li>
             <li><a href="Utenti.jsp">Utenti Registrati</a></li>
             

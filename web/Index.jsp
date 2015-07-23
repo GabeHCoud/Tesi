@@ -9,6 +9,10 @@
 <%@page buffer="40kb" %>
 <%@page errorPage="/ErrorPage.jsp" %>
         
+
+<jsp:useBean id="fattureManagement" scope="page" class="bflows.FattureManagement"/>
+<jsp:setProperty name="fattureManagement" property="*"/>
+
 <% 
     String status=null;
 
@@ -16,7 +20,7 @@
     if(status==null)
     {
        status="view"; 
-       System.out.println("sono in view");
+       fattureManagement.cleanDB();
     }
 %>
 

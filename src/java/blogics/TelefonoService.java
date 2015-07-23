@@ -8,6 +8,7 @@ package blogics;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import services.databaseservice.DataBase;
+import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 
@@ -15,7 +16,7 @@ import services.databaseservice.exception.ResultSetDBException;
  *
  * @author Massa
  */
-public class TelefonoService {
+public class TelefonoService {    
     
     public TelefonoService() {}    
     
@@ -39,5 +40,11 @@ public class TelefonoService {
         }
 
         return telefono;
+    }
+    
+    public static void insertNewTelefono(DataBase database,String numero,String email) throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException
+    {
+        Telefono telefono = new Telefono(numero,email);        
+        telefono.insert(database);        
     }
 }

@@ -33,7 +33,7 @@ public class User {
 
         String sql="";
 
-        sql+=" INSERT INTO utente(Email,Nome,Cognome"
+        sql+=" INSERT INTO utente(Email,Nome,Cognome)"
             +" VALUES ('"+Email+"','"+Nome+"','"+Cognome+"')";
         database.modify(sql);
     }

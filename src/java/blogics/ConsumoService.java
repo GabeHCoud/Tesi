@@ -13,7 +13,8 @@ import services.databaseservice.exception.*;
 public class ConsumoService 
 {   
     
-    public static ArrayList<Consumo> getConsumiByFatturaId(DataBase database,int IdFattura) throws ResultSetDBException, NotFoundDBException{
+    public static ArrayList<Consumo> getConsumiByFatturaId(DataBase database,int IdFattura) 
+            throws ResultSetDBException, NotFoundDBException{
         ArrayList<Consumo> consumi = new ArrayList<Consumo>();
         
         String sql = "";
@@ -30,11 +31,35 @@ public class ConsumoService
             resultSet.close();
         } catch (SQLException ex) 
         {
-          throw new ResultSetDBException("FieldService: getConsumiByFatturaId():  ResultSetDBException: "+ex.getMessage(), database);
+          throw new ResultSetDBException("ConsumoService: getConsumiByFatturaId():  ResultSetDBException: "+ex.getMessage(), database);
         }
         return consumi;
     }  
     
+    public static Consumo getConsumoByFatturaIdAndTelefono(DataBase database,int IdFattura,String Telefono) 
+            throws NotFoundDBException, ResultSetDBException
+    {
+        String sql = "";
+        Consumo consumo;
+        
+        sql +=  " SELECT * FROM consumo"+
+                " WHERE IdFattura="+IdFattura+""+
+                " AND Telefono='"+Telefono+"'";
+        
+        ResultSet resultSet = database.select(sql);
+        try 
+        {
+            if(resultSet.next()) 
+            { 
+                consumo=new Consumo(resultSet);
+            } else 
+                return null; 
+        } catch (SQLException ex) 
+        {
+          throw new ResultSetDBException("ConsumoService: getConsumoByFatturaIdAndTelefono():  ResultSetDBException: "+ex.getMessage(), database);
+        }
+        return consumo;
+    }
         
     public static void InsertNewConsumo(DataBase database,String Telefono,
             double CRB,double AAA,double ABB,double Totale,String Email,int IdFattura) 

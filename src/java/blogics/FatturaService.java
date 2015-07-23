@@ -7,6 +7,7 @@ package blogics;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import services.databaseservice.DataBase;
 import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
@@ -75,6 +76,27 @@ public class FatturaService {
         }
 
         return fattura;
+    }
+    
+    public static ArrayList<Fattura> getFatture(DataBase database) throws NotFoundDBException, ResultSetDBException
+    {
+        ArrayList<Fattura> f = new ArrayList<>();   
+
+        String sql=" SELECT * FROM fattura ";
+
+        ResultSet resultSet = database.select(sql);
+        try {
+          while (resultSet.next()) { 
+              Fattura fattura = new Fattura(resultSet);
+              f.add(fattura);
+
+          }
+          resultSet.close();
+        } catch (SQLException ex) {
+          throw new ResultSetDBException("FatturaService: getFatture():  ResultSetDBException: "+ex.getMessage(), database);
+        }
+
+        return f;   
     }
     
     public static void insertNewFattura(DataBase database,String data) throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException

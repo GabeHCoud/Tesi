@@ -72,11 +72,11 @@ public class Consumo {
         
         String sql = "";
         sql +=  " UPDATE consumo "+
-                " SET CRB = " + CRB + "," + 
-                " AAA = " + AAA + "," + 
-                " ABB = " + ABB + "," + 
-                " Totale = " + Totale + "," + 
-                " Email = '" + Email + "'" +
+                " SET CRB=" + CRB + 
+                " ,AAA=" + AAA + 
+                " ,ABB=" + ABB + 
+                " ,Totale=" + Totale + 
+                " ,Email='" + Email + "'" +
                 " WHERE Telefono='"+Telefono+"'"+
                 " AND IdFattura = "+IdFattura;
         

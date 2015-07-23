@@ -18,7 +18,6 @@ import com.snowtide.PDF;
 import com.snowtide.pdf.Document;
 import com.snowtide.pdf.OutputTarget;
 import com.snowtide.pdf.Page;
-import java.beans.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -31,9 +30,6 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import services.databaseservice.DBService;
@@ -42,11 +38,8 @@ import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 import services.errorservice.EService;
+import util.SplitLine;
 
-/**
- *
- * @author Massa
- */
 public class FattureManagement implements Serializable {   
     
     private ArrayList<String> lines;
@@ -145,7 +138,7 @@ public class FattureManagement implements Serializable {
             //if(line.matches("((\\d{3})-(\\d{7}))(\\s+)(\\w+\\s+)+(\\d+),(\\d+)")) 
             {                        
                 //se entro qui significa che inizia una nuova fattura
-                ArrayList<String> splitted = splitLine1(line);   
+                ArrayList<String> splitted = SplitLine.splitLine1(line);   
 
                 if(consumo != null) //salvo la precedente
                 {    
@@ -166,7 +159,7 @@ public class FattureManagement implements Serializable {
             //if(line.matches("(\\w+\\s+)+(\\d+),(\\d+)")) 
             {                  
                 //continua la fattura precedente                    
-                ArrayList<String> splitted = splitLine2(line); 
+                ArrayList<String> splitted = SplitLine.splitLine2(line); 
 
                 if(consumo != null){
                     if(splitted.get(0).contains("Contributi"))
@@ -294,7 +287,8 @@ public class FattureManagement implements Serializable {
         }
     }    
     
-    public void insert(){
+    public void insert()
+    {
         DataBase database = null;        
         
         try 
@@ -357,15 +351,17 @@ public class FattureManagement implements Serializable {
         }
     }
     
-    public void setDate(){
+    public void setDate()
+    {
         DataBase database = null; 
+        consumi = new ArrayList<>();
         
         String[] splitted = data.split("-");//inverto data
         data = splitted[2] + "-" + splitted[1] + "-" + splitted[0];
         
         try 
         {
-            database=DBService.getDataBase();     
+            database=DBService.getDataBase();  
             
             //controllo che non esista già una fattura per la data selezionata
             fattura = FatturaService.getFatturaByDate(database, data);
@@ -377,10 +373,11 @@ public class FattureManagement implements Serializable {
                 
                 database.commit();
                 
-                setErrorMessage("Esiste già una fattura per la data inserita");
-                
+                setResult(EService.RECOVERABLE_ERROR);
+                setErrorMessage("Esiste già una fattura per la data inserita");                
             }else{            
                 fattura = FatturaService.getLatestFattura(database);
+                consumi = ConsumoService.getConsumiByFatturaId(database, fattura.IdFattura);
 
                 if(fattura != null)
                 {
@@ -410,51 +407,44 @@ public class FattureManagement implements Serializable {
             try { database.close(); }
             catch (NotFoundDBException e) { EService.logAndRecover(e); }
         }
-    }
+    }   
     
-    public ArrayList<String> splitLine1(String line)
+    public void cleanDB()
     {
-        ArrayList<String> splitted = new ArrayList<>();
-        ArrayList<Pattern> patterns = new ArrayList<>(
-            Arrays.asList(
-                Pattern.compile("(\\d{3}-\\d{7})"), 
-                Pattern.compile("((?:\\s+)(?:\\w+\\s+)+)"), 
-                Pattern.compile("(\\d+,\\d+)")
-            )
-        );
-        
-        Matcher matcher;
-        for(Pattern p : patterns)
+        DataBase database = null;        
+        ArrayList<Fattura> fatture;
+        try 
         {
-            matcher = p.matcher(line);
-            while (matcher.find()) {
-            splitted.add(matcher.group().trim());
-            }  
-        }  
-        
-        return splitted;
-    }
-    
-    public ArrayList<String> splitLine2(String line)
-    {
-        ArrayList<String> splitted = new ArrayList<>();
-        ArrayList<Pattern> patterns = new ArrayList<>(
-            Arrays.asList(
-                Pattern.compile("((?:\\w+\\s+)+)"), 
-                Pattern.compile("(\\d+,\\d+)")
-            )
-        );
-        
-        Matcher matcher;
-        for(Pattern p : patterns)
+            database=DBService.getDataBase();
+            
+            fatture = FatturaService.getFatture(database);
+            for(Fattura f : fatture)
+            {
+                if(f.Data.isEmpty())
+                    f.delete(database);
+            }
+            
+            database.commit();
+            
+        }catch (NotFoundDBException ex) 
         {
-            matcher = p.matcher(line);
-            while (matcher.find()) {
-            splitted.add(matcher.group().trim());
-            }  
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
         }  
-        
-        return splitted;
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
     }
     
     public String getLine(int i)
