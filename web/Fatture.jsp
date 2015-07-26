@@ -53,11 +53,10 @@
             consumiManagement.viewEdit();
             break;                
         case "edit":
-            consumiManagement.edit();
-            consumiManagement.viewFatture();
-            consumiManagement.viewConsumi();
+            consumiManagement.edit();            
             break;
         case "delete":
+            consumiManagement.delete();
             break;
     }
         
@@ -302,7 +301,7 @@
                         <td with="100">
                             <form name="name" method="post" action="AssociaUtente.jsp">                                
                                 <input type="hidden" name="idFattura" value="<%=consumiManagement.getIdFattura()%>"/>
-                                <input type="hidden" name="telefono" value="<%=c.Telefono%>"/>
+                                <input type="hidden" name="numero" value="<%=c.Telefono%>"/>
                                 <input type="hidden" name="status" value="view"/>
                                 <% if(c.Email == null){%>
                                 <center><input type="image" name="submit" src="images/nouser.jpg"></center>
@@ -348,7 +347,7 @@
                         <td with="100">
                             <form name="name" method="post" action="AssociaUtente.jsp">                               
                                 <input type="hidden" name="idFattura" value="<%=consumiManagement.getIdFattura()%>"/>
-                                <input type="hidden" name="telefono" value="<%=c.Telefono%>"/>
+                                <input type="hidden" name="numero" value="<%=c.Telefono%>"/>
                                 <input type="hidden" name="status" value="view"/>
                                 <% if(c.Email == null){%>
                                 <center><input type="image" name="submit" src="images/nouser.jpg"></center>

@@ -12,14 +12,16 @@ import services.databaseservice.exception.ResultSetDBException;
 public class Mail {
     public String Data;
     public String Testo;
+    public int IdFattura;
     public String Email;
     
     public Mail(){}
      
-    public Mail(String Data,String Testo,String Email)
+    public Mail(String Data,String Testo,int IdFattura,String Email)
     {
         this.Data=Data;
         this.Testo=Testo;
+        this.IdFattura = IdFattura;
         this.Email=Email;
     }
     
@@ -27,6 +29,7 @@ public class Mail {
     {
         try {Data=resultSet.getString("Data");} catch (SQLException sqle) {}
         try {Testo=resultSet.getString("Testo");} catch (SQLException sqle) {}
+        try {IdFattura=resultSet.getInt("IdFattura");} catch (SQLException sqle) {} 
         try {Email=resultSet.getString("Email");} catch (SQLException sqle) {}
     }
     
@@ -35,8 +38,8 @@ public class Mail {
     
     String sql="";
     
-    sql+=" INSERT INTO mail(Data,Testo,Email)"
-        +" VALUES ('"+Data+"','"+Testo+"','"+Email+"')";
+    sql+=" INSERT INTO mail(Data,Testo,IdFattura,Email)"
+        +" VALUES ('"+Data+"','"+Testo+"',"+IdFattura+",'"+Email+"')";
     database.modify(sql);
     }
     
@@ -46,7 +49,8 @@ public class Mail {
         String sql = "";
         sql+=   " DELETE FROM mail "+
                 " WHERE Data='"+Data+"'"+
-                " AND Email='"+Email+"'";                
+                " AND Email='"+Email+"'"+
+                " AND IdFattura="+IdFattura;        
         
         database.modify(sql); 
     }
@@ -58,7 +62,8 @@ public class Mail {
         sql +=  " UPDATE mail "+
                 " SET Testo = '" + Testo + "'" +      
                 " WHERE Data='"+Data+"'"+
-                " AND Email='"+Email+"'";        
+                " AND Email='"+Email+"'"+
+                " AND IdFattura="+IdFattura;   
         
         database.modify(sql);  
     }   

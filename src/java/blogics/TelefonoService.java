@@ -7,6 +7,7 @@ package blogics;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import services.databaseservice.DataBase;
 import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
@@ -17,8 +18,6 @@ import services.databaseservice.exception.ResultSetDBException;
  * @author Massa
  */
 public class TelefonoService {    
-    
-    public TelefonoService() {}    
     
     public static Telefono getTelefono(DataBase database,String Numero) 
             throws NotFoundDBException, ResultSetDBException
@@ -42,8 +41,31 @@ public class TelefonoService {
         return telefono;
     }
     
-    public static void insertNewTelefono(DataBase database,String numero,String email) throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException
+    public static ArrayList<Telefono> getTelefoni(DataBase database) throws NotFoundDBException, ResultSetDBException
     {
+        ArrayList<Telefono> telefoni = new ArrayList<>();
+        String sql = "";
+        
+        sql += " SELECT * FROM telefono";
+                         
+        
+        ResultSet resultSet=database.select(sql);
+    
+        try {
+            while (resultSet.next()) {
+              Telefono telefono=new Telefono(resultSet);
+              telefoni.add(telefono);
+            } 
+        } catch (SQLException ex) {
+            throw new ResultSetDBException("TelefonoService: getTelefoni():  Errore nel ResultSet: "+ex.getMessage(),database);
+        }
+
+        return telefoni;
+        
+    }
+    
+    public static void insertNewTelefono(DataBase database,String numero,String email) throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException
+    {      
         Telefono telefono = new Telefono(numero,email);        
         telefono.insert(database);        
     }

@@ -44,13 +44,36 @@ public class MailService {
         return t;   
     }
     
-    public static Mail InsertMail(DataBase database,String Data,String Testo,String Email) 
+    public static ArrayList<Mail> getEmailsByUserId(DataBase database, String Email)
+        throws NotFoundDBException,ResultSetDBException 
+    {
+        ArrayList<Mail> t = new ArrayList<Mail>();
+        String sql = "";    
+        sql+=   " SELECT * " +
+                " FROM mail " +
+                " WHERE Email='"+Email+"'";      
+
+        ResultSet resultSet = database.select(sql);
+        try {
+            while (resultSet.next()) { 
+                Mail text = new Mail(resultSet);
+                t.add(text);         
+            }
+            resultSet.close();
+        } catch (SQLException ex) {
+            throw new ResultSetDBException("MailService: getEmailsByUserId():  ResultSetDBException: "+ex.getMessage(), database);
+        }
+
+        return t;   
+    }
+    
+    public static Mail InsertMail(DataBase database,String Data,String Testo,int IdFattura,String Email) 
             throws NotFoundDBException,
             DuplicatedRecordDBException,ResultSetDBException 
     {       
         Mail t;        
         
-        t = new Mail(Data,Testo,Email);        
+        t = new Mail(Data,Testo,IdFattura,Email);        
         t.insert(database);
         
         return t;        

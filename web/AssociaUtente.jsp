@@ -77,7 +77,7 @@
                 Seleziona un utente a cui associare il numero
             </div>
             <div id="testo">
-                <form name="fassociate" method="post" action="UtenteNew.jsp">                
+                <form name="fassociate" method="post" action="AssociaUtente.jsp">                
                     <select name="email">
                         <%for(User u : userManagement.getUtenti())
                         {%>
@@ -89,15 +89,15 @@
                     <input type="submit" value="Associa"/>
                     
                     <input type="hidden" name="status" value="associate"/>    
-                    <input type="hidden" name="telefono" value="<%=userManagement.getTelefono()%>"/>
+                    <input type="hidden" name="numero" value="<%=userManagement.getNumero()%>"/>
                     <input type="hidden" name="idFattura" value="<%=userManagement.getIdFattura()%>"/>
                 </form>
             </div>
         </div>  
                 
                 
-        <form name="fregister" method="post" action="UtenteNew.jsp">
-            <div id="titolo"><b> Registra un nuovo utente per il numero <%=userManagement.getTelefono()%></b></div>
+        <form name="fregister" method="post" action="AssociaUtente.jsp">
+            <div id="titolo"><b> Registra un nuovo utente per il numero <%=userManagement.getNumero()%></b></div>
             <div id="testo">
                 <table style="background-color:#F0F8FF;width:auto;padding-top:0px;">
                 <tr style="background-color:#F0F8FF;">
@@ -121,7 +121,7 @@
             </table>
             
             <input type="hidden" name="status" value="register"/>    
-            <input type="hidden" name="telefono" value="<%=userManagement.getTelefono()%>"/>
+            <input type="hidden" name="numero" value="<%=userManagement.getNumero()%>"/>
             <input type="hidden" name="idFattura" value="<%=userManagement.getIdFattura()%>"/>
             <input type="submit" value="Inserisci"/>
             </div>

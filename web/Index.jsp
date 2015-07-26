@@ -30,7 +30,7 @@
    
     <form name="form1" action="ProcessPDF.jsp" method="post" enctype="multipart/form-data">      
      
-        <div id="titolo"><b>Tabella costi per telefono</b></div>         
+        <div id="titolo"><b>Carica una fattura</b></div>         
         <div id="testo">Carica il file PDF<br/><br/><input type="file" name="file" />
             <span >
                 <input type="submit" value="ok"/>

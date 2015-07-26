@@ -24,20 +24,22 @@ import services.databaseservice.exception.ResultSetDBException;
 import services.errorservice.EService;
 
 public class UserManagement implements Serializable {
-    private String telefono;
+    private String numero;    
     private int idFattura;
     private String nome;
     private String cognome;
     private String email;
+    private String newemail;
     private ArrayList<User> utenti;
+    private ArrayList<Telefono> telefoni;
+    private User selectedUser;
     
     
     private String errorMessage;
     private int result;
     
     
-    public UserManagement() {}
-    
+    public UserManagement() {}    
     
     public void viewUsers()
     {
@@ -48,6 +50,7 @@ public class UserManagement implements Serializable {
             database=DBService.getDataBase();
             
             utenti = UserService.getUtenti(database);
+            telefoni = TelefonoService.getTelefoni(database);
             
         }catch (NotFoundDBException ex) 
         {
@@ -79,7 +82,7 @@ public class UserManagement implements Serializable {
             database=DBService.getDataBase();
             
             //associo il numero all'email
-            TelefonoService.insertNewTelefono(database,telefono,email);
+            TelefonoService.insertNewTelefono(database,numero,email);
             
             //aggiorno in ogni fattura i consumi corrispondenti al numero 
             //selezionato inserendo l'email associata
@@ -88,7 +91,7 @@ public class UserManagement implements Serializable {
                 ArrayList<Consumo> consumi = ConsumoService.getConsumiByFatturaId(database, f.IdFattura);            
                 for(Consumo c : consumi)
                 {
-                    if(c.Telefono.equals(telefono))                        
+                    if(c.Telefono.equals(numero))                        
                     {
                         c.Email = email;   
                         c.update(database);
@@ -108,7 +111,7 @@ public class UserManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.RECOVERABLE_ERROR);
-            setErrorMessage("Il numero di telefono è già associato all'utente selezionato");
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }catch (ResultSetDBException ex) 
@@ -134,7 +137,7 @@ public class UserManagement implements Serializable {
             database=DBService.getDataBase();
             
             UserService.InsertNewUtente(database, email, nome, cognome);            
-            TelefonoService.insertNewTelefono(database,telefono,email);
+            TelefonoService.insertNewTelefono(database,numero,email);
             
             //aggiorno in ogni fattura i consumi corrispondenti al numero 
             //selezionato inserendo l'email associata
@@ -143,7 +146,7 @@ public class UserManagement implements Serializable {
                 ArrayList<Consumo> consumi = ConsumoService.getConsumiByFatturaId(database, f.IdFattura);            
                 for(Consumo c : consumi)
                 {
-                    if(c.Telefono.equals(telefono))                        
+                    if(c.Telefono.equals(numero))                        
                     {
                         c.Email = email;   
                         c.update(database);
@@ -157,13 +160,57 @@ public class UserManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }catch (DuplicatedRecordDBException ex) 
         {
             EService.logAndRecover(ex);
             setResult(EService.RECOVERABLE_ERROR);
-            setErrorMessage("L'utente inserito o il numero di telefono sono già esistenti");
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void add()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase();            
+            
+            UserService.InsertNewUtente(database, email, nome, cognome);            
+            
+            utenti = UserService.getUtenti(database);
+            telefoni = TelefonoService.getTelefoni(database);
+            
+            database.commit();
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }catch (DuplicatedRecordDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.RECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }catch (ResultSetDBException ex) 
@@ -180,16 +227,236 @@ public class UserManagement implements Serializable {
         }
     }
     
-    
-    
-    public String getTelefono()
+    public void delete()
     {
-        return telefono;
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase();            
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            selectedUser.delete(database);            
+            
+            utenti = UserService.getUtenti(database);
+            telefoni = TelefonoService.getTelefoni(database);
+            
+            database.commit();
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();        
+        }catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
     }
     
-    public void setTelefono(String telefono)
+    public void viewEditUser()
     {
-        this.telefono = telefono;
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            
+            database.commit();
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void edit()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);  
+            selectedUser.Nome = nome;
+            selectedUser.Cognome = cognome;    
+            
+            if(!newemail.equals(email))//se l'email cambia aggiorno                     
+                selectedUser.updateEmail(database,newemail);
+            else
+                selectedUser.update(database);         
+                
+            database.commit();
+            
+            utenti = UserService.getUtenti(database);
+            telefoni = TelefonoService.getTelefoni(database);           
+            
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void viewAddPhone()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            telefoni = TelefonoService.getTelefoni(database);            
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void addPhone()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase();            
+            
+            TelefonoService.insertNewTelefono(database, numero, email);
+            
+            utenti = UserService.getUtenti(database);
+            telefoni = TelefonoService.getTelefoni(database);
+            
+            database.commit();
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }catch (DuplicatedRecordDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.RECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void deletePhone()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase();            
+            
+            Telefono t = TelefonoService.getTelefono(database, numero);
+            t.delete(database);     
+            
+            database.commit();
+            
+            utenti = UserService.getUtenti(database);
+            telefoni = TelefonoService.getTelefoni(database);
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public String getNumero()
+    {
+        return numero;
+    }
+    
+    public void setNumero(String numero)
+    {
+        this.numero = numero;
     }
     
     public int getIdFattura()
@@ -232,6 +499,16 @@ public class UserManagement implements Serializable {
         this.email = email;
     }
     
+    public String getNewemail()
+    {
+        return newemail;
+    }
+    
+    public void setNewemail(String newemail)
+    {
+        this.newemail = newemail;
+    }
+    
     public User getUtente(int i)
     {
         return utenti.get(i);
@@ -250,6 +527,36 @@ public class UserManagement implements Serializable {
     public void setUtenti(ArrayList<User> utenti)
     {
         this.utenti = utenti;
+    }
+    
+    public Telefono getTelefono(int i)
+    {
+        return telefoni.get(i);
+    }
+    
+    public void setTelefono(int i,Telefono telefono)
+    {
+        telefoni.set(i, telefono);
+    }
+    
+    public ArrayList<Telefono> getTelefoni()
+    {
+        return telefoni;
+    }
+    
+    public void setTelefoni(ArrayList<Telefono> telefoni)
+    {
+        this.telefoni = telefoni;
+    }    
+    
+    public User getSelectedUser()
+    {
+        return selectedUser;
+    }
+    
+    public void setSelectedUser(User selectedUser)
+    {
+        this.selectedUser = selectedUser;
     }
     
     

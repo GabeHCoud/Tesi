@@ -34,9 +34,23 @@ public class Telefono {
     
     public void insert(DataBase database) throws NotFoundDBException,DuplicatedRecordDBException,ResultSetDBException 
     {
-        String sql="";        
+        String sql="";     
+        
+        //controllo duplicati
+        sql +=  " SELECT * FROM telefono"+
+                " WHERE Numero='"+Numero+"'";
+        
+        ResultSet resultSet=database.select(sql);
+    
+        try {
+            if (resultSet.next()) {
+                throw new DuplicatedRecordDBException("Il numero di telefono è già associato ad un utente");
+            } 
+        } catch (SQLException ex) {
+            throw new ResultSetDBException("Telefono: insert():  Errore nel ResultSet: "+ex.getMessage(),database);
+        }        
 
-        sql+=   " INSERT INTO telefono "+
+        sql =   " INSERT INTO telefono "+
                 " (Numero,Email)"+       
                 " VALUES('"+Numero+"','"+Email+"')";
     

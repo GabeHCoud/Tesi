@@ -31,9 +31,23 @@ public class User {
     public void insert(DataBase database)
         throws NotFoundDBException,DuplicatedRecordDBException,ResultSetDBException {
 
-        String sql="";
+        String sql="";     
+        
+        //controllo duplicati
+        sql +=  " SELECT * FROM utente"+
+                " WHERE Email='"+Email+"'";
+        
+        ResultSet resultSet=database.select(sql);
+    
+        try {
+            if (resultSet.next()) {
+                throw new DuplicatedRecordDBException("Esiste già un utente per l'indirizzo mail inserito.");
+            } 
+        } catch (SQLException ex) {
+            throw new ResultSetDBException("User: insert():  Errore nel ResultSet: "+ex.getMessage(),database);
+        }        
 
-        sql+=" INSERT INTO utente(Email,Nome,Cognome)"
+        sql=" INSERT INTO utente(Email,Nome,Cognome)"
             +" VALUES ('"+Email+"','"+Nome+"','"+Cognome+"')";
         database.modify(sql);
     }
@@ -60,5 +74,18 @@ public class User {
         database.modify(sql);  
     }   
   
+    public void updateEmail(DataBase database,String newemail)
+        throws NotFoundDBException,ResultSetDBException {
+        
+        String sql = "";
+        sql +=  " UPDATE utente "+
+                " SET Nome = '" + Nome + "',"+
+                " Cognome = '" + Cognome +"',"+
+                " Email = '" + newemail +"'"+   
+                " WHERE Email='"+Email+"'";        
+        
+        database.modify(sql);  
+    }  
+    
 } 
  

@@ -51,6 +51,7 @@ public class ConsumiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -58,6 +59,7 @@ public class ConsumiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -85,6 +87,7 @@ public class ConsumiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -92,6 +95,7 @@ public class ConsumiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -119,6 +123,7 @@ public class ConsumiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -126,6 +131,7 @@ public class ConsumiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -154,10 +160,15 @@ public class ConsumiManagement implements Serializable {
             
             database.commit();
             
+            fatture = FatturaService.getFatture(database);            
+            selectedFattura = FatturaService.getFatturaById(database, idFattura);
+            consumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
+            
         }catch (NotFoundDBException ex) 
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -165,6 +176,7 @@ public class ConsumiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -191,10 +203,15 @@ public class ConsumiManagement implements Serializable {
             
             database.commit();
             
+            fatture = FatturaService.getFatture(database);            
+            selectedFattura = FatturaService.getFatturaById(database, idFattura);
+            consumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
+            
         }catch (NotFoundDBException ex) 
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -202,6 +219,7 @@ public class ConsumiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
