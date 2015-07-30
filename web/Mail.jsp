@@ -38,7 +38,6 @@
 %>
 
 <%@include file="Header.jsp" %>
-
 <%  if(mailManagement.getErrorMessage() != null)
     {%>     
     <div id="titolo">
