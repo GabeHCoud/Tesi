@@ -106,7 +106,7 @@
 <% if(status.equals("view")){%>           
        
             
-    <form name="mail" method="post" action="/Utenti.jsp"><div id="titolo"><b>Elenco utenti</b></div>
+    <form name="mail" method="post" action="Utenti.jsp"><div id="titolo"><b>Elenco utenti</b></div>
        <div id="testo"> <table cellspacing="0"> 
             <tr class="alternate">
                 
@@ -140,7 +140,7 @@
                     <td width="200"><%=b.getUser(i).mail%>
                     </td>
                     <td width="80">
-                        <form name="edit" method="post" action="/Utenti.jsp">
+                        <form name="edit" method="post" action="Utenti.jsp">
                             <input type="hidden" name="tel" value="<%=b.getUser(i).telefono%>">
                             <input type="hidden" name="status" value="edit">
                             <center><input type="image" name="submit" src="../images/edit.jpg"></center>
@@ -148,14 +148,14 @@
                     </td>
                             
                     <td width="80">
-                        <form name="delete" method="post" action="/Utenti.jsp">
+                        <form name="delete" method="post" action="Utenti.jsp">
                             <input type="hidden" name="tel" value="<%=b.getUser(i).telefono%>">
                             <input type="hidden" name="status" value="delete">
                             <center><input type="image" name="submit" src="../images/delete.jpg"></center>
                         </form>
                     </td>
                 <td width="80">
-                        <form name="mail" method="post" action="/Utenti.jsp">
+                        <form name="mail" method="post" action="Utenti.jsp">
                             <input type="hidden" name="mail" value="<%=b.getUser(i).mail%>">
                             <input type="hidden" name="tel" value="<%=b.getUser(i).telefono%>">
                             <input type="hidden" name="status" value="mail">
@@ -163,7 +163,7 @@
                         </form>
                     </td>
                 <td width="100">
-                        <form name="disp" method="post" action="/Utenti.jsp">
+                        <form name="disp" method="post" action="Utenti.jsp">
                             <input type="hidden" name="mail" value="<%=b.getUser(i).mail%>">
                             <input type="hidden" name="status" value="disp">
                             <center><input type="image" name="submit" src="../images/mobile.jpg"></center>
@@ -182,7 +182,7 @@
                     <td width="200"><%=b.getUser(i).mail%>
                     </td>
                     <td width="80">
-                        <form name="edit" method="post" action="/Utenti.jsp">
+                        <form name="edit" method="post" action="Utenti.jsp">
                             <input type="hidden" name="tel" value="<%=b.getUser(i).telefono%>">
                             <input type="hidden" name="status" value="edit">
                             <center><input type="image" name="submit" src="../images/edit.jpg"></center>
@@ -190,14 +190,14 @@
                     </td>
                             
                     <td width="80">
-                        <form name="delete" method="post" action="/Utenti.jsp">
+                        <form name="delete" method="post" action="Utenti.jsp">
                             <input type="hidden" name="tel" value="<%=b.getUser(i).telefono%>">
                             <input type="hidden" name="status" value="delete">
                             <center><input type="image" name="submit" src="../images/delete.jpg"></center>
                         </form>
                     </td>
                    <td width="80">
-                        <form name="mail" method="post" action="/Utenti.jsp">
+                        <form name="mail" method="post" action="Utenti.jsp">
                             <input type="hidden" name="mail" value="<%=b.getUser(i).mail%>">
                             <input type="hidden" name="tel" value="<%=b.getUser(i).telefono%>">
                             <input type="hidden" name="status" value="mail">
@@ -205,7 +205,7 @@
                         </form>
                     </td>
                    <td width="100">
-                        <form name="disp" method="post" action="/Utenti.jsp">
+                        <form name="disp" method="post" action="Utenti.jsp">
                             <input type="hidden" name="mail" value="<%=b.getUser(i).mail%>">
                             <input type="hidden" name="status" value="disp">
                             <center><input type="image" name="submit" src="../images/mobile.jpg"></center>
@@ -218,7 +218,7 @@
         
        </div></form>
         <%} if(status.equals("edit")){%>
-        <form name="edit" method="post" action="/Utenti.jsp">
+        <form name="edit" method="post" action="Utenti.jsp">
         <div id="titolo"><b>Modifica Utente</b> </div>
         <div id="testo">
         <table cellspacing="0" >
@@ -254,7 +254,7 @@
          
         </form>
         <%}if(status.equals("delete")){ %>
-        <form name="del" method="post" action="/Utenti.jsp">
+        <form name="del" method="post" action="Utenti.jsp">
         <div id="titolo"><b>Cancella Utente</b> </div>
         <div id="testo" align="left">
             <span class="tab2"><%=b.getUser(0).nome%> <%=b.getUser(0).cognome%><br/></span>
@@ -300,7 +300,7 @@
             <center><%=b.getDispositivo(i).costo_d%></center>
                     </td>
                     <td width="25%">
-                        <form name="del" method="post" action="/Utenti.jsp">
+                        <form name="del" method="post" action="Utenti.jsp">
                             <input type="hidden" name="mail" value="<%=b.getDispositivo(i).mail%>">
                             <input type="hidden" name="code" value="<%=b.getDispositivo(i).code%>">
                             <input type="hidden" name="status" value="del_disp">
@@ -312,7 +312,7 @@
         </table>
         <%}%>
          <br> 
-         <form name="add" method="post" action="/Utenti.jsp">
+         <form name="add" method="post" action="Utenti.jsp">
          <input type="hidden" name="mail" value="<%=mail%>">
          <input type="hidden" name="status" value="add">
          <center>Inserisci un nuovo dispositivo  <input type="image" name="submit" src="../images/add.jpg"></center>

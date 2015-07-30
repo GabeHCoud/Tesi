@@ -102,7 +102,7 @@
             </div></form>  
         <%}if(status.equals("continua")){%>
         
-                <form name="new" method="post" action="/UtenteNew.jsp">
+                <form name="new" method="post" action="UtenteNew.jsp">
              <div id="titolo">       Utente registrato</div><br/><br/>
                     
                     <input type="hidden" name="status" value="view"/>
