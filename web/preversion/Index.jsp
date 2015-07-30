@@ -30,7 +30,7 @@
           
 <%  if(status.equals("view")){%>
    
-     <form name="form1" action="let.jsp" method="post" enctype="multipart/form-data">      
+     <form name="form1" action="/let.jsp" method="post" enctype="multipart/form-data">      
      
          <div id="titolo"><b>Tabella costi per telefono</b></div>
            

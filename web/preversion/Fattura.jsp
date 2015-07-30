@@ -126,14 +126,14 @@
                         
                     </td>
                     <td width="100">
-                        <form name="edit" method="post" action="Fattura.jsp">
+                        <form name="edit" method="post" action="/Fattura.jsp">
                             <input type="hidden" name="tel" value="<%=b.getField1(j).telefono %>">
                             <input type="hidden" name="status" value="edit">
                             <center><input type="image" name="submit" src="../images/edit.jpg"></center>
                         </form>
                     </td>
                     <td with="100">
-                        <form name="name"method="post" action="Fattura.jsp">
+                        <form name="name"method="post" action="/Fattura.jsp">
                             <input type="hidden" name="telefono" value="<%=b.getField1(j).telefono %>"/>
                             <input type="hidden" name="status" value="add"/>
                             <% if(ok.get(j)==0){%>
@@ -169,20 +169,20 @@
                         
                     </td>
                     <td width="100">
-                        <form name="edit" method="post" action="Fattura.jsp">
+                        <form name="edit" method="post" action="/Fattura.jsp">
                             <input type="hidden" name="tel" value="<%=b.getField1(j).telefono %>">
                             <input type="hidden" name="status" value="edit">
                             <center><input type="image" name="submit" src="../images/edit.jpg"></center>
                         </form>
                     </td>
                     <td with="100">
-                        <form name="name"method="post" action="Fattura.jsp">
+                        <form name="name"method="post" action="/Fattura.jsp">
                             <input type="hidden" name="telefono" value="<%=b.getField1(j).telefono %>">
                             <input type="hidden" name="status" value="add"/>
                             <% if(ok.get(j)==0){%>
                             <center><input type="image" name="submit" src="../images/nouser.jpg">
                              <%}else{%>
-                             <center><img src="../images/siuser.jpg">
+                             <center><img src="images/siuser.jpg">
                             <%}%>
                         </form>
                     </td>
@@ -193,7 +193,7 @@
 
         </table></div>
 <%}if(status.equals("edit")){%>
-<form name="edit" method="post" action="Fattura.jsp">
+<form name="edit" method="post" action="/Fattura.jsp">
 <div id="titolo"><b>Modifica <%=b.getField1(0).telefono%></b></div>
 <div id="testo">
     <table cellspacing="0" >

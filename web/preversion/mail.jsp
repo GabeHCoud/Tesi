@@ -107,7 +107,7 @@
     <%}%> 
 <% if(status.equals("view")){%>
 
-<form name="mail" method="post" action="mail.jsp">
+<form name="mail" method="post" action="/mail.jsp">
     <div id="titolo"><b>Data Fattura <%=b.getField1(0).data%></b></div>
     <div id="testo"> 
         <table cellspacing="0"> 

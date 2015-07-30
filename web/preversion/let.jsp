@@ -116,7 +116,7 @@
         data=giorno+"/"+mese+"/"+anno;
                 
         b.DataFattura(data);
-        response.sendRedirect("Fattura.jsp");        
+        response.sendRedirect("/Fattura.jsp");        
     } 
 %>
 
