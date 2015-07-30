@@ -204,8 +204,8 @@ public class ConsumiManagement implements Serializable {
             database.commit();
             
             fatture = FatturaService.getFatture(database);            
-            selectedFattura = FatturaService.getFatturaById(database, idFattura);
-            consumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
+//            selectedFattura = FatturaService.getFatturaById(database, idFattura);
+//            consumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
             
         }catch (NotFoundDBException ex) 
         {

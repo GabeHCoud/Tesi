@@ -74,26 +74,29 @@
                     <b>Utente</b>
                 </td>
                 <td width="200">
-                    <b>Telefono</b>
+                    <b>Telefoni</b>
                 </td>
                 <td width="200">
                     <b>Mail</b>
-                </td>
+                </td>  
                 <td width="80">
                     <b>Modifica</b>
                 </td>
                 <td width="80">
-                    <b>Aggiungi/Elimina numero</b>
-                </td>
-                <td width="80">
                     <b>Cancella</b>
-                </td>
+                </td>                              
+                <td width="80">
+                    <b>Gestione Numeri</b>
+                </td>         
+                <td width="100" >
+                    <b>Gestione Dispositivi</b>
+                </td>  
+                <td width="100" >
+                    <b>Contributi ed Abbonamenti</b>
+                </td> 
                 <td width="80" align="center">
                     <b>Storico Mail</b>
                 </td>
-                <td width="100" >
-                    <b>Dispositivo</b>
-                </td>                
             </tr>   
             <% if(userManagement.getUtenti() != null)
             {   
@@ -125,13 +128,6 @@
                             </form>
                         </td>
                         <td width="80">
-                            <form name="number" method="post" action="Utenti.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="addPhoneView">
-                                <center><input type="image" name="submit" src="images/phone.png"></center>
-                            </form>
-                        </td>
-                        <td width="80">
                             <form name="delete" method="post" action="Utenti.jsp">
                                 <input type="hidden" name="email" value="<%=u.Email%>">
                                 <input type="hidden" name="status" value="deleteUser">
@@ -139,21 +135,34 @@
                             </form>
                         </td>
                         <td width="80">
-                                <form name="mail" method="post" action="Mail.jsp">
-                                    <input type="hidden" name="email" value="<%=u.Email%>">
-                                    <input type="hidden" name="status" value="viewMail">
-                                    <center><input type="image" name="submit" src="images/mail.jpg"></center>
-                                </form>
-                            </td>
+                            <form name="number" method="post" action="Utenti.jsp">
+                                <input type="hidden" name="email" value="<%=u.Email%>">
+                                <input type="hidden" name="status" value="addPhoneView">
+                                <center><input type="image" name="submit" src="images/phone.png"></center>
+                            </form>
+                        </td> 
                         <td width="100">
                             <form name="disp" method="post" action="Dispositivi.jsp">
                                 <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="viewDevices">
+                                <input type="hidden" name="status" value="viewUserDevices">
                                 <center><input type="image" name="submit" src="images/mobile.jpg"></center>
                             </form>
                         </td>
-                    </tr>  
-                
+                        <td width="100">
+                            <form name="contributi" method="post" action="Contributi.jsp">
+                                <input type="hidden" name="email" value="<%=u.Email%>">
+                                <input type="hidden" name="status" value="viewUserSubscriptions">
+                                <center><input type="image" name="submit" src="images/contract.png"></center>
+                            </form>
+                        </td>
+                        <td width="80">
+                            <form name="mail" method="post" action="Mail.jsp">
+                                <input type="hidden" name="userId" value="<%=u.Email%>">
+                                <input type="hidden" name="status" value="view">
+                                <center><input type="image" name="submit" src="images/mail.jpg"></center>
+                            </form>
+                        </td> 
+                    </tr>
                 <% }else{%>
                     <tr class="alternate"> 
                         <td width="200">
@@ -179,13 +188,6 @@
                             </form>
                         </td>
                         <td width="80">
-                            <form name="number" method="post" action="Utenti.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="addPhoneView">
-                                <center><input type="image" name="submit" src="images/phone.png"></center>
-                            </form>
-                        </td>
-                        <td width="80">
                             <form name="delete" method="post" action="Utenti.jsp">
                                 <input type="hidden" name="email" value="<%=u.Email%>">
                                 <input type="hidden" name="status" value="deleteUser">
@@ -193,19 +195,33 @@
                             </form>
                         </td>
                         <td width="80">
-                                <form name="mail" method="post" action="Mail.jsp">
-                                    <input type="hidden" name="email" value="<%=u.Email%>">
-                                    <input type="hidden" name="status" value="view">
-                                    <center><input type="image" name="submit" src="images/mail.jpg"></center>
-                                </form>
-                            </td>
+                            <form name="number" method="post" action="Utenti.jsp">
+                                <input type="hidden" name="email" value="<%=u.Email%>">
+                                <input type="hidden" name="status" value="addPhoneView">
+                                <center><input type="image" name="submit" src="images/phone.png"></center>
+                            </form>
+                        </td> 
                         <td width="100">
                             <form name="disp" method="post" action="Dispositivi.jsp">
                                 <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="view">
+                                <input type="hidden" name="status" value="viewUserDevices">
                                 <center><input type="image" name="submit" src="images/mobile.jpg"></center>
                             </form>
                         </td>
+                        <td width="100">
+                            <form name="contributi" method="post" action="Contributi.jsp">
+                                <input type="hidden" name="email" value="<%=u.Email%>">
+                                <input type="hidden" name="status" value="viewUserSubscriptions">
+                                <center><input type="image" name="submit" src="images/contract.png"></center>
+                            </form>
+                        </td>
+                        <td width="80">
+                            <form name="mail" method="post" action="Mail.jsp">
+                                <input type="hidden" name="userId" value="<%=u.Email%>">
+                                <input type="hidden" name="status" value="view">
+                                <center><input type="image" name="submit" src="images/mail.jpg"></center>
+                            </form>
+                        </td> 
                     </tr>  
                     <%}
                 }

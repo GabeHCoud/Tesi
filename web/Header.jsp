@@ -20,6 +20,8 @@
             <li><a href="Index.jsp"> Carica Fattura</a></li>
             <li><a href="Fatture.jsp">Fatture</a></li>
             <li><a href="Utenti.jsp">Utenti</a></li>
+            <li><a href="Dispositivi.jsp">Dispositivi</a></li>
+            <li><a href="Contributi.jsp">Contributi ed Abbonamenti</a></li>
             <li><a href="Mail.jsp">Mail</a></li>
              
 </ul>

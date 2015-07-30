@@ -22,16 +22,19 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
+
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import services.databaseservice.DBService;
 import services.databaseservice.DataBase;
 import services.databaseservice.exception.DuplicatedRecordDBException;
@@ -44,7 +47,7 @@ public class FattureManagement implements Serializable {
     
     private ArrayList<String> lines;
     private InputStream inputStream;
-    private File outputFile;
+    private java.io.File outputFile;
     private Fattura fattura;
     private ArrayList<Consumo> consumi;    
     ArrayList<User> utenti;
@@ -52,7 +55,8 @@ public class FattureManagement implements Serializable {
     private int result;
     private String data;
     
-    public FattureManagement() {}
+    public FattureManagement() {}   
+   
     
     public void processPDF()
     {
@@ -64,7 +68,7 @@ public class FattureManagement implements Serializable {
             outputFile = File.createTempFile("result", ".txt"); 
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile)));
             pdf = PDF.open(inputStream,"prova.pdf");     
-            
+           
             int pages = pdf.getPageCnt();            
             for(int j=0;j<pages;j++){
                 Page pagePDF = pdf.getPage(j);                

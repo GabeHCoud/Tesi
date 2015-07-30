@@ -44,6 +44,29 @@ public class MailService {
         return t;   
     }
     
+    public static ArrayList<Mail> getEmailsByFatturaId(DataBase database, int IdFattura)
+        throws NotFoundDBException,ResultSetDBException 
+    {
+        ArrayList<Mail> t = new ArrayList<Mail>();
+        String sql = "";    
+        sql+=   " SELECT * " +
+                " FROM mail " +
+                " WHERE IDFattura="+IdFattura;      
+
+        ResultSet resultSet = database.select(sql);
+        try {
+            while (resultSet.next()) { 
+                Mail text = new Mail(resultSet);
+                t.add(text);         
+            }
+            resultSet.close();
+        } catch (SQLException ex) {
+            throw new ResultSetDBException("MailService: getEmailsByFatturaId():  ResultSetDBException: "+ex.getMessage(), database);
+        }
+
+        return t;   
+    }
+    
     public static ArrayList<Mail> getEmailsByUserId(DataBase database, String Email)
         throws NotFoundDBException,ResultSetDBException 
     {

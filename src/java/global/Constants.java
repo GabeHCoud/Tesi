@@ -12,7 +12,7 @@ public class Constants {
    * Choose between (YES,NO,TEST).
   */ 
   public static final String ENABLE_MAIL_SERVICE = "NO";
-  public static final String TEST_MAIL = "posenato.angela@gmail.com";//TODO: modifica
+  public static final String TEST_MAIL = "ncl.massa@gmail.com";//TODO: modifica
   public static final String[] MAIL_GATEWAYS = {"151.99.250.122"};
  
   /* Constants for Debug */
@@ -27,10 +27,9 @@ public class Constants {
 //  public static final String DB_PASSWORD          = "FattureTelecom2015";  
 //  public static final String DB_CONNECTION_STRING = "jdbc:mysql://localhost:3306/fattel?user="+DB_USER_NAME+"&password="+DB_PASSWORD;
 //  
-  
   /* Constants for log files*/
   public final static String LOG_DIR = "Users/Nicola/Documents/NetBeans Projects/log";//TODO: modifica
-//  public final static String LOG_DIR = "/var/lib/tomcat7/webapps/fattel/";
+//public final static String LOG_DIR = "/var/lib/tomcat7/webapps/fattel/";
   public final static String FRONTEND_ERROR_LOG_FILE = LOG_DIR + "frontenderror.log";
   public final static String FATAL_LOG_FILE = LOG_DIR + "fatalerror.log";
   public final static String GENERAL_LOG_FILE = LOG_DIR + "generalerror.log";  

@@ -60,6 +60,29 @@ public class TelefonoService {
             throw new ResultSetDBException("TelefonoService: getTelefoni():  Errore nel ResultSet: "+ex.getMessage(),database);
         }
 
+        return telefoni;        
+    }
+    
+    public static ArrayList<Telefono> getTelefoniByEmail(DataBase database,String Email) throws NotFoundDBException, ResultSetDBException
+    {
+        ArrayList<Telefono> telefoni = new ArrayList<>();
+        String sql = "";
+        
+        sql += " SELECT * FROM telefono"+
+               " WHERE Email='"+Email+"'";
+                         
+        
+        ResultSet resultSet=database.select(sql);
+    
+        try {
+            while (resultSet.next()) {
+              Telefono telefono=new Telefono(resultSet);
+              telefoni.add(telefono);
+            } 
+        } catch (SQLException ex) {
+            throw new ResultSetDBException("TelefonoService: getTelefoniByEmail():  Errore nel ResultSet: "+ex.getMessage(),database);
+        }
+
         return telefoni;
         
     }

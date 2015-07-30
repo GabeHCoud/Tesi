@@ -199,7 +199,7 @@
                     <td width="100">
                         <form name="viewMail" method="post" action="Mail.jsp">
                             <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
-                            <input type="hidden" name="status" value="delete"/>
+                            <input type="hidden" name="status" value="viewFattura"/>
                             <center><input type="image" name="submit" src="images/mail.jpg"></center>
                         </form>
                     </td>
@@ -229,7 +229,7 @@
                     <td width="100">
                         <form name="viewMail" method="post" action="Mail.jsp">
                             <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
-                            <input type="hidden" name="status" value="delete"/>
+                            <input type="hidden" name="status" value="viewFattura"/>
                             <center><input type="image" name="submit" src="images/mail.jpg"></center>
                         </form>
                     </td>

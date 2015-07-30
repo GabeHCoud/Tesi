@@ -9,26 +9,23 @@ import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 
 public class Dispositivo {
-    public int Id;
+    public int IdDispositivo;
     public String Nome;
     public double Costo;
-    public String Email;
     
     public Dispositivo (){}
     
-    public Dispositivo(String Nome,double Costo,String Email)
+    public Dispositivo(String Nome,double Costo)
     {
         this.Nome=Nome;
         this.Costo=Costo;
-        this.Email=Email;
     }
     
     public Dispositivo(ResultSet resultSet)
     {
-        try {Id=resultSet.getInt("Id");} catch(SQLException sqle) {}
+        try {IdDispositivo=resultSet.getInt("IdDispositivo");} catch(SQLException sqle) {}
         try {Nome=resultSet.getString("Nome");} catch (SQLException sqle) {}
         try {Costo=resultSet.getDouble("Costo");} catch (SQLException sqle) {}
-        try {Email=resultSet.getString("Email");} catch (SQLException sqle) {}
     }
     
     public void insert(DataBase database)
@@ -36,8 +33,8 @@ public class Dispositivo {
     
     String sql="";
     
-    sql+=" INSERT INTO dispositivo(Nome,Costo,Email)"
-        +" VALUES ('"+Nome+"',"+Costo+",'"+Email+"')";
+    sql+=" INSERT INTO dispositivo (Nome,Costo)"
+        +" VALUES ('"+Nome+"',"+Costo+")";
     database.modify(sql);
     }
     
@@ -45,7 +42,7 @@ public class Dispositivo {
             throws NotFoundDBException ,ResultSetDBException 
     {
         String sql = "";
-        sql+="DELETE FROM dispositivo WHERE ID="+Id;
+        sql+="DELETE FROM dispositivo WHERE IdDispositivo="+IdDispositivo;
         
         database.modify(sql); 
     }
@@ -54,10 +51,10 @@ public class Dispositivo {
         throws NotFoundDBException,ResultSetDBException {
         
         String sql = "";
-        sql +=   " UPDATE dispositivo "+
+        sql +=  " UPDATE dispositivo "+
                 " SET Nome = '" + Nome + "', " +                
                 " Costo = " + Costo + ", " + 
-                " WHERE ID = "+Id;
+                " WHERE IdDispositivo = "+IdDispositivo;
         
         database.modify(sql);  
     } 
