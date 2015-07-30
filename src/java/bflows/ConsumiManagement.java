@@ -41,7 +41,7 @@ public class ConsumiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             fatture = FatturaService.getFatture(database);
             
@@ -76,7 +76,7 @@ public class ConsumiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             selectedFattura = FatturaService.getFatturaById(database, idFattura);
             consumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
@@ -112,7 +112,7 @@ public class ConsumiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             selectedFattura = FatturaService.getFatturaById(database, idFattura);            
             selectedConsumo = ConsumoService.getConsumoByFatturaIdAndTelefono(database, idFattura, telefono);
@@ -148,7 +148,7 @@ public class ConsumiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             selectedConsumo = ConsumoService.getConsumoByFatturaIdAndTelefono(database, idFattura, telefono);
             selectedConsumo.CRB = Double.parseDouble(contributi);
@@ -196,7 +196,7 @@ public class ConsumiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             Fattura fattura = FatturaService.getFatturaById(database, idFattura);            
             fattura.delete(database);

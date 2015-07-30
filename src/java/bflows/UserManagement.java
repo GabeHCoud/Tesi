@@ -47,7 +47,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             utenti = UserService.getUtenti(database);
             telefoni = TelefonoService.getTelefoni(database);
@@ -79,7 +79,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             //associo il numero all'email
             TelefonoService.insertNewTelefono(database,numero,email);
@@ -134,7 +134,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             UserService.InsertNewUtente(database, email, nome, cognome);            
             TelefonoService.insertNewTelefono(database,numero,email);
@@ -191,7 +191,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();            
+            database=DBService.getDataBase("new");            
             
             UserService.InsertNewUtente(database, email, nome, cognome);            
             
@@ -233,7 +233,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();            
+            database=DBService.getDataBase("new");            
             
             selectedUser = UserService.getUtenteByEmail(database, email);
             selectedUser.delete(database);            
@@ -269,7 +269,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             selectedUser = UserService.getUtenteByEmail(database, email);
             
@@ -302,7 +302,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             selectedUser = UserService.getUtenteByEmail(database, email);  
             selectedUser.Nome = nome;
@@ -345,7 +345,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             selectedUser = UserService.getUtenteByEmail(database, email);
             telefoni = TelefonoService.getTelefoni(database);            
@@ -377,7 +377,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();            
+            database=DBService.getDataBase("new");            
             
             TelefonoService.insertNewTelefono(database, numero, email);
             
@@ -419,7 +419,7 @@ public class UserManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();            
+            database=DBService.getDataBase("new");            
             
             Telefono t = TelefonoService.getTelefono(database, numero);
             t.delete(database);     

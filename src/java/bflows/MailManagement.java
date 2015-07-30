@@ -62,7 +62,7 @@ public class MailManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             utenti = UserService.getUtenti(database);
             
@@ -99,7 +99,7 @@ public class MailManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             selectedFattura = FatturaService.getFatturaById(database, idFattura);
             selectedConsumi = ConsumoService.getConsumiByFatturaId(database, idFattura);

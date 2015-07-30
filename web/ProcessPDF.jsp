@@ -61,7 +61,7 @@
     </div>
 <%}else{%>
     
-    <%
+<%
 }%>
         
 <%@include file="Footer.jsp" %>

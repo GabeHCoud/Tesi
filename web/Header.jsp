@@ -14,14 +14,12 @@
     <body>
         <div class="cont">   
         
-<ul  id="menu">
-        
-            
-            <li><a href="Index.jsp"> Carica Fattura</a></li>
-            <li><a href="Fatture.jsp">Fatture</a></li>
-            <li><a href="Utenti.jsp">Utenti</a></li>
-            <li><a href="Dispositivi.jsp">Dispositivi</a></li>
-            <li><a href="Contributi.jsp">Contributi ed Abbonamenti</a></li>
-            <li><a href="Mail.jsp">Mail</a></li>
-             
+<ul  id="menu">        
+    <li style="width: 20%"><a href="preversion/Index.jsp">Versione Precedente</a></li>
+    <li style="width: 15%"><a href="Index.jsp">Carica Fattura</a></li>
+    <li style="width: 8%"><a href="Fatture.jsp">Fatture</a></li>
+    <li style="width: 8%"><a href="Utenti.jsp">Utenti</a></li>
+    <li style="width: 8%"><a href="Dispositivi.jsp">Dispositivi</a></li>
+    <li style="width: 25%"><a href="Contributi.jsp">Contributi ed Abbonamenti</a></li>
+    <li style="width: 5%"><a href="Mail.jsp">Mail</a></li>             
 </ul>

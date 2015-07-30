@@ -46,7 +46,7 @@ public class DispositiviManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             dispositivi = DispositivoService.getDispositivi(database);
             
@@ -77,7 +77,7 @@ public class DispositiviManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             DispositivoService.insertNewDispositivo(database, nome, costo);
             
@@ -117,7 +117,7 @@ public class DispositiviManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             Dispositivo dispositivo = DispositivoService.getDispositivoById(database,idDispositivo);
             dispositivo.delete(database);
@@ -152,7 +152,7 @@ public class DispositiviManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             utente = UserService.getUtenteByEmail(database, email);           
             udispositivi = UserDispositivoService.getUserDispositiviByEmail(database, email);
@@ -185,7 +185,7 @@ public class DispositiviManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             UserDispositivoService.insertNewUserDispositivo(database, email, idDispositivo);
             
@@ -227,7 +227,7 @@ public class DispositiviManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             UserDispositivo dispositivo = UserDispositivoService.getUserDispositivoById(database,idUserDispositivo);
             dispositivo.delete(database);

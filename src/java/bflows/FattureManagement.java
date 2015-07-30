@@ -219,7 +219,7 @@ public class FattureManagement implements Serializable {
         
         try
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
 
             for(int i=0;i<elementi.size();i++)//scorro l'array stringhe
             {
@@ -297,7 +297,7 @@ public class FattureManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
                        
             //creo nuova fattura
             if(data == null)
@@ -367,7 +367,7 @@ public class FattureManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();  
+            database=DBService.getDataBase("new");  
             
             //controllo che non esista già una fattura per la data selezionata
             fattura = FatturaService.getFatturaByDate(database, data);
@@ -423,7 +423,7 @@ public class FattureManagement implements Serializable {
         ArrayList<Fattura> fatture;
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             fatture = FatturaService.getFatture(database);
             for(Fattura f : fatture)

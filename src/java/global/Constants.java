@@ -19,10 +19,11 @@ public class Constants {
   public static final boolean DEBUG=true;  
   
   /** Constants for db connection */
-  public static final String DB_USER_NAME         = "root";
-  public static final String DB_PASSWORD          = "";  
-  public static final String DB_CONNECTION_STRING = "jdbc:mysql://127.0.0.1/tesi?user="+DB_USER_NAME+"&password="+DB_PASSWORD;
-  
+  public static final String DB_USER_NAME         = "fattel";
+  public static final String DB_PASSWORD          = "FattureTelecom2015";  
+  public static final String DB_CONNECTION_STRING_1 = "jdbc:mysql://localhost/fattel?user="+DB_USER_NAME+"&password="+DB_PASSWORD;
+  public static final String DB_CONNECTION_STRING_2 = "jdbc:mysql://localhost/fattel2?user="+DB_USER_NAME+"&password="+DB_PASSWORD;
+
 //  public static final String DB_USER_NAME         = "fattel";
 //  public static final String DB_PASSWORD          = "FattureTelecom2015";  
 //  public static final String DB_CONNECTION_STRING = "jdbc:mysql://localhost:3306/fattel?user="+DB_USER_NAME+"&password="+DB_PASSWORD;

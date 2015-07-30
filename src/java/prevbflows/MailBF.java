@@ -1,6 +1,6 @@
-package bflows;
+package prevbflows;
 
-import blogics.*;
+import prevblogics.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -28,7 +28,7 @@ import services.errorservice.*;
          Text t=null;
          try {
 
-          database=DBService.getDataBase();
+          database=DBService.getDataBase("old");
           t = TextService.InsertMail(database,mail,messaggio,data);
           System.out.println("sono in bf");
           UserService.mailConfirm(mail,messaggio);
@@ -68,7 +68,7 @@ import services.errorservice.*;
         ArrayList<User> u = new ArrayList<User>();
         try {
 
-          database=DBService.getDataBase();
+          database=DBService.getDataBase("old");
          
           u = UserService.Search(database,telefono);
           user = new User[u.size()];
@@ -98,7 +98,7 @@ import services.errorservice.*;
         ArrayList<User> u = new ArrayList<User>();
         try {
 
-          database=DBService.getDataBase();
+          database=DBService.getDataBase("old");
           u = UserService.View(database);
           user = new User[u.size()];
           u.toArray(user);
@@ -125,7 +125,7 @@ import services.errorservice.*;
         ArrayList<Field1> f = new ArrayList<Field1>();
         try {
 
-          database=DBService.getDataBase();
+          database=DBService.getDataBase("old");
          
           f = Field1Service.Search(database,telefono);
           if(f!=null)
@@ -155,7 +155,7 @@ import services.errorservice.*;
         ArrayList<User> u = new ArrayList<User>();
         try {
 
-          database=DBService.getDataBase();
+          database=DBService.getDataBase("old");
          
           u = UserService.Search(database,telefono);
           user = new User[u.size()];
@@ -184,7 +184,7 @@ import services.errorservice.*;
         ArrayList<Field1> f = new ArrayList<Field1>();
         try {
 
-          database=DBService.getDataBase();
+          database=DBService.getDataBase("old");
           f = Field1Service.View(database);
           field = new Field1[f.size()];
           f.toArray(field);

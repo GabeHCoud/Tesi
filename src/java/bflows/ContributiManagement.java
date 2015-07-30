@@ -48,7 +48,7 @@ public class ContributiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             contributi = ContributoService.getContributi(database);
             
@@ -79,7 +79,7 @@ public class ContributiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             ContributoService.insertNewContributo(database, nome, costo);
             
@@ -119,7 +119,7 @@ public class ContributiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             Contributo contributo = ContributoService.getContributoById(database,idContributo);
             contributo.delete(database);
@@ -154,7 +154,7 @@ public class ContributiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             utente = UserService.getUtenteByEmail(database, email);           
             ucontributi = UserContributoService.getUserContributiByEmail(database, email);
@@ -187,7 +187,7 @@ public class ContributiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             UserContributoService.insertNewUserContributo(database, email, idContributo);
             
@@ -229,7 +229,7 @@ public class ContributiManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase();
+            database=DBService.getDataBase("new");
             
             UserContributo contributo = UserContributoService.getUserContributoById(database, idUserContributo);
             contributo.delete(database);
