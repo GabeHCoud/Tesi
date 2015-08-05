@@ -16,6 +16,8 @@ import services.databaseservice.exception.ResultSetDBException;
 public class Telefono {
     public String Numero;
     public String Email;
+    public int IdContributo;
+    public int IdDispositivo;
     
     public Telefono(){}
     
@@ -25,11 +27,20 @@ public class Telefono {
         this.Email = Email;
     }
     
+    public Telefono(String Numero,String Email,int IdContributo,int IdDispositivo)
+    {
+        this.Numero = Numero;
+        this.Email = Email;
+        this.IdContributo = IdContributo;
+        this.IdDispositivo = IdDispositivo;
+    }
+    
     public Telefono(ResultSet resultSet)
     {
         try {Numero=resultSet.getString("Numero");} catch (SQLException sqle) {}
         try {Email=resultSet.getString("Email");} catch (SQLException sqle) {}
-        
+        try {IdContributo=resultSet.getInt("IdContributo");} catch (SQLException sqle) {}
+        try {IdDispositivo=resultSet.getInt("IdDispositivo");} catch (SQLException sqle) {}
     }
     
     public void insert(DataBase database) throws NotFoundDBException,DuplicatedRecordDBException,ResultSetDBException 
@@ -72,12 +83,52 @@ public class Telefono {
         throws NotFoundDBException,ResultSetDBException {
         
         String sql = "";
-        sql +=  " UPDATE telefono "+
-                " SET Email = '" + Email + "'" +                 
-                " WHERE Numero='"+Numero+"'";                
+
+        if(IdContributo == 0 && IdDispositivo == 0)
+        {
+            sql +=  " UPDATE telefono "+
+                    " SET Email='" + Email + "'," +     
+                    " IdContributo=" + null + "," +
+                    " IdDispositivo=" + null +
+                    " WHERE Numero='"+Numero+"'";     
+        }else if(IdContributo == 0)
+        {
+            sql +=  " UPDATE telefono "+
+                    " SET Email='" + Email + "'," +     
+                    " IdContributo=" + null + "," +
+                    " IdDispositivo=" + IdDispositivo +
+                    " WHERE Numero='"+Numero+"'";  
+        }else if(IdDispositivo == 0)
+        {
+            sql +=  " UPDATE telefono "+
+                    " SET Email='" + Email + "'," +     
+                    " IdContributo=" + IdContributo + "," +
+                    " IdDispositivo=" + null + 
+                    " WHERE Numero='"+Numero+"'";  
+        }else
+        {
+            sql +=  " UPDATE telefono "+
+                    " SET Email='" + Email + "'," +     
+                    " IdContributo=" + IdContributo + "," +
+                    " IdDispositivo=" + IdDispositivo + 
+                    " WHERE Numero='"+Numero+"'";
+        }
         
         database.modify(sql);  
     } 
+    
+    public void updateNumero(DataBase database,String newnumero)
+     throws NotFoundDBException,ResultSetDBException {
+        
+        String sql = "";
+        
+        sql +=  " UPDATE telefono "+
+                    " SET Numero='" + newnumero + "'" +
+                    " WHERE Numero='"+Numero+"'";
+        
+        database.modify(sql);  
+
+    }
     
     
 }

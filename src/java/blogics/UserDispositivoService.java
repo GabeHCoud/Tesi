@@ -19,7 +19,7 @@ public class UserDispositivoService {
     public static ArrayList<UserDispositivo> getUserDispositivi(DataBase database)
     throws NotFoundDBException,ResultSetDBException 
     {
-        ArrayList<UserDispositivo> d = new ArrayList<>();   
+        ArrayList<UserDispositivo> d = new ArrayList<UserDispositivo>();   
 
         String sql= " SELECT * "+
                     " FROM utente_dispositivo";                    
@@ -41,7 +41,7 @@ public class UserDispositivoService {
     public static ArrayList<UserDispositivo> getUserDispositiviByEmail(DataBase database,String Email)
     throws NotFoundDBException,ResultSetDBException 
     {
-        ArrayList<UserDispositivo> d = new ArrayList<>();   
+        ArrayList<UserDispositivo> d = new ArrayList<UserDispositivo>();   
 
         String sql= " SELECT * "+
                     " FROM utente_dispositivo"+

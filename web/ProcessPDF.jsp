@@ -21,11 +21,10 @@
        status="process"; 
     }  
 
-    switch(status)
+    if(status.equals("view"))
     {
-        case "view":
-            break;
-        case "process":
+    }else if (status.equals("process"))
+    {
             InputStream is = request.getInputStream();            
             fattureManagement.setInputStream(is);            
             fattureManagement.processPDF();  
@@ -40,7 +39,7 @@
                 response.addCookie(cookie);
                 response.sendRedirect("Fatture.jsp");
             }
-            break;
+           
     }   
     
 %>

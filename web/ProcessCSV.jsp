@@ -23,17 +23,14 @@
     }  
 
     
-    switch(status)
+    if(status.equals("process"))
     {
-        case "view":
-            break;
-        case "process":
             InputStream is = request.getInputStream();            
             fattureManagement.setInputStream(is);            
             fattureManagement.processCSV();  
             fattureManagement.insert();
-            break;
-        case "setDate":
+            
+    }else if (status.equals("setDate")){
             fattureManagement.setDate();
             if(fattureManagement.getResult() >= 0)
             {
@@ -44,7 +41,7 @@
                 response.addCookie(cookie);
                 response.sendRedirect("Fatture.jsp");
             }
-            break;
+            
     }   
 %>
 

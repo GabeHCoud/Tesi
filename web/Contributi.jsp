@@ -21,26 +21,22 @@
     if(status == null)
         status = "view";
     
-    switch(status)
-    {
-        case "view":
+    if(status.equals("view")){
             contributiManagement.view();
-            break;
-        case "add":
+    } else if(status.equals("add")){
             contributiManagement.add();
-            break;
-        case "delete":
+            
+    }else if (status.equals("delete")){
             contributiManagement.delete();
-            break;
-        case "viewUserSubscriptions":
+    }else if (status.equals("viewUserSubscriptions")){
             contributiManagement.viewUserSubscriptions();
-            break;
-        case "addUserSubscription":
+            
+    }else if (status.equals("addUserSubscription")){
+        
             contributiManagement.addUserSubscription();
-            break;
-        case "deleteUserSubscription":
+    }else if (status.equals("deleteUserSubscription")){
             contributiManagement.deleteUserSubscription();
-            break;
+            
     }
     %>
  

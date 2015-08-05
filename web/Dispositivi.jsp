@@ -21,26 +21,21 @@
     if(status == null)
         status = "view";
     
-    switch(status)
-    {
-        case "view":
+    if (status.equals("view")){
             dispositiviManagement.view();
-            break;
-        case "addDevice":
+    }else if (status.equals("addDevice")){
             dispositiviManagement.addDevice();
-            break;
-        case "deleteDevice":
+    }else if (status.equals("deleteDevice")){
             dispositiviManagement.deleteDevice();
-            break;
-        case "viewUserDevices":
+            
+    }else if (status.equals("viewUserDevices")){
             dispositiviManagement.viewUserDevices();
-            break;
-        case "addUserDevice":
+            
+    }else if (status.equals("addUserDevice")){
             dispositiviManagement.addUserDevice();
-            break;
-        case "deleteUserDevice":
+    }else if (status.equals("deleteUserDevice")){
             dispositiviManagement.deleteUserDevice();
-            break;
+            
     }
     %>
  

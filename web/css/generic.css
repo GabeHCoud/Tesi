@@ -84,7 +84,7 @@ body,html{
 table {
     border: 0px;
     width: 100%;
-    padding:50px;
+    padding: 10px;
     
 }
 tr{
@@ -104,4 +104,12 @@ div.tab2{
 }
 textarea{
     resize:none;
+}
+.col{
+    width: 50%;
+    float: left;
+}
+.invisible{
+    padding: 0;
+    background-color: transparent;
 }

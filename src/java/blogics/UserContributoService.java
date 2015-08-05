@@ -18,7 +18,7 @@ public class UserContributoService {
     public static ArrayList<UserContributo> getUserContributi(DataBase database)
     throws NotFoundDBException,ResultSetDBException 
     {
-        ArrayList<UserContributo> c = new ArrayList<>();   
+        ArrayList<UserContributo> c = new ArrayList<UserContributo>();   
 
         String sql= " SELECT * "+
                     " FROM utente_contributo";                    

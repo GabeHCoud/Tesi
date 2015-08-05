@@ -37,29 +37,28 @@
     if(status==null)
        status="view";      
     
-    switch(status)
+   
+    if(status.equals("view"))
     {
-        case "view":
-            consumiManagement.viewFatture();
-            break;
-        case "details":
-            if(id != null)
-                consumiManagement.setIdFattura(Integer.parseInt(id));     
-            
-            consumiManagement.viewFatture();
-            consumiManagement.viewConsumi();
-            break;
-        case "editView":
-            consumiManagement.viewEdit();
-            break;                
-        case "edit":
-            consumiManagement.edit();            
-            break;
-        case "delete":
-            consumiManagement.delete();
-            break;
+        consumiManagement.viewFatture();
+    }if(status.equals("details"))
+    {
+        if(id != null)
+            consumiManagement.setIdFattura(Integer.parseInt(id));     
+
+        consumiManagement.viewFatture();
+        consumiManagement.viewConsumi();
+    } if(status.equals("editView"))
+    {
+        consumiManagement.viewEdit();
     }
-        
+    if(status.equals("edit"))
+    {
+        consumiManagement.edit();   
+    }if(status.equals("delete")){
+
+        consumiManagement.delete();
+    }   
 %>
 
 <%@include file="Header.jsp" %>

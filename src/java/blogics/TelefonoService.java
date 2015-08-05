@@ -43,7 +43,7 @@ public class TelefonoService {
     
     public static ArrayList<Telefono> getTelefoni(DataBase database) throws NotFoundDBException, ResultSetDBException
     {
-        ArrayList<Telefono> telefoni = new ArrayList<>();
+        ArrayList<Telefono> telefoni = new ArrayList<Telefono>();
         String sql = "";
         
         sql += " SELECT * FROM telefono";
@@ -65,7 +65,7 @@ public class TelefonoService {
     
     public static ArrayList<Telefono> getTelefoniByEmail(DataBase database,String Email) throws NotFoundDBException, ResultSetDBException
     {
-        ArrayList<Telefono> telefoni = new ArrayList<>();
+        ArrayList<Telefono> telefoni = new ArrayList<Telefono>();
         String sql = "";
         
         sql += " SELECT * FROM telefono"+
@@ -85,6 +85,12 @@ public class TelefonoService {
 
         return telefoni;
         
+    }
+    
+    public static void insertNewTelefono(DataBase database,String numero,String email,int IdContributo,int IdDispositivo) throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException
+    {      
+        Telefono telefono = new Telefono(numero,email,IdContributo,IdDispositivo);        
+        telefono.insert(database);        
     }
     
     public static void insertNewTelefono(DataBase database,String numero,String email) throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException

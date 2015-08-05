@@ -7,6 +7,10 @@ package bflows;
 
 import blogics.Consumo;
 import blogics.ConsumoService;
+import blogics.Contributo;
+import blogics.ContributoService;
+import blogics.Dispositivo;
+import blogics.DispositivoService;
 import blogics.Fattura;
 import blogics.FatturaService;
 import blogics.Telefono;
@@ -25,6 +29,7 @@ import services.errorservice.EService;
 
 public class UserManagement implements Serializable {
     private String numero;    
+    private String newnumero;
     private int idFattura;
     private String nome;
     private String cognome;
@@ -32,7 +37,12 @@ public class UserManagement implements Serializable {
     private String newemail;
     private ArrayList<User> utenti;
     private ArrayList<Telefono> telefoni;
+    private ArrayList<Contributo> contributi;
+    private ArrayList<Dispositivo> dispositivi;
     private User selectedUser;
+    private Telefono selectedTelefono;
+    private int idContributo;
+    private int idDispositivo;
     
     
     private String errorMessage;
@@ -51,6 +61,8 @@ public class UserManagement implements Serializable {
             
             utenti = UserService.getUtenti(database);
             telefoni = TelefonoService.getTelefoni(database);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);
             
         }catch (NotFoundDBException ex) 
         {
@@ -185,7 +197,43 @@ public class UserManagement implements Serializable {
         }
     }
     
-    public void add()
+    public void viewEditUser()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            telefoni = TelefonoService.getTelefoniByEmail(database, email);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);
+            
+            database.commit();
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void addUser()
     {
         DataBase database = null;        
         
@@ -197,6 +245,8 @@ public class UserManagement implements Serializable {
             
             utenti = UserService.getUtenti(database);
             telefoni = TelefonoService.getTelefoni(database);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);
             
             database.commit();
             
@@ -227,7 +277,7 @@ public class UserManagement implements Serializable {
         }
     }
     
-    public void delete()
+    public void deleteUser()
     {
         DataBase database = null;        
         
@@ -240,6 +290,8 @@ public class UserManagement implements Serializable {
             
             utenti = UserService.getUtenti(database);
             telefoni = TelefonoService.getTelefoni(database);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);
             
             database.commit();
             
@@ -261,42 +313,9 @@ public class UserManagement implements Serializable {
             try { database.close(); }
             catch (NotFoundDBException e) { EService.logAndRecover(e); }
         }
-    }
+    }   
     
-    public void viewEditUser()
-    {
-        DataBase database = null;        
-        
-        try 
-        {
-            database=DBService.getDataBase("new");
-            
-            selectedUser = UserService.getUtenteByEmail(database, email);
-            
-            database.commit();
-            
-        }catch (NotFoundDBException ex) 
-        {
-            EService.logAndRecover(ex);
-            setResult(EService.UNRECOVERABLE_ERROR);
-            if(database!=null)
-            database.rollBack();
-        }
-        catch (ResultSetDBException ex) 
-        {
-            EService.logAndRecover(ex);
-            setResult(EService.UNRECOVERABLE_ERROR);
-            if(database!=null)
-            database.rollBack();
-        }  
-        finally 
-        {
-            try { database.close(); }
-            catch (NotFoundDBException e) { EService.logAndRecover(e); }
-        }
-    }
-    
-    public void edit()
+    public void editUser()
     {
         DataBase database = null;        
         
@@ -316,7 +335,9 @@ public class UserManagement implements Serializable {
             database.commit();
             
             utenti = UserService.getUtenti(database);
-            telefoni = TelefonoService.getTelefoni(database);           
+            telefoni = TelefonoService.getTelefoni(database);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);       
             
             
         }catch (NotFoundDBException ex) 
@@ -339,7 +360,7 @@ public class UserManagement implements Serializable {
         }
     }
     
-    public void viewAddPhone()
+    public void viewEditPhone()
     {
         DataBase database = null;        
         
@@ -348,7 +369,9 @@ public class UserManagement implements Serializable {
             database=DBService.getDataBase("new");
             
             selectedUser = UserService.getUtenteByEmail(database, email);
-            telefoni = TelefonoService.getTelefoni(database);            
+            selectedTelefono = TelefonoService.getTelefono(database, numero);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);             
             
         }catch (NotFoundDBException ex) 
         {
@@ -380,12 +403,12 @@ public class UserManagement implements Serializable {
             database=DBService.getDataBase("new");            
             
             TelefonoService.insertNewTelefono(database, numero, email);
-            
-            utenti = UserService.getUtenti(database);
-            telefoni = TelefonoService.getTelefoni(database);
-            
             database.commit();
             
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            telefoni = TelefonoService.getTelefoniByEmail(database, email);  
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);   
         }catch (NotFoundDBException ex) 
         {
             EService.logAndRecover(ex);
@@ -426,8 +449,10 @@ public class UserManagement implements Serializable {
             
             database.commit();
             
-            utenti = UserService.getUtenti(database);
-            telefoni = TelefonoService.getTelefoni(database);
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            telefoni = TelefonoService.getTelefoniByEmail(database, email);  
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);    
             
         }catch (NotFoundDBException ex) 
         {
@@ -449,6 +474,201 @@ public class UserManagement implements Serializable {
         }
     }
     
+    public void editPhone()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            selectedTelefono = TelefonoService.getTelefono(database, numero);             
+            
+            if(!newnumero.equals(numero))//se l'email cambia aggiorno                     
+                selectedTelefono.updateNumero(database,newnumero);
+            else
+                selectedTelefono.update(database);         
+                
+            database.commit();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            telefoni = TelefonoService.getTelefoniByEmail(database, email);  
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);                  
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void addSubscription()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            selectedTelefono = TelefonoService.getTelefono(database, numero);            
+            selectedTelefono.IdContributo = idContributo;
+            selectedTelefono.update(database);            
+            database.commit();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);             
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void deleteSubscription()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            selectedTelefono = TelefonoService.getTelefono(database, numero);            
+            selectedTelefono.IdContributo = 0;
+            selectedTelefono.update(database);            
+            database.commit();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);             
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void addDevice()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            selectedTelefono = TelefonoService.getTelefono(database, numero);            
+            selectedTelefono.IdDispositivo = idDispositivo;
+            selectedTelefono.update(database);            
+            database.commit();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);             
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void deleteDevice()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            selectedTelefono = TelefonoService.getTelefono(database, numero);            
+            selectedTelefono.IdDispositivo = 0;
+            selectedTelefono.update(database);            
+            database.commit();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);             
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
     public String getNumero()
     {
         return numero;
@@ -457,6 +677,16 @@ public class UserManagement implements Serializable {
     public void setNumero(String numero)
     {
         this.numero = numero;
+    }
+    
+    public String getNewnumero()
+    {
+        return newnumero;
+    }
+    
+    public void setNewnumero(String newnumero)
+    {
+        this.newnumero = newnumero;
     }
     
     public int getIdFattura()
@@ -549,6 +779,46 @@ public class UserManagement implements Serializable {
         this.telefoni = telefoni;
     }    
     
+    public Contributo getContributo(int i)
+    {
+        return contributi.get(i);
+    }
+    
+    public void setContributo(int i,Contributo contributo)
+    {
+        contributi.set(i, contributo);
+    }
+    
+    public ArrayList<Contributo> getContributi()
+    {
+        return contributi;
+    }
+    
+    public void setContributi(ArrayList<Contributo> contributi)
+    {
+        this.contributi = contributi;
+    }
+    
+    public Dispositivo getDispositivo(int i)
+    {
+        return dispositivi.get(i);
+    }
+    
+    public void setDispositivo(int i,Dispositivo dispositivo)
+    {
+        dispositivi.set(i, dispositivo);
+    }
+    
+    public ArrayList<Dispositivo> getDispositivi()
+    {
+        return dispositivi;
+    }
+    
+    public void setDispositivi(ArrayList<Dispositivo> dispositivi)
+    {
+        this.dispositivi = dispositivi;
+    }
+        
     public User getSelectedUser()
     {
         return selectedUser;
@@ -557,6 +827,36 @@ public class UserManagement implements Serializable {
     public void setSelectedUser(User selectedUser)
     {
         this.selectedUser = selectedUser;
+    }
+    
+    public Telefono getSelectedTelefono()
+    {
+        return selectedTelefono;
+    }
+    
+    public void setSelectedTelefono(Telefono selectedTelefono)
+    {
+        this.selectedTelefono = selectedTelefono;
+    }
+    
+    public int getIdContributo()
+    {
+        return idContributo;
+    }
+    
+    public void setIdContributo(int idContributo)
+    {
+        this.idContributo = idContributo;
+    }
+    
+    public int getIdDispositivo()
+    {
+        return idDispositivo;
+    }
+    
+    public void setIdDispositivo(int idDispositivo)
+    {
+        this.idDispositivo = idDispositivo;
     }
     
     

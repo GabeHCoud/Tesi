@@ -21,32 +21,14 @@
     if(status == null)
         status = "view";
     
-    switch(status)
-    {
-        case "view":
-            userManagement.viewUsers();
-            break;
-        case "addUser":
-            userManagement.add();
-            break;
-        case "editUserView":
-            userManagement.viewEditUser();
-            break;
-        case "editUser":
-            userManagement.edit();
-            break;
-        case "deleteUser":
-            userManagement.delete();
-            break; 
-        case "addPhoneView":
-            userManagement.viewAddPhone();
-            break;
-        case "addPhone":
-            userManagement.addPhone();
-            break;
-        case "deletePhone":
-            userManagement.deletePhone();
-            break;
+    if(status.equals("view")){
+            userManagement.viewUsers();           
+    }else if (status.equals("addUser")){
+            userManagement.addUser();    
+    }else if (status.equals("editUser")){
+            userManagement.editUser();
+    }else if (status.equals("deleteUser")){                
+            userManagement.deleteUser();     
     }
     %>
  
@@ -64,37 +46,34 @@
         </a>
         <br/>
     </div>
-<%  }else if(status.equals("view") || status.equals("editUser") || status.equals("deleteUser") || status.equals("addUser") || status.equals("addPhone") || status.equals("deletePhone"))
+<%  }else if(status.equals("view") || status.equals("editUser") || status.equals("deleteUser") || status.equals("addUser"))
     {%>     
     <div id="titolo"><b>Utenti Registrati</b></div>
     <div id="testo"> 
         <table cellspacing="0"> 
             <tr class="alternate">                
-                <td width="200">
+                <td width="15%">
                     <b>Utente</b>
-                </td>
-                <td width="200">
-                    <b>Telefoni</b>
-                </td>
-                <td width="200">
+                </td>                
+                <td width="20%">
                     <b>Mail</b>
                 </td>  
-                <td width="80">
-                    <b>Modifica</b>
+                <td width="10%">
+                    <b>Numeri</b>
                 </td>
-                <td width="80">
-                    <b>Cancella</b>
+                <td width='21%'>
+                    <b>Contributi Abbonamenti</b>
+                </td>
+                <td width='10%'>
+                    <b>Dispositivi</b>
                 </td>                              
-                <td width="80">
-                    <b>Gestione Numeri</b>
+                <td width='8%'>
+                    <b>Modifica</b>
                 </td>         
-                <td width="100" >
-                    <b>Gestione Dispositivi</b>
-                </td>  
-                <td width="100" >
-                    <b>Contributi ed Abbonamenti</b>
-                </td> 
-                <td width="80" align="center">
+                <td width='8%'>
+                    <b>Cancella</b>
+                </td>
+                <td width='8%'>
                     <b>Storico Mail</b>
                 </td>
             </tr>   
@@ -104,127 +83,78 @@
                 {
                     if((userManagement.getUtenti().indexOf(u) % 2) == 0)
                     {%>
-                    <tr>                    
-                        <td width="200">
-                             <%=u.Cognome%> <%=u.Nome%> 
-                        </td>
-                        <td width="200">                        
-                            <%for(Telefono t : userManagement.getTelefoni())
-                            {
-                                if(t.Email.equals(u.Email))
-                                {%>
-                                <%=t.Numero%><br/>
-                                <%}
-                            }%>
-                        </td>
-                        <td width="200">
-                            <%=u.Email%>
-                        </td>
-                        <td width="80">
-                            <form name="edit" method="post" action="Utenti.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="editUserView">
-                                <center><input type="image" name="submit" src="images/edit.jpg"></center>
-                            </form>
-                        </td>
-                        <td width="80">
-                            <form name="delete" method="post" action="Utenti.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="deleteUser">
-                                <center><input type="image" name="submit" src="images/delete.jpg"></center>
-                            </form>
-                        </td>
-                        <td width="80">
-                            <form name="number" method="post" action="Utenti.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="addPhoneView">
-                                <center><input type="image" name="submit" src="images/phone.png"></center>
-                            </form>
-                        </td> 
-                        <td width="100">
-                            <form name="disp" method="post" action="Dispositivi.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="viewUserDevices">
-                                <center><input type="image" name="submit" src="images/mobile.jpg"></center>
-                            </form>
-                        </td>
-                        <td width="100">
-                            <form name="contributi" method="post" action="Contributi.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="viewUserSubscriptions">
-                                <center><input type="image" name="submit" src="images/contract.png"></center>
-                            </form>
-                        </td>
-                        <td width="80">
-                            <form name="mail" method="post" action="Mail.jsp">
-                                <input type="hidden" name="userId" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="view">
-                                <center><input type="image" name="submit" src="images/mail.jpg"></center>
-                            </form>
-                        </td> 
-                    </tr>
-                <% }else{%>
+                    <tr>
+                    <%}else{%>
                     <tr class="alternate"> 
-                        <td width="200">
+                    <%}%>
+                        <td>
                              <%=u.Cognome%> <%=u.Nome%> 
                         </td>
-                        <td width="200">                        
+                        <td>
+                            <%=u.Email%>
+                        </td>
+                        <td colspan='3' style='padding-left: 0;padding-right: 0;'>  
+                            <table class='invisible'>                               
                             <%for(Telefono t : userManagement.getTelefoni())
                             {
                                 if(t.Email.equals(u.Email))
-                                {%>
-                                <%=t.Numero%><br/>
+                                {%>                            
+                                <tr class='invisible'>
+                                    <td style='padding: 0;'>
+                                        <%=t.Numero%><br/>
+                                    </td>
+                                    <td style='padding: 0;'>
+                                        <%if(userManagement.getContributi() != null)
+                                        {
+                                            for(Contributo c : userManagement.getContributi())
+                                            {
+                                                if(c.IdContributo == t.IdContributo)
+                                                {%>
+                                                <span style='font-size: 14px'><%=c.Nome%></span><br/>
+                                                <%}
+                                            }
+                                        }%>  
+                                    </td>
+                                    <td style='padding: 0;'>
+                                        <%if(userManagement.getDispositivi() != null)
+                                        {
+                                            for(Dispositivo d : userManagement.getDispositivi())
+                                            {
+                                                if(d.IdDispositivo == t.IdDispositivo)
+                                                {%>
+                                                <span style='font-size: 14px'><%=d.Nome%></span><br/>
+                                                <%}
+                                            }
+                                        }%>
+                                    </td>
+                                </tr>
                                 <%}
                             }%>
-                        </td>
-                        <td width="200">
-                            <%=u.Email%>
-                        </td>
-                        <td width="80">
-                            <form name="edit" method="post" action="Utenti.jsp">
+                            </table>  
+                        </td>   
+                        <td>
+                            <form name="edit" method="post" action="ModificaUtente.jsp">
                                 <input type="hidden" name="email" value="<%=u.Email%>">
                                 <input type="hidden" name="status" value="editUserView">
                                 <center><input type="image" name="submit" src="images/edit.jpg"></center>
                             </form>
                         </td>
-                        <td width="80">
+                        <td>
                             <form name="delete" method="post" action="Utenti.jsp">
                                 <input type="hidden" name="email" value="<%=u.Email%>">
                                 <input type="hidden" name="status" value="deleteUser">
                                 <center><input type="image" name="submit" src="images/delete.jpg"></center>
                             </form>
-                        </td>
-                        <td width="80">
-                            <form name="number" method="post" action="Utenti.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="addPhoneView">
-                                <center><input type="image" name="submit" src="images/phone.png"></center>
-                            </form>
-                        </td> 
-                        <td width="100">
-                            <form name="disp" method="post" action="Dispositivi.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="viewUserDevices">
-                                <center><input type="image" name="submit" src="images/mobile.jpg"></center>
-                            </form>
-                        </td>
-                        <td width="100">
-                            <form name="contributi" method="post" action="Contributi.jsp">
-                                <input type="hidden" name="email" value="<%=u.Email%>">
-                                <input type="hidden" name="status" value="viewUserSubscriptions">
-                                <center><input type="image" name="submit" src="images/contract.png"></center>
-                            </form>
-                        </td>
-                        <td width="80">
+                        </td>                        
+                        <td>
                             <form name="mail" method="post" action="Mail.jsp">
                                 <input type="hidden" name="userId" value="<%=u.Email%>">
                                 <input type="hidden" name="status" value="view">
                                 <center><input type="image" name="submit" src="images/mail.jpg"></center>
                             </form>
                         </td> 
-                    </tr>  
-                    <%}
-                }
+                </tr>               
+              <%}
             }%>  
         </table>        
         
@@ -237,15 +167,13 @@
                         <td>
                             <input type="text" name="nome" size="30" maxlength="20">
                         </td>
-                    </tr>
-                    
+                    </tr>                    
                     <tr style="background-color:#F0F8FF">      
                         <td>Cognome</td>
                         <td>
                             <input type="text" name="cognome" size="30" maxlength="20">
                         </td>
-                    </tr>
-                    
+                    </tr>                    
                     <tr style="background-color:#F0F8FF">
                         <td>Email</td>
                         <td>
@@ -258,64 +186,75 @@
             </form>     
         </div>
     </div>
-<%}else if(status.equals("editUserView"))
-{%>
-    <div id="titolo"><b>Modifica Utente</b></div>          
+
+<%}else if(status.equals("editPhoneView") || status.equals("editPhone"))
+{%>      
+    <div id="titolo"><b>Utente <%=userManagement.getSelectedUser().Cognome%> <%=userManagement.getSelectedUser().Nome%> - Numero <%=userManagement.getSelectedTelefono().Numero%></b></div>
+
+    <div id="titolo"><b>Modifica Numero</b></div>          
     <div id="testo">
-        <form name="edit" method="post" action="Utenti.jsp">
+        <form method="post" action="Utenti.jsp">
             <table cellspacing="0" >
                 <tr style="background-color:#F0F8FF">  
-                    <td>Nome</td>      
+                    <td>Numero</td>      
                     <td>
-                        <input type="text" name="nome" size="30" maxlength="20" value="<%=userManagement.getSelectedUser().Nome%>">
+                        <input type="text" name="numero" size="30" maxlength="20" value="<%=userManagement.getSelectedTelefono().Numero%>">
                     </td>
-                </tr>
-                <tr style="background-color:#F0F8FF">  
-                    <td>Cognome</td>  
-                    <td>
-                        <input type="text" name="cognome" size="30" maxlength="20" value="<%=userManagement.getSelectedUser().Cognome%>">
-                    </td>
-                </tr>
-                <tr style="background-color:#F0F8FF">  
-                    <td>Email</td>
-                    <td>
-                        <input type="text" name="newemail" size="50" maxlength="50" value="<%=userManagement.getSelectedUser().Email%>">
-                    </td>
-                </tr>
+                </tr>                
             </table>
             <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
-            <input type="hidden" name="status" value="editUser"/>
-            <input type="submit" value="Modifica Utente"/>
-        </form>     
-    </div>
-<%}else if(status.equals("addPhoneView"))
-{%>
-    <div id="titolo"><b>Elimina un numero per l'utente <%=userManagement.getSelectedUser().Cognome%> <%=userManagement.getSelectedUser().Nome%></b></div>
-    <div id="testo">
-        <form name="deleteNumber" method="post" action="Utenti.jsp">
-            <input type="hidden" name="status" value="deletePhone"/>
-            <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
-            <select name="numero">
-                <%for(Telefono t : userManagement.getTelefoni())
-                {
-                    if(t.Email.equals(userManagement.getSelectedUser().Email))
-                    {%>
-                    <option><%=t.Numero%></option>
-                    <%}
-                }%>
-            </select>
-            <input type="submit" value="Elimina"/>
+            <input type="hidden" name="status" value="editPhone"/>
+            <input type="submit" value="Modifica Numero"/>
         </form>
-    </div>    
+    </div>   
+    <div id="titolo"><b>Gestione Contributi Abbonamenti</b></div>          
+    <div id="testo" >        
+        <table cellspacing="0"> 
+            <tr class="alternate">
+                <td width="50%"><b>Nome</b></td>
+                <td width="25%"><center><b>Costo</b></center></td>
+                <td width="25%"><center><b>Elimina</b></center></td>
+            </tr>
+            <%for(Contributo c : userManagement.getContributi())
+            {
+                if(c.IdContributo == userManagement.getSelectedTelefono().IdContributo)
+                {%>   
+                <tr>
+                    <td width="50%"> 
+                        <%=c.Nome%>
+                    </td>
+                    <td width="25%">
+                    <center><%=c.Costo%></center>
+                    </td>
+                    <td width="25%">
+                        <form name="del" method="post" action="Utenti.jsp">
+                            <input type="hidden" name="idContributo" value="<%=c.IdContributo%>">
+                            <input type="hidden" name="numero" value="<%=userManagement.getSelectedTelefono().Numero%>"/>
+                            <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
+                            <input type="hidden" name="status" value="deleteSubscription">
+                            <center><input type="image" name="submit" src="images/delete.jpg"></center>
+                        </form>
+                    </td>
+                </tr>
+            <%  }
+            }%>
+        </table>        
+    </div>
+    <div id="titolo"><b>Aggiungi un contributo o abbonamento </b></div>
+    <div id="testo">
+        <form name="fregister" method="post" action="Contributi.jsp">  
+            <select name="idContributo">
+                <%for(Contributo c : userManagement.getContributi())
+                {%>
+                    <option value="<%=c.IdContributo%>"><%=c.Nome%></option>
+                <%}%>
+            </select>                
+            <input type="hidden" name="numero" value="<%=userManagement.getSelectedTelefono().Numero%>"/>
+            <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
+            <input type="hidden" name="status" value="addSubscription"/>
+            <center><input type="submit" value="Aggiungi"/></center>
+        </form>
+    </div>  
 
-    <div id="titolo"><b>Aggiungi un numero per l'utente <%=userManagement.getSelectedUser().Cognome%> <%=userManagement.getSelectedUser().Nome%></b></div>
-    <div id="testo">
-        <form name="addNumber" method="post" action="Utenti.jsp">
-            <input type="hidden" name="status" value="addPhone"/>
-            <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
-            <input type="text" name="numero" maxlength="11"/>
-            <input type="submit" value="Aggiungi"/>
-        </form>
-    </div>
 <%}%>
  <%@include file="Footer.jsp" %>

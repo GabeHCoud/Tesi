@@ -24,12 +24,10 @@
        status="view";        
     }
     
-    switch(status)
-    {
-        case "view":
+    if(status.equals("view")){
             userManagement.viewUsers();
-            break;
-        case "associate":
+    } 
+       else if(status.equals("associate")){
             userManagement.associate();
             
             if(userManagement.getResult() >= 0)
@@ -41,8 +39,9 @@
                 response.addCookie(cookie);
                 response.sendRedirect("Fatture.jsp");
             }
-            break;
-        case "register":
+            
+        }else if(status.equals("register"))
+            {
             userManagement.register();
             
             if(userManagement.getResult() >= 0)
@@ -54,7 +53,7 @@
                 response.addCookie(cookie);
                 response.sendRedirect("Fatture.jsp");
             }
-            break;      
+              
     }  
   %>        
   <%@include file="Header.jsp" %>   

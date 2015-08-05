@@ -14,10 +14,14 @@ import blogics.Telefono;
 import blogics.TelefonoService;
 import blogics.User;
 import blogics.UserService;
-import com.snowtide.PDF;
-import com.snowtide.pdf.Document;
-import com.snowtide.pdf.OutputTarget;
-import com.snowtide.pdf.Page;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
+import static com.sun.org.apache.xml.internal.serialize.OutputFormat.Defaults.Encoding;
+//import com.snowtide.PDF;
+//import com.snowtide.pdf.Document;
+//import com.snowtide.pdf.OutputTarget;
+//import com.snowtide.pdf.Page;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -35,12 +39,18 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.icepdf.core.exceptions.PDFException;
+import org.icepdf.core.pobjects.Document;
+import org.icepdf.core.pobjects.graphics.text.LineText;
+import org.icepdf.core.pobjects.graphics.text.PageText;
+import org.icepdf.core.pobjects.graphics.text.WordText;
 import services.databaseservice.DBService;
 import services.databaseservice.DataBase;
 import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 import services.errorservice.EService;
+import services.errorservice.FatalError;
 import util.SplitLine;
 
 public class FattureManagement implements Serializable {   
@@ -60,131 +70,124 @@ public class FattureManagement implements Serializable {
     
     public void processPDF()
     {
-        Document pdf = null;
-        BufferedWriter writer = null;
-        consumi = new ArrayList<>();        
+//        Document pdf = null;
+//        BufferedWriter writer = null;
+        consumi = new ArrayList<Consumo>();        
+        lines = new ArrayList<String>();
         
         try{
-            outputFile = File.createTempFile("result", ".txt"); 
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile)));
-            pdf = PDF.open(inputStream,"prova.pdf");     
-           
-            int pages = pdf.getPageCnt();            
-            for(int j=0;j<pages;j++){
-                Page pagePDF = pdf.getPage(j);                
-                pagePDF.pipe(new OutputTarget(writer)); 
-                writer.flush();
-            }                        
-            pdf.close();            
-            writer.close();
+            //outputFile = File.createTempFile("result", ".txt"); 
+            //writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile)));            
+            //FileOutputStream fileOutputStream = new FileOutputStream("extracted.txt");
             
-        }catch(IOException e){
-            System.out.println("TestBean.process: "+e.getMessage());
-        }
-        
-        BufferedReader br = null;
-        lines = new ArrayList<>();
-        try {
-                String sCurrentLine;
-
-                br = new BufferedReader(new FileReader(outputFile.getAbsolutePath()));               
-                
-                while ((sCurrentLine = br.readLine()) != null) {
-                    if(sCurrentLine.isEmpty())
-                        continue;
-                    
-                    lines.add(sCurrentLine.trim());                                
-                }
-                
-                br.close();
-
-        } catch (IOException e) {
-                System.out.println("TestBean.process: "+e.getMessage());
-        }         
-        
-        boolean startPointFound = false;
-        boolean dataFound = false;
-        Consumo consumo = null;             
-        
-        for(String line : lines)
-        {
-            //recupero data fattura
-            if(!dataFound)
-            {
-                if(line.contains("Emessa"))
-                {
-                    String cleanLine = line.replaceAll("\\s+"," ");
-                    String[] splitted = cleanLine.split(" ");
-                    for(String s :splitted){
-                        if(s.contains("/"))
-                        {
-                            s = s.replace("/","-");
-                            data = s;
-                        }                            
-                    }
-                }  
-            }          
             
-            //RIEPILOGO UTENZA segna l'inizio della tabella
-            if(line.contains("RIEPILOGO PER UTENZA"))
-                startPointFound = !startPointFound;
-
-            if(!startPointFound) continue;                    
-
-            //SERVIZI OPZIONALI segna la fine della tabella
-            if(line.matches("SERVIZI OPZIONALI")) 
-            {
-                consumi.add(consumo);
-                return;
+            //iText Library      
+            PdfReader pdfReader = new PdfReader(inputStream);
+            for (int page = 1; page <= pdfReader.getNumberOfPages(); page++) 
+            {               
+                SimpleTextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
+                String currentText = PdfTextExtractor.getTextFromPage(pdfReader, page,strategy);
+                String[] l = currentText.split("\n");
+                for(int i=0;i<l.length;i++)
+                    lines.add(l[i]);                
             }
+            pdfReader.close();   
+        
+            boolean startPointFound = false;
+            boolean dateFound = false;
+            Consumo consumo = null;             
 
-            if(line.matches("(\\d{3}-\\d{7})((?:\\s+)(?:\\w+\\s+)+)(\\d+,\\d+)")) //(3 digits)-(7 digits)(any number of whitespaces)(any number of word followed by whitespace)(1+ digits),(1+digits)
-            //if(line.matches("((\\d{3})-(\\d{7}))(\\s+)(\\w+\\s+)+(\\d+),(\\d+)")) 
-            {                        
-                //se entro qui significa che inizia una nuova fattura
-                ArrayList<String> splitted = SplitLine.splitLine1(line);   
+            for(String line : lines)
+            {
+                //recupero data fattura
+                if(!dateFound)
+                {
+                    if(line.contains("Emessa"))
+                    {
+                        String cleanLine = line.replaceAll("\\s+"," ");
+                        String[] splitted = cleanLine.split(" ");
+                        for(String s :splitted){
+                            if(s.contains("/"))
+                            {
+                                s = s.replace("/","-");
+                                data = s;
+                            }                            
+                        }
+                    }  
+                }          
 
-                if(consumo != null) //salvo la precedente
-                {    
+                //RIEPILOGO UTENZA segna l'inizio della tabella
+                if(line.contains("RIEPILOGO PER UTENZA"))
+                    startPointFound = !startPointFound;
+
+                if(!startPointFound) continue;                    
+
+                //SERVIZI OPZIONALI segna la fine della tabella
+                if(line.matches("SERVIZI OPZIONALI")) 
+                {
                     consumi.add(consumo);
+                    return;
                 }
-                consumo = new Consumo();
-                consumo.Telefono = splitted.get(0); 
-                
-                if(splitted.get(1).contains("Contributi"))
-                    consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
-                else if(splitted.get(1).contains("Altri"))
-                    consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
-                else if(splitted.get(1).contains("Abbonamenti"))
-                    consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
-            }   
 
-            if(line.matches("((?:\\w+\\s+)+)(\\d+,\\d+)"))//(any number of words followed by whitespaces)(1+ digits),(1+ digits)
-            //if(line.matches("(\\w+\\s+)+(\\d+),(\\d+)")) 
-            {                  
-                //continua la fattura precedente                    
-                ArrayList<String> splitted = SplitLine.splitLine2(line); 
+                if(line.matches("(\\d{3}-\\d{7})((?:\\s+)(?:\\w+\\s+)+)(\\d+,\\d+)")) //(3 digits)-(7 digits)(any number of whitespaces)(any number of word followed by whitespace)(1+ digits),(1+digits)
+                //if(line.matches("((\\d{3})-(\\d{7}))(\\s+)(\\w+\\s+)+(\\d+),(\\d+)")) 
+                {                        
+                    //se entro qui significa che inizia una nuova fattura
+                    ArrayList<String> splitted = SplitLine.splitLine1(line);   
 
-                if(consumo != null){
-                    if(splitted.get(0).contains("Contributi"))
-                        consumo.CRB = Double.parseDouble(splitted.get(1).replace(",","."));
-                    else if(splitted.get(0).contains("Altri"))
-                        consumo.AAA = Double.parseDouble(splitted.get(1).replace(",","."));
-                    else if(splitted.get(0).contains("Abbonamenti"))
-                        consumo.ABB = Double.parseDouble(splitted.get(1).replace(",","."));
-                    else if(splitted.get(0).contains("Totale"))
-                        consumo.Totale = Double.parseDouble(splitted.get(1).replace(",","."));
+                    if(consumo != null) //salvo la precedente
+                    {    
+                        consumi.add(consumo);
+                    }
+                    consumo = new Consumo();
+                    consumo.Telefono = splitted.get(0); 
+
+                    if(splitted.get(1).contains("Contributi"))
+                        consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
+                    else if(splitted.get(1).contains("Altri"))
+                        consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
+                    else if(splitted.get(1).contains("Abbonamenti"))
+                        consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
                 }   
-            }   
-        }    
+
+                if(line.matches("((?:\\w+\\s+)+)(\\d+,\\d+)"))//(any number of words followed by whitespaces)(1+ digits),(1+ digits)
+                //if(line.matches("(\\w+\\s+)+(\\d+),(\\d+)")) 
+                {                  
+                    //continua la fattura precedente                    
+                    ArrayList<String> splitted = SplitLine.splitLine2(line); 
+
+                    if(consumo != null){
+                        if(splitted.get(0).contains("Contributi"))
+                            consumo.CRB = Double.parseDouble(splitted.get(1).replace(",","."));
+                        else if(splitted.get(0).contains("Altri"))
+                            consumo.AAA = Double.parseDouble(splitted.get(1).replace(",","."));
+                        else if(splitted.get(0).contains("Abbonamenti"))
+                            consumo.ABB = Double.parseDouble(splitted.get(1).replace(",","."));
+                        else if(splitted.get(0).contains("Totale"))
+                            consumo.Totale = Double.parseDouble(splitted.get(1).replace(",","."));
+                    }   
+                }   
+            }    
+
+            //outputFile.delete();
+        }catch(IOException ex){
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);            
+            setErrorMessage("FattureManagement.ProcessPDF(): "+ex.getMessage());
+        }catch(NumberFormatException ex)
+        {
+            EService.logAndRecover((FatalError) ex);
+            setResult(EService.UNRECOVERABLE_ERROR);            
+            setErrorMessage("FattureManagement.ProcessPDF(): "+ex.getMessage());
+        }
     }   
     
     public void processCSV() 
     {              
         DataBase database = null;                    
-        ArrayList<String> elementi= new ArrayList<>();
+        ArrayList<String> elementi= new ArrayList<String>();
         String s=null,file=null,data=null;
-        consumi = new ArrayList<>();        
+        consumi = new ArrayList<Consumo>();        
         DataInputStream in = new DataInputStream(inputStream);
         
         try{
@@ -360,7 +363,7 @@ public class FattureManagement implements Serializable {
     public void setDate()
     {
         DataBase database = null; 
-        consumi = new ArrayList<>();
+        consumi = new ArrayList<Consumo>();
         
         String[] splitted = data.split("-");//inverto data
         data = splitted[2] + "-" + splitted[1] + "-" + splitted[0];
