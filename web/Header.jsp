@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8" session="false"%>
+<%@page contentType="text/html" pageEncoding="ISO-8859-1" session="false"%>
 <html>
     <head>
         <meta name="author" content="Nicola Massari"/>

@@ -11,6 +11,7 @@ import services.databaseservice.DataBase;
 import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
+import util.Conversion;
 
 /**
  *
@@ -39,7 +40,7 @@ public class Fattura {
         String sql="";        
         
         sql +=  " SELECT * FROM fattura" +
-                " WHERE Data='"+Data+"'";
+                " WHERE Data='"+Conversion.getDatabaseString(Data)+"'";
         
         ResultSet resultSet=database.select(sql);    
         try {
@@ -52,7 +53,7 @@ public class Fattura {
 
         sql =  " INSERT INTO fattura" +
                " (Data)"+
-               " VALUES ('"+Data+"')";
+               " VALUES ('"+Conversion.getDatabaseString(Data)+"')";
         
         database.modify(sql);        
     }
@@ -71,7 +72,7 @@ public class Fattura {
         
         String sql = "";
         sql +=  " UPDATE fattura "+
-                " SET Data ='" + Data + "'" +                 
+                " SET Data ='" + Conversion.getDatabaseString(Data) + "'" +                 
                 " WHERE IdFattura="+IdFattura;
         
         database.modify(sql);  

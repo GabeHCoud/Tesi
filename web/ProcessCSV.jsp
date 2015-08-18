@@ -5,7 +5,7 @@
 <%@page import="java.io.*"%>
 <%@page import="java.io.FileOutputStream"%>
 <%@page import="java.io.File"%>
-<%@page contentType="text/html" pageEncoding="UTF-8" session="false"%>
+<%@page contentType="text/html" pageEncoding="ISO-8859-1" session="false"%>
 <%@page import="util.*"%>
 
 <%@page buffer="40kb" %>
@@ -49,7 +49,7 @@
 <%if(fattureManagement.getErrorMessage() != null)
 {%>     
     <div id="titolo">
-        Si Ã¨ verificato un Errore!
+        Si è verificato un Errore!
     </div>
     <div id="testo">
     <%=fattureManagement.getErrorMessage()%>

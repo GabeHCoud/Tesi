@@ -18,16 +18,21 @@ import blogics.MailService;
 import blogics.Telefono;
 import blogics.TelefonoService;
 import blogics.User;
-import blogics.UserContributo;
-import blogics.UserContributoService;
-import blogics.UserDispositivo;
-import blogics.UserDispositivoService;
 import blogics.UserService;
 import java.beans.*;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.mail.*;
+import javax.mail.internet.*;
 import services.databaseservice.DBService;
 import services.databaseservice.DataBase;
+import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 import services.errorservice.EService;
@@ -40,6 +45,7 @@ public class MailManagement implements Serializable {
     private String userId;
     private ArrayList<User> utenti;
     private ArrayList<Mail> emails;
+    private ArrayList<Fattura> fatture;
     private User selectedUser;
     private String[] selectedUsers;
     private int idFattura;
@@ -47,9 +53,9 @@ public class MailManagement implements Serializable {
     private ArrayList<Consumo> selectedConsumi;
     private ArrayList<Telefono> telefoni;
     private ArrayList<Dispositivo> dispositivi;
-    private ArrayList<UserDispositivo> udispositivi;
     private ArrayList<Contributo> contributi;
-    private ArrayList<UserContributo> ucontributi;
+    private String messaggio;
+    private String password;
     
     private String errorMessage;
     private int result;
@@ -62,15 +68,16 @@ public class MailManagement implements Serializable {
         
         try 
         {
-            database=DBService.getDataBase("new");
+            database=DBService.getDataBase("new");            
             
-            utenti = UserService.getUtenti(database);
-            
-            if(userId != null)
-            {
-                selectedUser = UserService.getUtenteByEmail(database, userId);
-                emails = MailService.getEmailsByUserId(database, userId);
-            }
+            fatture = FatturaService.getFatture(database);
+//            utenti = UserService.getUtenti(database);
+//            
+//            if(userId != null)
+//            {
+//                selectedUser = UserService.getUtenteByEmail(database, userId);
+//                emails = MailService.getEmailsByUserId(database, userId);
+//            }
             
         }catch (NotFoundDBException ex) 
         {
@@ -106,10 +113,7 @@ public class MailManagement implements Serializable {
             utenti = UserService.getUtenti(database);   
             telefoni = TelefonoService.getTelefoni(database);
             dispositivi = DispositivoService.getDispositivi(database);
-            udispositivi = UserDispositivoService.getUserDispositivi(database);
-            contributi = ContributoService.getContributi(database);
-            ucontributi = UserContributoService.getUserContributi(database);
-            
+            contributi = ContributoService.getContributi(database);            
             
         }catch (NotFoundDBException ex) 
         {
@@ -132,7 +136,187 @@ public class MailManagement implements Serializable {
         }
     }
     
-    
+    public void send()
+    {
+        DataBase database = null;        
+        String resultMessage = "";
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            selectedFattura = FatturaService.getFatturaById(database, idFattura);
+            selectedConsumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
+            utenti = UserService.getUtenti(database);   
+            telefoni = TelefonoService.getTelefoni(database);
+            dispositivi = DispositivoService.getDispositivi(database);
+            contributi = ContributoService.getContributi(database); 
+        
+            Properties props = System.getProperties();
+            props.put("mail.smtp.host", "smtp.gmail.com");
+            props.put("mail.smtp.socketFactory.port", "465");
+            props.put("mail.smtp.socketFactory.class","javax.net.ssl.SSLSocketFactory");
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.port", "465");
+
+            Session session = Session.getDefaultInstance(props,new Authenticator() {
+                 protected PasswordAuthentication getPasswordAuthentication() {
+                      return new PasswordAuthentication("nicola.massari@student.unife.it",password); 
+                 }
+            });
+            
+            Message message = new MimeMessage(session);
+            InternetAddress from = new InternetAddress("nicola.massari@student.unife.it");
+            InternetAddress to[];
+            for(int i=0; i<selectedUsers.length;i++)
+            {   
+                String baseMessage = messaggio.trim();    
+                to = InternetAddress.parse(selectedUsers[i]);
+
+                message.setFrom(from);
+                message.setRecipients(Message.RecipientType.TO, to);
+                message.setSubject("Fattura Telecom");
+                message.setSentDate(new java.util.Date());
+                
+                //imposto messaggio
+                User utente = null;               
+                for(User u : utenti)
+                {
+                    if(u.Email.equals(selectedUsers[i]))
+                        utente = u;
+                } 
+                
+                baseMessage = baseMessage.replace("<nome>", utente.Nome);
+                baseMessage = baseMessage.replace("<cognome>", utente.Cognome);                    
+                boolean isFirst = true;
+                
+                for(Telefono t : telefoni)
+                {    
+                    if(t.Email.equals(utente.Email))
+                    {
+                        if(isFirst)
+                        {
+                            isFirst = false;
+                        }else
+                        {    
+                            // dal 2° numero in poi inizio un nuovo messaggio da aggiungere
+                            baseMessage = messaggio.trim();
+                            int startIndex = baseMessage.indexOf("Telefono");                        
+                            baseMessage = baseMessage.substring(startIndex,baseMessage.length());                            
+                        }
+                        
+                        baseMessage = baseMessage.replace("<telefono>", t.Numero);
+                        
+                        for(Consumo c : selectedConsumi){                        
+                            if(c.Telefono.equals(t.Numero))
+                            {    
+                                baseMessage = baseMessage.replace("<contributi>", Double.toString(c.CRB));
+                                baseMessage = baseMessage.replace("<aaa>", Double.toString(c.AAA));
+                                baseMessage = baseMessage.replace("<abb>", Double.toString(c.ABB));
+                                baseMessage = baseMessage.replace("<totale>", Double.toString(c.Totale));
+                            }
+                        }
+                        
+                        if(t.IdContributo > 0)
+                        {
+                            for(Contributo c : contributi)
+                            {
+                                if(c.IdContributo == t.IdContributo)
+                                {
+                                    baseMessage = baseMessage.replace("<contributo>",c.Nome);
+                                    baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(c.Costo));
+                                }
+                            }
+                        }else //nessun contributo
+                        {
+                            baseMessage = baseMessage.replace("<contributo>", "nessun contributo o abbonamento");
+                            baseMessage = baseMessage.replaceFirst("<costo>","0");
+                        }
+                        
+                        if(t.IdDispositivo > 0)
+                        {
+                            for(Dispositivo d : dispositivi)
+                            {
+                                if(d.IdDispositivo == t.IdDispositivo)
+                                {
+                                    baseMessage = baseMessage.replace("<dispositivo>",d.Nome);
+                                    baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(d.Costo));
+                                    baseMessage += "<br/><br/>";
+                                }
+                            }
+                        }else //nessun dispostivo
+                        {
+                            baseMessage = baseMessage.replace("<dispositivo>", "nessun dispositivo");
+                            baseMessage = baseMessage.replaceFirst("<costo>","0");
+                            baseMessage += "<br/><br/>";
+                        }           
+                        
+                        resultMessage += baseMessage.replaceAll("\n","<br/>");;
+                    }                        
+                }               
+                
+//                message.setText(resultMessage);
+//                message.setContent(resultMessage, "text/html; charset=ISO-8859-1");
+//                Transport tr = session.getTransport("smtp");
+//                tr.connect("smtp.gmail.com", "nicola.massari@student.unife.it",password);
+//                message.saveChanges();
+//                tr.sendMessage(message, message.getAllRecipients());
+//                tr.close(); 
+                
+                //salvo nel db
+                Date d = new Date();
+                SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                String date = df.format(d);
+                
+                try{
+                    MailService.InsertMail(database, date, resultMessage, idFattura, selectedUsers[i]);                
+                    database.commit();
+                }catch (NotFoundDBException ex) 
+                {
+                    EService.logAndRecover(ex);
+                    setResult(EService.UNRECOVERABLE_ERROR);
+                    if(database!=null)
+                    database.rollBack();
+                }catch (DuplicatedRecordDBException ex) 
+                {
+                    EService.logAndRecover(ex);
+                    setResult(EService.RECOVERABLE_ERROR);
+                    setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+                    if(database!=null)
+                    database.rollBack();
+                }
+                catch (ResultSetDBException ex) 
+                {
+                    EService.logAndRecover(ex);
+                    setResult(EService.UNRECOVERABLE_ERROR);
+                    if(database!=null)
+                    database.rollBack();
+                }
+            }
+        } 
+        catch (MessagingException ex) 
+        {
+            Logger.getLogger(MailManagement.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }          
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
     
     
     public String getUserId()
@@ -183,6 +367,26 @@ public class MailManagement implements Serializable {
     public void setEmails(ArrayList<Mail> emails)
     {
         this.emails = emails;
+    }
+    
+    public Fattura getFattura(int i)
+    {
+        return fatture.get(i);
+    }
+    
+    public void setFattura(int i,Fattura fattura)
+    {
+        fatture.set(i, fattura);
+    }
+    
+    public ArrayList<Fattura> getFatture()
+    {
+        return fatture;
+    }
+    
+    public void setFatture(ArrayList<Fattura> fatture)
+    {
+        this.fatture = fatture;
     }
     
     public User getSelectedUser()
@@ -293,27 +497,7 @@ public class MailManagement implements Serializable {
     public void setDispositivi(ArrayList<Dispositivo> dispositivi)
     {
         this.dispositivi = dispositivi;
-    }
-    
-    public UserDispositivo getUdispositivo(int i)
-    {
-        return udispositivi.get(i);
-    }
-    
-    public void setUdispositivo(int i,UserDispositivo udispositivo)
-    {
-        udispositivi.set(i, udispositivo);
-    }
-    
-    public ArrayList<UserDispositivo> getUdispositivi()
-    {
-        return udispositivi;
-    }
-    
-    public void setUdispositivi(ArrayList<UserDispositivo> udispositivi)
-    {
-        this.udispositivi = udispositivi;
-    }
+    }  
     
     public Contributo getContributo(int i)
     {
@@ -333,29 +517,27 @@ public class MailManagement implements Serializable {
     public void setContributi(ArrayList<Contributo> contributi)
     {
         this.contributi = contributi;
-    }
+    }    
     
-    public UserContributo getUcontributo(int i)
+    public String getMessaggio()
     {
-        return ucontributi.get(i);
+        return messaggio;
     }
     
-    public void setUcontributo(int i,UserContributo ucontributo)
+    public void setMessaggio(String messaggio)
     {
-        ucontributi.set(i, ucontributo);
+        this.messaggio = messaggio;
     }
     
-    public ArrayList<UserContributo> getUcontributi()
+    public String getPassword()
     {
-        return ucontributi;
+        return password;
     }
     
-    public void setUContributi(ArrayList<UserContributo> ucontributi)
+    public void setPassword(String password)
     {
-        this.ucontributi = ucontributi;
+        this.password = password;
     }
-    
-    
     
     
     

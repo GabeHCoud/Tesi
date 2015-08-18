@@ -11,6 +11,7 @@ import services.databaseservice.DataBase;
 import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
+import util.Conversion;
 
 public class Contributo {
     public int IdContributo;
@@ -38,7 +39,7 @@ public class Contributo {
     String sql="";
     
     sql+=" INSERT INTO contributo (Nome,Costo)"
-        +" VALUES ('"+Nome+"',"+Costo+")";
+        +" VALUES ('"+Conversion.getDatabaseString(Nome)+"',"+Costo+")";
     database.modify(sql);
     }
     
@@ -56,8 +57,8 @@ public class Contributo {
         
         String sql = "";
         sql +=  " UPDATE contributo "+
-                " SET Nome = '" + Nome + "', " +                
-                " Costo = " + Costo + ", " + 
+                " SET Nome = '" + Conversion.getDatabaseString(Nome) + "', " +                
+                " Costo = " + Costo +
                 " WHERE IdContributo = "+IdContributo;
         
         database.modify(sql);  

@@ -7,6 +7,7 @@ import services.databaseservice.*;
 import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
+import util.Conversion;
 
 
 public class Mail {
@@ -38,18 +39,33 @@ public class Mail {
     
     String sql="";
     
-    sql+=" INSERT INTO mail(Data,Testo,IdFattura,Email)"
-        +" VALUES ('"+Data+"','"+Testo+"',"+IdFattura+",'"+Email+"')";
+    sql+=   " SELECT * FROM mail"+
+            " WHERE IdFattura="+IdFattura+
+            " AND Email='"+Conversion.getDatabaseString(Email)+"'";
+    
+    ResultSet resultSet=database.select(sql);
+    
+    try {
+        if (resultSet.next()) {
+            throw new DuplicatedRecordDBException("E' già stata inviata una email all'utente per la fattura selezionata.");
+        } 
+    } catch (SQLException ex) {
+        throw new ResultSetDBException("Mail: insert():  Errore nel ResultSet: "+ex.getMessage(),database);
+    }   
+    
+    
+    sql =" INSERT INTO mail(Data,Testo,IdFattura,Email)"
+        +" VALUES ('"+Conversion.getDatabaseString(Data)+"','"+Conversion.getDatabaseString(Testo)+"',"+IdFattura+",'"+Conversion.getDatabaseString(Email)+"')";
     database.modify(sql);
-    }
+}
     
     public void delete(DataBase database) 
             throws NotFoundDBException ,ResultSetDBException 
     {
         String sql = "";
         sql+=   " DELETE FROM mail "+
-                " WHERE Data='"+Data+"'"+
-                " AND Email='"+Email+"'"+
+                " WHERE Data='"+Conversion.getDatabaseString(Data)+"'"+
+                " AND Email='"+Conversion.getDatabaseString(Email)+"'"+
                 " AND IdFattura="+IdFattura;        
         
         database.modify(sql); 
@@ -60,9 +76,9 @@ public class Mail {
         
         String sql = "";
         sql +=  " UPDATE mail "+
-                " SET Testo = '" + Testo + "'" +      
-                " WHERE Data='"+Data+"'"+
-                " AND Email='"+Email+"'"+
+                " SET Testo = '" + Conversion.getDatabaseString(Testo) + "'" +      
+                " WHERE Data='"+Conversion.getDatabaseString(Data)+"'"+
+                " AND Email='"+Conversion.getDatabaseString(Email)+"'"+
                 " AND IdFattura="+IdFattura;   
         
         database.modify(sql);  

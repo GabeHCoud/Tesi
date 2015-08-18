@@ -60,7 +60,7 @@ public class FattureManagement implements Serializable {
     private java.io.File outputFile;
     private Fattura fattura;
     private ArrayList<Consumo> consumi;    
-    ArrayList<User> utenti;
+    private ArrayList<User> utenti;
     private String errorMessage;
     private int result;
     private String data;

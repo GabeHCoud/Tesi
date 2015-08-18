@@ -1,5 +1,6 @@
 package blogics;
 
+import java.nio.charset.Charset;
 import java.sql.*;
 
 import java.sql.*;
@@ -8,6 +9,7 @@ import services.databaseservice.*;
 import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
+import util.Conversion;
 
 public class User {
     public String Email;
@@ -35,7 +37,7 @@ public class User {
         
         //controllo duplicati
         sql +=  " SELECT * FROM utente"+
-                " WHERE Email='"+Email+"'";
+                " WHERE Email='"+Conversion.getDatabaseString(Email)+"'";
         
         ResultSet resultSet=database.select(sql);
     
@@ -48,7 +50,9 @@ public class User {
         }        
 
         sql=" INSERT INTO utente(Email,Nome,Cognome)"
-            +" VALUES ('"+Email+"','"+Nome+"','"+Cognome+"')";
+            +" VALUES ('"+Conversion.getDatabaseString(Email)+"','"
+                +Conversion.getDatabaseString(Nome)+"','"
+                +Conversion.getDatabaseString(Cognome)+"')";
         database.modify(sql);
     }
     
@@ -57,7 +61,7 @@ public class User {
     {
         String sql = "";
         sql+=   " DELETE FROM utente "+
-                " WHERE Email='"+Email+"'";                
+                " WHERE Email='"+Conversion.getDatabaseString(Email)+"'";                
         
         database.modify(sql); 
     }
@@ -67,9 +71,9 @@ public class User {
         
         String sql = "";
         sql +=  " UPDATE utente "+
-                " SET Nome = '" + Nome + "',"+
-                " Cognome = '" + Cognome +"'"+     
-                " WHERE Email='"+Email+"'";        
+                " SET Nome = '" + Conversion.getDatabaseString(Nome) + "',"+
+                " Cognome = '" + Conversion.getDatabaseString(Cognome) +"'"+     
+                " WHERE Email='"+Conversion.getDatabaseString(Email)+"'";        
         
         database.modify(sql);  
     }   
@@ -79,10 +83,10 @@ public class User {
         
         String sql = "";
         sql +=  " UPDATE utente "+
-                " SET Nome = '" + Nome + "',"+
-                " Cognome = '" + Cognome +"',"+
-                " Email = '" + newemail +"'"+   
-                " WHERE Email='"+Email+"'";        
+                " SET Nome = '" + Conversion.getDatabaseString(Nome) + "',"+
+                " Cognome = '" + Conversion.getDatabaseString(Cognome) +"',"+
+                " Email = '" + Conversion.getDatabaseString(newemail) +"'"+   
+                " WHERE Email='"+Conversion.getDatabaseString(Email)+"'";        
         
         database.modify(sql);  
     }  

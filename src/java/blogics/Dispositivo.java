@@ -7,6 +7,7 @@ import services.databaseservice.*;
 import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
+import util.Conversion;
 
 public class Dispositivo {
     public int IdDispositivo;
@@ -34,7 +35,7 @@ public class Dispositivo {
     String sql="";
     
     sql+=" INSERT INTO dispositivo (Nome,Costo)"
-        +" VALUES ('"+Nome+"',"+Costo+")";
+        +" VALUES ('"+Conversion.getDatabaseString(Nome)+"',"+Costo+")";
     database.modify(sql);
     }
     
@@ -52,8 +53,8 @@ public class Dispositivo {
         
         String sql = "";
         sql +=  " UPDATE dispositivo "+
-                " SET Nome = '" + Nome + "', " +                
-                " Costo = " + Costo + ", " + 
+                " SET Nome = '" + Conversion.getDatabaseString(Nome) + "', " +                
+                " Costo = " + Costo +  
                 " WHERE IdDispositivo = "+IdDispositivo;
         
         database.modify(sql);  

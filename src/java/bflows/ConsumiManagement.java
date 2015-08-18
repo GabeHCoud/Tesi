@@ -9,6 +9,8 @@ import blogics.Consumo;
 import blogics.ConsumoService;
 import blogics.Fattura;
 import blogics.FatturaService;
+import blogics.User;
+import blogics.UserService;
 import java.beans.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import services.errorservice.EService;
 public class ConsumiManagement implements Serializable {    
     private ArrayList<Fattura> fatture;
     private ArrayList<Consumo> consumi;  
+    private ArrayList<User> utenti;
     private int idFattura;    
     private Fattura selectedFattura;
     private Consumo selectedConsumo;
@@ -79,6 +82,7 @@ public class ConsumiManagement implements Serializable {
             database=DBService.getDataBase("new");
             
             selectedFattura = FatturaService.getFatturaById(database, idFattura);
+            utenti = UserService.getUtenti(database);
             consumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
             
             database.commit();
@@ -160,6 +164,7 @@ public class ConsumiManagement implements Serializable {
             
             database.commit();
             
+            utenti = UserService.getUtenti(database);
             fatture = FatturaService.getFatture(database);            
             selectedFattura = FatturaService.getFatturaById(database, idFattura);
             consumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
@@ -268,6 +273,26 @@ public class ConsumiManagement implements Serializable {
     public void setFatture(ArrayList<Fattura> fatture)
     {
         this.fatture = fatture;
+    }
+    
+    public User getUtente(int i)
+    {
+        return utenti.get(i);
+    }
+    
+    public void setUtente(int i,User utente)
+    {
+        utenti.set(i, utente);
+    }
+    
+    public ArrayList<User> getUtenti()
+    {
+        return utenti;
+    }
+    
+    public void setUtenti(ArrayList<User> utenti)
+    {
+        this.utenti = utenti;
     }
     
     public int getIdFattura() 

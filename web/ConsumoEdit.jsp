@@ -5,7 +5,7 @@
 <%@page import="java.io.*"%>
 <%@page import="java.io.FileOutputStream"%>
 <%@page import="java.io.File"%>
-<%@page contentType="text/html" pageEncoding="UTF-8" session="false"%>
+<%@page contentType="text/html" pageEncoding="ISO-8859-1" session="false"%>
 <%@page import="util.*"%>
 
 <%@page buffer="40kb" %>
@@ -43,7 +43,7 @@
 <%if(consumiManagement.getErrorMessage() != null)
 {%>     
     <div id="titolo">
-        Si è verificato un Errore!
+        Si � verificato un Errore!
     </div>
     <div id="testo">
     <%=consumiManagement.getErrorMessage()%>
@@ -64,7 +64,7 @@
                         <b>Descrizione</b>
                     </td>
                     <td>
-                        <b>Importo €</b>
+                        <b>Importo ?</b>
                     </td>
                     <td>
                         <b>Modifica</b>

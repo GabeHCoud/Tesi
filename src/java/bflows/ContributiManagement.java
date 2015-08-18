@@ -10,8 +10,6 @@ import blogics.ContributoService;
 import blogics.Dispositivo;
 import blogics.DispositivoService;
 import blogics.User;
-import blogics.UserContributo;
-import blogics.UserContributoService;
 import blogics.UserService;
 import java.beans.*;
 import java.io.Serializable;
@@ -24,14 +22,10 @@ import services.databaseservice.exception.ResultSetDBException;
 import services.errorservice.EService;
 
 
-public class ContributiManagement implements Serializable {
-    
-    private String email;
+public class ContributiManagement implements Serializable {    
     private ArrayList<Contributo> contributi;
-    private ArrayList<UserContributo> ucontributi;
-    private User utente;
+    private Contributo selectedContributo;
     private int idContributo;
-    private int idUserContributo;
     private String nome;
     private double costo;
     
@@ -73,7 +67,7 @@ public class ContributiManagement implements Serializable {
         }
     }
     
-    public void add()
+    public void addSubscription()
     {        
         DataBase database = null;        
         
@@ -113,7 +107,7 @@ public class ContributiManagement implements Serializable {
         }
     }
     
-    public void delete()
+    public void deleteSubscription()
     {
         DataBase database = null;        
         
@@ -148,7 +142,7 @@ public class ContributiManagement implements Serializable {
         }
     }
     
-    public void viewUserSubscriptions()
+    public void viewEditSubscription()
     {
         DataBase database = null;        
         
@@ -156,9 +150,7 @@ public class ContributiManagement implements Serializable {
         {
             database=DBService.getDataBase("new");
             
-            utente = UserService.getUtenteByEmail(database, email);           
-            ucontributi = UserContributoService.getUserContributiByEmail(database, email);
-            contributi = ContributoService.getContributi(database);
+            selectedContributo = ContributoService.getContributoById(database,idContributo);
             
         }catch (NotFoundDBException ex) 
         {
@@ -181,7 +173,7 @@ public class ContributiManagement implements Serializable {
         }
     }
     
-    public void addUserSubscription()
+    public void editSubscription()
     {
         DataBase database = null;        
         
@@ -189,54 +181,12 @@ public class ContributiManagement implements Serializable {
         {
             database=DBService.getDataBase("new");
             
-            UserContributoService.insertNewUserContributo(database, email, idContributo);
-            
+            selectedContributo = ContributoService.getContributoById(database, idContributo);
+            selectedContributo.Nome = nome;
+            selectedContributo.Costo = costo;
+            selectedContributo.update(database);
             database.commit();
-            utente = UserService.getUtenteByEmail(database, email);
-            ucontributi = UserContributoService.getUserContributiByEmail(database, email);
-            contributi = ContributoService.getContributi(database);
             
-        }catch (NotFoundDBException ex) 
-        {
-            EService.logAndRecover(ex);
-            setResult(EService.UNRECOVERABLE_ERROR);
-            if(database!=null)
-            database.rollBack();
-        }catch (DuplicatedRecordDBException ex) 
-        {
-            EService.logAndRecover(ex);
-            setResult(EService.RECOVERABLE_ERROR);
-            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
-            if(database!=null)
-            database.rollBack();
-        }catch (ResultSetDBException ex) 
-        {
-            EService.logAndRecover(ex);
-            setResult(EService.UNRECOVERABLE_ERROR);
-            if(database!=null)
-            database.rollBack();
-        }  
-        finally 
-        {
-            try { database.close(); }
-            catch (NotFoundDBException e) { EService.logAndRecover(e); }
-        }        
-    }
-    
-    public void deleteUserSubscription()
-    {
-        DataBase database = null;        
-        
-        try 
-        {
-            database=DBService.getDataBase("new");
-            
-            UserContributo contributo = UserContributoService.getUserContributoById(database, idUserContributo);
-            contributo.delete(database);
-            
-            database.commit();
-            utente = UserService.getUtenteByEmail(database, email);           
-            ucontributi = UserContributoService.getUserContributiByEmail(database, email);
             contributi = ContributoService.getContributi(database);
             
         }catch (NotFoundDBException ex) 
@@ -261,16 +211,16 @@ public class ContributiManagement implements Serializable {
     }
     
     
-    public String getEmail()
+    public Contributo getSelectedContributo()
     {
-        return email;
+        return selectedContributo;
     }
     
-    public void setEmail(String email)
+    public void setSelectedContributo(Contributo selectedContributo)
     {
-        this.email = email;
+        this.selectedContributo = selectedContributo;
     }
-    
+      
     public Contributo getContributo(int i)
     {
         return contributi.get(i);
@@ -289,37 +239,7 @@ public class ContributiManagement implements Serializable {
     public void setContributi(ArrayList<Contributo> contributi)
     {
         this.contributi = contributi;
-    }
-    
-    public UserContributo getUcontributo(int i)
-    {
-        return ucontributi.get(i);
-    }
-    
-    public void setUcontributo(int i,UserContributo ucontributo)
-    {
-        ucontributi.set(i, ucontributo);
-    }
-    
-    public ArrayList<UserContributo> getUcontributi()
-    {
-        return ucontributi;
-    }
-    
-    public void setUContributi(ArrayList<UserContributo> ucontributi)
-    {
-        this.ucontributi = ucontributi;
-    }
-    
-    public User getUtente()
-    {
-        return utente;
-    }
-    
-    public void setUtente(User utente)
-    {
-        this.utente = utente;
-    }
+    }  
     
     public int getIdContributo()
     {
@@ -329,16 +249,6 @@ public class ContributiManagement implements Serializable {
     public void setIdContributo(int idContributo)
     {
         this.idContributo = idContributo;
-    }
-    
-    public int getIdUserContributo()
-    {
-        return idUserContributo;
-    }
-    
-    public void setIdUserContributo(int idUserContributo)
-    {
-        this.idUserContributo = idUserContributo;
     }
     
     public String getNome()

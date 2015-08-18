@@ -4,7 +4,7 @@
 <%@page import="java.io.File"%>
 <%@page import="java.io.DataInputStream"%>
 <%@page import="util.Conversion"%>
-<%@page contentType="text/html" pageEncoding="UTF-8" session="false"%>
+<%@page contentType="text/html" pageEncoding="ISO-8859-1" session="false"%>
 <%//@page import="services.sessionservice.*" %>
 <%@page import="util.*"%>
 
@@ -66,7 +66,7 @@
 <%if(consumiManagement.getErrorMessage() != null)
 {%>     
     <div id="titolo">
-        Si è verificato un Errore!
+        Si � verificato un Errore!
     </div>
     <div id="testo">
     <%=consumiManagement.getErrorMessage()%>
@@ -90,7 +90,7 @@
                         <b>Descrizione</b>
                     </td>
                     <td>
-                        <b>Importo €</b>
+                        <b>Importo ?</b>
                     </td>
                     <td>
                         <b>Modifica</b>
@@ -175,66 +175,40 @@
                 for(Fattura f : fatture)
                 {
                     if((fatture.indexOf(f) % 2) == 1)//dispari
-                    {
-                %>
-                <tr>                    
-                    <td width="200"> 
-                        Fattura del: <%=f.Data%>
-                    </td>                
-                    <td width="100">
-                        <form name="details" method="post" action="Fatture.jsp">
-                            <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
-                            <input type="hidden" name="status" value="details">
-                            <center><input type="image" name="submit" src="images/details.png"></center>
-                        </form>
-                    </td>
-                    <td width="100">
-                        <form name="delete" method="post" action="Fatture.jsp">
-                            <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
-                            <input type="hidden" name="status" value="delete"/>
-                            <center><input type="image" name="submit" src="images/delete.jpg"></center>
-                        </form>
-                    </td>
-                    <td width="100">
-                        <form name="viewMail" method="post" action="Mail.jsp">
-                            <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
-                            <input type="hidden" name="status" value="viewFattura"/>
-                            <center><input type="image" name="submit" src="images/mail.jpg"></center>
-                        </form>
-                    </td>
-                </tr>
-                 <%
-                    }else if((fatture.indexOf(f) % 2) == 0)//pari
+                    {%>
+                    <tr class="alternate">  
+                    <%
+                    }else //pari
                     {                
-                %>
-                <tr class="alternate">
-                    <td width="200"> 
-                        Fattura del: <%=f.Data%>
-                    </td>                
-                    <td width="100">
-                        <form name="details" method="post" action="Fatture.jsp">
-                            <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
-                            <input type="hidden" name="status" value="details">
-                            <center><input type="image" name="submit" src="images/details.png"></center>
-                        </form>
-                    </td>
-                    <td width="100">
-                        <form name="delete" method="post" action="Fatture.jsp">
-                            <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
-                            <input type="hidden" name="status" value="delete"/>
-                            <center><input type="image" name="submit" src="images/delete.jpg"></center>
-                        </form>
-                    </td>
-                    <td width="100">
-                        <form name="viewMail" method="post" action="Mail.jsp">
-                            <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
-                            <input type="hidden" name="status" value="viewFattura"/>
-                            <center><input type="image" name="submit" src="images/mail.jpg"></center>
-                        </form>
-                    </td>
-                </tr>
-                <%  }
-                }%>  
+                    %>
+                    <tr >
+                    <%}%>
+                        <td width="200"> 
+                            Fattura del: <%=f.Data%>
+                        </td>                
+                        <td width="100">
+                            <form name="details" method="post" action="Fatture.jsp">
+                                <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
+                                <input type="hidden" name="status" value="details">
+                                <center><input type="image" name="submit" src="images/details.png"></center>
+                            </form>
+                        </td>
+                        <td width="100">
+                            <form name="delete" method="post" action="Fatture.jsp">
+                                <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
+                                <input type="hidden" name="status" value="delete"/>
+                                <center><input type="image" name="submit" src="images/delete.jpg"></center>
+                            </form>
+                        </td>
+                        <td width="100">
+                            <form name="viewMail" method="post" action="Mail.jsp">
+                                <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
+                                <input type="hidden" name="status" value="viewFattura"/>
+                                <center><input type="image" name="submit" src="images/mail.jpg"></center>
+                            </form>
+                        </td>
+                    </tr>
+                <%}%>  
             </table>
         <%  }
 
@@ -247,19 +221,19 @@
             <div id="testo">
                 <table cellspacing="0"> 
                     <tr class="alternate">
-                        <td width="200">
+                        <td width="100">
                             <b>Telefono</b>
                         </td>
-                        <td width="300">
+                        <td width="200">
                             <b>Descrizione</b>
                         </td>
-                        <td width="200">
-                            <b>Importo (€)</b>
-                        </td>
                         <td width="100">
+                            <b>Importo (?)</b>
+                        </td>
+                        <td width="50">
                             <b>Modifica</b>
                         </td>
-                        <td width="100">
+                        <td width="50">
                             <b>Utente</b>
                         </td>
                     </tr>   
@@ -267,29 +241,26 @@
                     for(Consumo c : consumi)
                     {
                         if((consumi.indexOf(c) % 2) == 1)//dispari
-                        {
-                    %>
-                    <tr>                    
-                        <td width="200"> 
+                        {%>
+                        <tr class="alternate">  
+                        <%}else{%>
+                        <tr >
+                        <%}%>
+                        <td width="100">
                             <%=c.Telefono%>
                         </td>
-
-                        <td width="300">
+                        <td width="200">
                           Contributi Ricaricabile Business<br/>
                           Altri addebiti e accrediti<br/>
                           Abbonamenti<br/><br/>
                           Totale<br/>
-
                         </td>
-
-
-                        <td width="200"><%=c.CRB%><br/>
+                        <td width="100"><%=c.CRB%><br/>
                             <%=c.AAA%><br/>
                             <%=c.ABB%><br/><br/>
                             <%=c.Totale%><br/>
-
                         </td>
-                        <td width="100">
+                        <td width="50">
                             <form name="edit" method="post" action="Fatture.jsp">
                                 <input type="hidden" name="idFattura" value="<%=consumiManagement.getIdFattura()%>"/>
                                 <input type="hidden" name="telefono" value="<%=c.Telefono %>">
@@ -297,67 +268,32 @@
                                 <center><input type="image" name="submit" src="images/edit.jpg"></center>
                             </form>
                         </td>
-                        <td with="100">
+                        <td width="50">
                             <form name="name" method="post" action="AssociaUtente.jsp">                                
                                 <input type="hidden" name="idFattura" value="<%=consumiManagement.getIdFattura()%>"/>
                                 <input type="hidden" name="numero" value="<%=c.Telefono%>"/>
                                 <input type="hidden" name="status" value="view"/>
-                                <% if(c.Email == null){%>
-                                <center><input type="image" name="submit" src="images/nouser.jpg"></center>
-                                <%}else{%>
-                                <center><img src="images/siuser.jpg"></center>
-                                <%}%>
+                                <% if(c.Email == null){
+                                %>
+                                <center><input type="image" name="submit" src="images/nouser.jpg"></center>                                
+                                <%}else{
+                                    for(User u : consumiManagement.getUtenti())
+                                    {
+                                        if(c.Email.equals(u.Email))
+                                        {%>
+                                        <center>
+                                            <div>
+                                                <img src="images/siuser.jpg"><br/>
+                                                <b><%=u.Cognome%> <%=u.Nome%></b>
+                                            </div>
+                                        </center>
+                                        <%}
+                                    }
+                                }%>
                             </form>
                         </td>
-                    </tr>
-
-                    <%
-                        }else if((consumi.indexOf(c) % 2) == 0)//pari
-                        {                
-                    %>
-                    <tr class="alternate">                
-                        <td width="200"> 
-                            <%=c.Telefono%>
-                        </td>
-
-                        <td width="300">
-                          Contributi Ricaricabile Business<br/>
-                          Altri addebiti e accrediti<br/>
-                          Abbonamenti<br/><br/>
-                          Totale<br/>
-
-                        </td>
-
-
-                        <td width="200"><%=c.CRB%><br/>
-                            <%=c.AAA%><br/>
-                            <%=c.ABB%><br/><br/>
-                            <%=c.Totale%><br/>
-
-                        </td>
-                        <td width="100">
-                            <form name="edit" method="post" action="Fatture.jsp">
-                                <input type="hidden" name="idFattura" value="<%=consumiManagement.getIdFattura()%>"/>
-                                <input type="hidden" name="telefono" value="<%=c.Telefono %>">
-                                <input type="hidden" name="status" value="editView">
-                                <center><input type="image" name="submit" src="images/edit.jpg"></center>
-                            </form>
-                        </td>
-                        <td with="100">
-                            <form name="name" method="post" action="AssociaUtente.jsp">                               
-                                <input type="hidden" name="idFattura" value="<%=consumiManagement.getIdFattura()%>"/>
-                                <input type="hidden" name="numero" value="<%=c.Telefono%>"/>
-                                <input type="hidden" name="status" value="view"/>
-                                <% if(c.Email == null){%>
-                                <center><input type="image" name="submit" src="images/nouser.jpg"></center>
-                                <%}else{%>
-                                <center><img src="images/siuser.jpg"></center>
-                                <%}%>
-                            </form>
-                        </td>
-                   </tr>           
-                    <% }
-                    }%>  
+                    </tr>                          
+                    <%}%>  
                 </table>
             </div>
         <%}%>

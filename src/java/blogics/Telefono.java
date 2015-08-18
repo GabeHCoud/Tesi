@@ -11,6 +11,7 @@ import services.databaseservice.DataBase;
 import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
+import util.Conversion;
 
 
 public class Telefono {
@@ -49,7 +50,7 @@ public class Telefono {
         
         //controllo duplicati
         sql +=  " SELECT * FROM telefono"+
-                " WHERE Numero='"+Numero+"'";
+                " WHERE Numero='"+Conversion.getDatabaseString(Numero)+"'";
         
         ResultSet resultSet=database.select(sql);
     
@@ -63,7 +64,8 @@ public class Telefono {
 
         sql =   " INSERT INTO telefono "+
                 " (Numero,Email)"+       
-                " VALUES('"+Numero+"','"+Email+"')";
+                " VALUES('"+Conversion.getDatabaseString(Numero)+"','"
+                +Conversion.getDatabaseString(Email)+"')";
     
         database.modify(sql);        
     }
@@ -73,7 +75,7 @@ public class Telefono {
     {
         String sql = "";
         sql+= " DELETE FROM telefono " +
-              " WHERE Numero='"+Numero+"'";
+              " WHERE Numero='"+Conversion.getDatabaseString(Numero)+"'";
               
         
         database.modify(sql); 
@@ -87,31 +89,31 @@ public class Telefono {
         if(IdContributo == 0 && IdDispositivo == 0)
         {
             sql +=  " UPDATE telefono "+
-                    " SET Email='" + Email + "'," +     
+                    " SET Email='" + Conversion.getDatabaseString(Email) + "'," +     
                     " IdContributo=" + null + "," +
                     " IdDispositivo=" + null +
-                    " WHERE Numero='"+Numero+"'";     
+                    " WHERE Numero='"+Conversion.getDatabaseString(Numero)+"'";     
         }else if(IdContributo == 0)
         {
             sql +=  " UPDATE telefono "+
-                    " SET Email='" + Email + "'," +     
+                    " SET Email='" + Conversion.getDatabaseString(Email) + "'," +     
                     " IdContributo=" + null + "," +
                     " IdDispositivo=" + IdDispositivo +
-                    " WHERE Numero='"+Numero+"'";  
+                    " WHERE Numero='"+Conversion.getDatabaseString(Numero)+"'";  
         }else if(IdDispositivo == 0)
         {
             sql +=  " UPDATE telefono "+
-                    " SET Email='" + Email + "'," +     
+                    " SET Email='" + Conversion.getDatabaseString(Email) + "'," +     
                     " IdContributo=" + IdContributo + "," +
                     " IdDispositivo=" + null + 
-                    " WHERE Numero='"+Numero+"'";  
+                    " WHERE Numero='"+Conversion.getDatabaseString(Numero)+"'";  
         }else
         {
             sql +=  " UPDATE telefono "+
-                    " SET Email='" + Email + "'," +     
+                    " SET Email='" + Conversion.getDatabaseString(Email) + "'," +     
                     " IdContributo=" + IdContributo + "," +
                     " IdDispositivo=" + IdDispositivo + 
-                    " WHERE Numero='"+Numero+"'";
+                    " WHERE Numero='"+Conversion.getDatabaseString(Numero)+"'";
         }
         
         database.modify(sql);  
@@ -123,8 +125,8 @@ public class Telefono {
         String sql = "";
         
         sql +=  " UPDATE telefono "+
-                    " SET Numero='" + newnumero + "'" +
-                    " WHERE Numero='"+Numero+"'";
+                    " SET Numero='" + Conversion.getDatabaseString(newnumero) + "'" +
+                    " WHERE Numero='"+Conversion.getDatabaseString(Numero)+"'";
         
         database.modify(sql);  
 

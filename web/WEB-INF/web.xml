@@ -8,7 +8,11 @@
         <session-timeout>
             30
         </session-timeout>
-    </session-config><welcome-file-list>
-    <welcome-file>Index.jsp</welcome-file>
-</welcome-file-list>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>Index.jsp</welcome-file>
+    </welcome-file-list>
+    <parameter-encoding>
+        <default-charset>ISO-8859-1</default-charset>
+    </parameter-encoding>
 </web-app>

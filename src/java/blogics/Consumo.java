@@ -4,6 +4,7 @@ import java.sql.*;
 
 import services.databaseservice.*;
 import services.databaseservice.exception.*;
+import util.Conversion;
 /**
  *
  * @author Angela
@@ -48,11 +49,11 @@ public class Consumo {
         if(Email != null)
             sql+=   " INSERT INTO consumo "+
                     " (Telefono,CRB,AAA,ABB,Totale,Email,IdFattura)"+       
-                    " VALUES('"+Telefono+"',"+CRB+","+AAA+","+ABB+","+Totale+",'"+Email+"'"+","+IdFattura+")";
+                    " VALUES('"+Conversion.getDatabaseString(Telefono)+"',"+CRB+","+AAA+","+ABB+","+Totale+",'"+Conversion.getDatabaseString(Email)+"'"+","+IdFattura+")";
         else
             sql+=   " INSERT INTO consumo "+
                     " (Telefono,CRB,AAA,ABB,Totale,IdFattura)"+       
-                    " VALUES('"+Telefono+"',"+CRB+","+AAA+","+ABB+","+Totale+","+IdFattura+")";
+                    " VALUES('"+Conversion.getDatabaseString(Telefono)+"',"+CRB+","+AAA+","+ABB+","+Totale+","+IdFattura+")";
         
         database.modify(sql);        
     }
@@ -76,8 +77,8 @@ public class Consumo {
                 " ,AAA=" + AAA + 
                 " ,ABB=" + ABB + 
                 " ,Totale=" + Totale + 
-                " ,Email='" + Email + "'" +
-                " WHERE Telefono='"+Telefono+"'"+
+                " ,Email='" + Conversion.getDatabaseString(Email) + "'" +
+                " WHERE Telefono='"+Conversion.getDatabaseString(Telefono)+"'"+
                 " AND IdFattura = "+IdFattura;
         
         database.modify(sql);  

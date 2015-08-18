@@ -4,7 +4,7 @@
 <%@page import="java.io.File"%>
 <%@page import="java.io.DataInputStream"%>
 <%@page import="util.Conversion"%>
-<%@page contentType="text/html" pageEncoding="UTF-8" session="false"%>
+<%@page contentType="text/html" pageEncoding="ISO-8859-1" session="false"%>
 <%//@page import="services.sessionservice.*" %>
 <%@page import="util.*"%>
 
@@ -22,21 +22,15 @@
         status = "view";
     
     if(status.equals("view")){
-            contributiManagement.view();
-    } else if(status.equals("add")){
-            contributiManagement.add();
-            
-    }else if (status.equals("delete")){
-            contributiManagement.delete();
-    }else if (status.equals("viewUserSubscriptions")){
-            contributiManagement.viewUserSubscriptions();
-            
-    }else if (status.equals("addUserSubscription")){
-        
-            contributiManagement.addUserSubscription();
-    }else if (status.equals("deleteUserSubscription")){
-            contributiManagement.deleteUserSubscription();
-            
+        contributiManagement.view();
+    } else if(status.equals("addSubscription")){
+        contributiManagement.addSubscription();
+    }else if (status.equals("viewEditSubscription")){
+        contributiManagement.viewEditSubscription();
+    }else if (status.equals("editSubscription")){
+        contributiManagement.editSubscription();
+    }else if (status.equals("deleteSubscription")){
+        contributiManagement.deleteSubscription();
     }
     %>
  
@@ -44,7 +38,7 @@
 <%  if(contributiManagement.getErrorMessage() != null)
     {%>     
     <div id="titolo">
-        Si Ã¨ verificato un Errore!
+        Si è verificato un Errore!
     </div>
     <div id="testo">
     <%=contributiManagement.getErrorMessage()%>
@@ -54,33 +48,46 @@
         </a>
         <br/>
     </div>
-<%  }else if(status.equals("view") || status.equals("add") || status.equals("delete"))
+<%  }else if(status.equals("view") || status.equals("addSubscription") || status.equals("deleteSubscription") || status.equals("editSubscription"))
     {%>     
     <div id="titolo"><b>Contributi ed Abbonamenti</b></div>
     <div id="testo" >        
         <table cellspacing="0"> 
             <tr class="alternate">
                 <td width="50%"><b>Nome</b></td>
-                <td width="25%"><center><b>Costo</b></center></td>
-                <td width="25%"><center><b>Elimina</b></center></td>
+                <td width="17%"><center><b>Costo</b></center></td>
+                <td width="17%"><center><b>Modifica</b></center></td>
+                <td width="17%"><center><b>Elimina</b></center></td>
             </tr>
             <%for(Contributo c : contributiManagement.getContributi())
-            {%>   
-            <tr>
-                <td width="50%"> 
-                         <%=c.Nome%>
-                    </td>
-                    <td width="25%">
-                    <center><%=c.Costo%></center>
-                    </td>
-                    <td width="25%">
-                        <form name="del" method="post" action="Contributi.jsp">
-                            <input type="hidden" name="idContributo" value="<%=c.IdContributo%>">
-                            <input type="hidden" name="status" value="delete">
-                            <center><input type="image" name="submit" src="images/delete.jpg"></center>
-                        </form>
-                    </td>
-            </tr>
+            {
+                if((contributiManagement.getContributi().indexOf(c) % 2) ==0) 
+                {%>   
+                <tr>
+                <%}else{%>
+                <tr class="alternate">
+                <%}%>
+                    <td width="50%"> 
+                             <%=c.Nome%>
+                        </td>
+                        <td width="17%">
+                        <center><%=c.Costo%></center>
+                        </td>
+                        <td width="17%">
+                            <form name="edit" method="post" action="Contributi.jsp">
+                                <input type="hidden" name="idContributo" value="<%=c.IdContributo%>">
+                                <input type="hidden" name="status" value="viewEditSubscription">
+                                <center><input type="image" name="submit" src="images/edit.jpg"></center>
+                            </form>
+                        </td>
+                        <td width="17%">
+                            <form name="del" method="post" action="Contributi.jsp">
+                                <input type="hidden" name="idContributo" value="<%=c.IdContributo%>">
+                                <input type="hidden" name="status" value="deleteSubscription">
+                                <center><input type="image" name="submit" src="images/delete.jpg"></center>
+                            </form>
+                        </td>
+                </tr>
             <%}%>
         </table>        
     </div>
@@ -102,67 +109,31 @@
                 </tr>
                 </table>
                 
-                <input type="hidden" name="status" value="add"/>
+                <input type="hidden" name="status" value="addSubscription"/>
                 <center><input type="submit" value="Aggiungi"/></center>
         </form>
     </div>  
-<%}else if(status.equals("viewUserSubscriptions") || status.equals("addUserSubscription") || status.equals("deleteUserSubscription"))
-{%>
-    <div id="titolo"><b>Contributi ed abbonamenti di <%=contributiManagement.getUtente().Cognome%> <%=contributiManagement.getUtente().Nome%></b></div>
-    <%if(contributiManagement.getUcontributi() != null && contributiManagement.getUcontributi().size() > 0)
-    {%>
-        <div id="testo" >        
-            <table cellspacing="0"> 
-                <tr class="alternate">
-                    <td width="50%"><b>Nome</b></td>
-                    <td width="25%"><center><b>Costo</b></center></td>
-                    <td width="25%"><center><b>Elimina</b></center></td>
-                </tr>
-                <%for(UserContributo uc : contributiManagement.getUcontributi())
-                {
-                    for(Contributo c : contributiManagement.getContributi())
-                    {
-                        if(uc.IdContributo == c.IdContributo)
-                        {%>   
-                        <tr>
-                            <td width="50%"> 
-                                <%=c.Nome%>
-                            </td>
-                            <td width="25%">
-                            <center><%=c.Costo%></center>
-                            </td>
-                            <td width="25%">
-                                <form name="del" method="post" action="Contributi.jsp">
-                                    <input type="hidden" name="idUserContributo" value="<%=uc.IdUtenteContributo %>">
-                                    <input type="hidden" name="email" value="<%=contributiManagement.getUtente().Email%>"/>
-                                    <input type="hidden" name="status" value="deleteUserSubscription">
-                                    <center><input type="image" name="submit" src="images/delete.jpg"></center>
-                                </form>
-                            </td>
-                        </tr>
-                        <%}
-                    }
-                }%>
-            </table>        
-        </div>
-    <%}else{%>
-        <div id="testo">  
-            Nessun contributo o abbonamento associato all'utente selezionato.
-        </div>
-    <%}%>
-    <div id="titolo"><b>Associa un contributo o un abbonamento a <%=contributiManagement.getUtente().Cognome%> <%=contributiManagement.getUtente().Nome%></b></div>
-    <div id="testo">
+<%}else if(status.equals("viewEditSubscription")){%>
+    <div id="titolo"><b>Modifica contributo o abbonamento</b></div>
+    <div id="testo" >
         <form name="fregister" method="post" action="Contributi.jsp">            
-            <select name="idContributo">
-                <%for(Contributo c : contributiManagement.getContributi())
-                {%>
-                <option value="<%=c.IdContributo%>"><%=c.Nome%></option>
-                <%}%>
-            </select>
-                
-            <input type="hidden" name="email" value="<%=contributiManagement.getUtente().Email%>"/>
-            <input type="hidden" name="status" value="addUserSubscription"/>
-            <center><input type="submit" value="Aggiungi"/></center>
+                <table style="background-color:#F0F8FF; width: auto;padding-bottom:0px;padding-top:0px">
+                     <tr style="background-color:#F0F8FF;">
+                    <td width="150">Nome Dispositivo</td>
+                    <td width="250">
+                        <input type="text" name="nome" size="50" maxlength="50" value="<%=contributiManagement.getSelectedContributo().Nome%>"/>
+                    </td>
+                </tr>
+                <tr style="background-color:#F0F8FF;">
+                    <td width="150">Costo</td>
+                    <td width="250">
+                        <input type="text" name="costo" size="25" maxlength="50"  value="<%=contributiManagement.getSelectedContributo().Costo%>"/>
+                    </td>
+                </tr>
+                </table>
+                <input type="hidden" name="idContributo" value="<%=contributiManagement.getSelectedContributo().IdContributo%>">                                        
+                <input type="hidden" name="status" value="editSubscription"/>
+                <center><input type="submit" value="Modifica"/></center>
         </form>
     </div>
 <%}%>
