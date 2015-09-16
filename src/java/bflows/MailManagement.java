@@ -19,11 +19,10 @@ import blogics.Telefono;
 import blogics.TelefonoService;
 import blogics.User;
 import blogics.UserService;
-import java.beans.*;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -71,13 +70,6 @@ public class MailManagement implements Serializable {
             database=DBService.getDataBase("new");            
             
             fatture = FatturaService.getFatture(database);
-//            utenti = UserService.getUtenti(database);
-//            
-//            if(userId != null)
-//            {
-//                selectedUser = UserService.getUtenteByEmail(database, userId);
-//                emails = MailService.getEmailsByUserId(database, userId);
-//            }
             
         }catch (NotFoundDBException ex) 
         {
@@ -111,6 +103,7 @@ public class MailManagement implements Serializable {
             selectedFattura = FatturaService.getFatturaById(database, idFattura);
             selectedConsumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
             utenti = UserService.getUtenti(database);   
+            emails = MailService.getEmailsByFatturaId(database, idFattura);
             telefoni = TelefonoService.getTelefoni(database);
             dispositivi = DispositivoService.getDispositivi(database);
             contributi = ContributoService.getContributi(database);            
@@ -129,6 +122,206 @@ public class MailManagement implements Serializable {
             if(database!=null)
             database.rollBack();
         }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void viewUser()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");            
+            
+            fatture = FatturaService.getFatture(database);
+            utenti = UserService.getUtenti(database);        
+            selectedUser = UserService.getUtenteByEmail(database, userId);
+            emails = MailService.getEmailsByUserId(database, userId);
+            
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void sendTest()
+    {
+        DataBase database = null;        
+        String resultMessage = "";
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            selectedFattura = FatturaService.getFatturaById(database, idFattura);
+            selectedConsumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
+            utenti = UserService.getUtenti(database);   
+            telefoni = TelefonoService.getTelefoni(database);
+            dispositivi = DispositivoService.getDispositivi(database);
+            contributi = ContributoService.getContributi(database); 
+        
+            for(int i=0; i<selectedUsers.length;i++)
+            {   
+                String baseMessage = messaggio.trim();  
+                resultMessage = "";
+                
+                //imposto messaggio
+                User utente = null;               
+                for(User u : utenti)
+                {
+                    if(u.Email.equals(selectedUsers[i]))
+                        utente = u;
+                } 
+                
+                baseMessage = baseMessage.replace("<nome>", utente.Nome);
+                baseMessage = baseMessage.replace("<cognome>", utente.Cognome);                    
+                boolean isFirst = true;
+                
+                for(Telefono t : telefoni)
+                {    
+                    if(t.Email.equals(utente.Email))
+                    {
+                        if(isFirst)
+                        {
+                            isFirst = false;
+                        }else
+                        {    
+                            // dal 2° numero in poi inizio un nuovo messaggio da aggiungere
+                            baseMessage = messaggio.trim();
+                            int startIndex = baseMessage.indexOf("Telefono");                        
+                            baseMessage = baseMessage.substring(startIndex,baseMessage.length());                            
+                        }
+                        
+                        baseMessage = baseMessage.replace("<telefono>", t.Numero);
+                        DecimalFormat df = new DecimalFormat("####.##");  
+                        for(Consumo c : selectedConsumi){                        
+                            if(c.Telefono.equals(t.Numero))
+                            {    
+                                
+                                baseMessage = baseMessage.replace("<contributi>", Double.toString(c.CRB));
+                                double crbI = c.CRB + c.CRB * 22/100;
+                                baseMessage = baseMessage.replace("<contributiI>", df.format(crbI));
+                                baseMessage = baseMessage.replace("<aaa>", Double.toString(c.AAA));
+                                double aaaI = c.AAA + c.AAA * 22/100;
+                                baseMessage = baseMessage.replace("<aaaI>", df.format(aaaI));
+                                baseMessage = baseMessage.replace("<abb>", Double.toString(c.ABB));
+                                double abbI = c.ABB + c.ABB * 22/100;
+                                baseMessage = baseMessage.replace("<abbI>", df.format(abbI));
+                                baseMessage = baseMessage.replace("<totale>", Double.toString(c.Totale));
+                                double totaleI = c.Totale + c.Totale * 22/100;
+                                baseMessage = baseMessage.replace("<totaleI>", df.format(totaleI));
+                            }
+                        }
+                        
+                        if(t.IdContributo > 0)
+                        {
+                            for(Contributo c : contributi)
+                            {
+                                if(c.IdContributo == t.IdContributo)
+                                {
+                                    baseMessage = baseMessage.replace("<contributo>",c.Nome);
+                                    baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(c.Costo));
+                                    double costoI = c.Costo + c.Costo * 22/100;
+                                    baseMessage = baseMessage.replaceFirst("<costoI>", df.format(costoI));
+                                }
+                            }
+                        }else //nessun contributo
+                        {
+                            baseMessage = baseMessage.replace("<contributo>", "nessun contributo o abbonamento");
+                            baseMessage = baseMessage.replaceFirst("<costo>","0");
+                            baseMessage = baseMessage.replaceFirst("\\(<costoI> con IVA\\)","");
+                        }
+                        
+                        if(t.IdDispositivo > 0)
+                        {
+                            for(Dispositivo d : dispositivi)
+                            {
+                                if(d.IdDispositivo == t.IdDispositivo)
+                                {
+                                    df = new DecimalFormat("####.####"); 
+                                    baseMessage = baseMessage.replace("<dispositivo>",d.Nome);
+                                    baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(d.Costo));
+                                    double costoI = d.Costo + d.Costo * 22/100;
+                                    baseMessage = baseMessage.replaceFirst("<costoI>", df.format(costoI));
+                                    baseMessage += "<br/><br/>";
+                                }
+                            }
+                        }else //nessun dispostivo
+                        {
+                            baseMessage = baseMessage.replace("<dispositivo>", "nessun dispositivo");
+                            baseMessage = baseMessage.replaceFirst("<costo>","0");
+                            baseMessage = baseMessage.replaceFirst("\\(<costoI> con IVA\\)","");
+                            baseMessage += "<br/><br/>";
+                        }           
+                        
+                        resultMessage += baseMessage.replaceAll("\n","<br/>");
+                    }                        
+                }      
+                
+                //salvo nel db
+                Date d = new Date();
+                SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+                String date = df.format(d);
+                
+                try{
+                    MailService.InsertMail(database, date, resultMessage, idFattura, selectedUsers[i]);                
+                    database.commit();
+                }catch (NotFoundDBException ex) 
+                {
+                    EService.logAndRecover(ex);
+                    setResult(EService.UNRECOVERABLE_ERROR);
+                    if(database!=null)
+                    database.rollBack();
+                }catch (DuplicatedRecordDBException ex) 
+                {
+                    EService.logAndRecover(ex);
+                    setResult(EService.RECOVERABLE_ERROR);
+                    setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+                    if(database!=null)
+                    database.rollBack();
+                }
+                catch (ResultSetDBException ex) 
+                {
+                    EService.logAndRecover(ex);
+                    setResult(EService.UNRECOVERABLE_ERROR);
+                    if(database!=null)
+                    database.rollBack();
+                }
+            }
+        }         
+        catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            if(database!=null)
+            database.rollBack();
+        }          
         finally 
         {
             try { database.close(); }
@@ -160,16 +353,18 @@ public class MailManagement implements Serializable {
 
             Session session = Session.getDefaultInstance(props,new Authenticator() {
                  protected PasswordAuthentication getPasswordAuthentication() {
-                      return new PasswordAuthentication("nicola.massari@student.unife.it",password); 
+                      return new PasswordAuthentication("erika.foli@unife.it",password); 
                  }
             });
             
             Message message = new MimeMessage(session);
-            InternetAddress from = new InternetAddress("nicola.massari@student.unife.it");
+            InternetAddress from = new InternetAddress("erika.foli@unife.it");
             InternetAddress to[];
             for(int i=0; i<selectedUsers.length;i++)
             {   
                 String baseMessage = messaggio.trim();    
+                resultMessage = "";
+                
                 to = InternetAddress.parse(selectedUsers[i]);
 
                 message.setFrom(from);
@@ -205,14 +400,23 @@ public class MailManagement implements Serializable {
                         }
                         
                         baseMessage = baseMessage.replace("<telefono>", t.Numero);
-                        
+                        DecimalFormat df = new DecimalFormat("####.##");  
                         for(Consumo c : selectedConsumi){                        
                             if(c.Telefono.equals(t.Numero))
                             {    
+                                
                                 baseMessage = baseMessage.replace("<contributi>", Double.toString(c.CRB));
+                                double crbI = c.CRB + c.CRB * 22/100;
+                                baseMessage = baseMessage.replace("<contributiI>", df.format(crbI));
                                 baseMessage = baseMessage.replace("<aaa>", Double.toString(c.AAA));
+                                double aaaI = c.AAA + c.AAA * 22/100;
+                                baseMessage = baseMessage.replace("<aaaI>", df.format(aaaI));
                                 baseMessage = baseMessage.replace("<abb>", Double.toString(c.ABB));
+                                double abbI = c.ABB + c.ABB * 22/100;
+                                baseMessage = baseMessage.replace("<abbI>", df.format(abbI));
                                 baseMessage = baseMessage.replace("<totale>", Double.toString(c.Totale));
+                                double totaleI = c.Totale + c.Totale * 22/100;
+                                baseMessage = baseMessage.replace("<totaleI>", df.format(totaleI));
                             }
                         }
                         
@@ -224,12 +428,15 @@ public class MailManagement implements Serializable {
                                 {
                                     baseMessage = baseMessage.replace("<contributo>",c.Nome);
                                     baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(c.Costo));
+                                    double costoI = c.Costo + c.Costo * 22/100;
+                                    baseMessage = baseMessage.replaceFirst("<costoI>", df.format(costoI));
                                 }
                             }
                         }else //nessun contributo
                         {
                             baseMessage = baseMessage.replace("<contributo>", "nessun contributo o abbonamento");
                             baseMessage = baseMessage.replaceFirst("<costo>","0");
+                            baseMessage = baseMessage.replaceFirst("\\(<costoI> con IVA\\)","");
                         }
                         
                         if(t.IdDispositivo > 0)
@@ -238,8 +445,11 @@ public class MailManagement implements Serializable {
                             {
                                 if(d.IdDispositivo == t.IdDispositivo)
                                 {
+                                    df = new DecimalFormat("####.####"); 
                                     baseMessage = baseMessage.replace("<dispositivo>",d.Nome);
                                     baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(d.Costo));
+                                    double costoI = d.Costo + d.Costo * 22/100;
+                                    baseMessage = baseMessage.replaceFirst("<costoI>", df.format(costoI));
                                     baseMessage += "<br/><br/>";
                                 }
                             }
@@ -247,24 +457,25 @@ public class MailManagement implements Serializable {
                         {
                             baseMessage = baseMessage.replace("<dispositivo>", "nessun dispositivo");
                             baseMessage = baseMessage.replaceFirst("<costo>","0");
+                            baseMessage = baseMessage.replaceFirst("\\(<costoI> con IVA\\)","");
                             baseMessage += "<br/><br/>";
                         }           
                         
-                        resultMessage += baseMessage.replaceAll("\n","<br/>");;
+                        resultMessage += baseMessage.replaceAll("\n","<br/>");
                     }                        
                 }               
                 
-//                message.setText(resultMessage);
-//                message.setContent(resultMessage, "text/html; charset=ISO-8859-1");
-//                Transport tr = session.getTransport("smtp");
-//                tr.connect("smtp.gmail.com", "nicola.massari@student.unife.it",password);
-//                message.saveChanges();
-//                tr.sendMessage(message, message.getAllRecipients());
-//                tr.close(); 
+                message.setText(resultMessage);
+                message.setContent(resultMessage, "text/html; charset=ISO-8859-1");
+                Transport tr = session.getTransport("smtp");
+                tr.connect("smtp.gmail.com", "erika.foli@unife.it",password);
+                message.saveChanges();
+                tr.sendMessage(message, message.getAllRecipients());
+                tr.close(); 
                 
                 //salvo nel db
                 Date d = new Date();
-                SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
                 String date = df.format(d);
                 
                 try{

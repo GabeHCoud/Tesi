@@ -82,7 +82,7 @@
                         </form>
                     </td>
                     <td width="17%">
-                        <form name="del" method="post" action="Dispositivi.jsp">
+                        <form name="del" method="post" action="Dispositivi.jsp" onsubmit="return deleteDispositivoOnSubmit()">
                             <input type="hidden" name="idDispositivo" value="<%=d.IdDispositivo%>">
                             <input type="hidden" name="status" value="deleteDevice">
                             <center><input type="image" name="submit" src="images/delete.jpg"></center>
@@ -94,20 +94,20 @@
     </div>
     <div id="titolo"><b>Aggiungi un dispositivo </b></div>
     <div id="testo" >
-        <form name="fregister" method="post" action="Dispositivi.jsp">            
+        <form method="post" action="Dispositivi.jsp" onsubmit="return addDispositivoOnSubmit(this)">            
                 <table style="background-color:#F0F8FF; width: auto;padding-bottom:0px;padding-top:0px">
-                     <tr style="background-color:#F0F8FF;">
-                    <td width="150">Nome Dispositivo</td>
-                    <td width="250">
-                        <input type="text" name="nome" size="50" maxlength="50"/>
-                    </td>
-                </tr>
-                <tr style="background-color:#F0F8FF;">
-                    <td width="150">Costo</td>
-                    <td width="250">
-                        <input type="text" name="costo" size="25" maxlength="50"/>
-                    </td>
-                </tr>
+                    <tr style="background-color:#F0F8FF;">
+                        <td width="150">Nome Dispositivo</td>
+                        <td width="250">
+                            <input type="text" name="nome" size="50" maxlength="50"/>
+                        </td>
+                    </tr>
+                    <tr style="background-color:#F0F8FF;">
+                        <td width="150">Costo</td>
+                        <td width="250">
+                            <input type="text" name="costo" size="25" placeholder="esempio: 12.34" maxlength="50"/>
+                        </td>
+                    </tr>
                 </table>
                 
                 <input type="hidden" name="status" value="addDevice"/>
@@ -115,9 +115,16 @@
         </form>
     </div>
 <%}else if(status.equals("viewEditDevice")){%>
+
+    <form style="float: left; margin: 10px 20px;" name="back" method="post" action="Dispositivi.jsp">
+        <input type="hidden" name="status" value="view">
+        <input type="image" alt="indietro" name="submit" src="images/back.png">        
+        <br/>
+        <span style="font-size: 10px;">indietro</span>
+    </form>
     <div id="titolo"><b>Modifica dispositivo</b></div>
     <div id="testo" >
-        <form name="fregister" method="post" action="Dispositivi.jsp">            
+        <form name="fregister" method="post" action="Dispositivi.jsp" onsubmit="return editDispositivoOnSubmit(this)">            
                 <table style="background-color:#F0F8FF; width: auto;padding-bottom:0px;padding-top:0px">
                      <tr style="background-color:#F0F8FF;">
                     <td width="150">Nome Dispositivo</td>

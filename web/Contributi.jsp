@@ -81,7 +81,7 @@
                             </form>
                         </td>
                         <td width="17%">
-                            <form name="del" method="post" action="Contributi.jsp">
+                            <form name="del" method="post" action="Contributi.jsp" onsubmit="return deleteContributoOnSubmit()">
                                 <input type="hidden" name="idContributo" value="<%=c.IdContributo%>">
                                 <input type="hidden" name="status" value="deleteSubscription">
                                 <center><input type="image" name="submit" src="images/delete.jpg"></center>
@@ -93,20 +93,20 @@
     </div>
     <div id="titolo"><b>Aggiungi un contributo o abbonamento </b></div>
     <div id="testo">
-        <form name="fregister" method="post" action="Contributi.jsp">            
+        <form name="fregister" method="post" action="Contributi.jsp" onsubmit="return addContributoOnSubmit(this)">            
                 <table style="background-color:#F0F8FF; width: auto;padding-bottom:0px;padding-top:0px">
-                     <tr style="background-color:#F0F8FF;">
-                    <td width="150">Nome</td>
-                    <td width="250">
-                        <input type="text" name="nome" size="50" maxlength="50"/>
-                    </td>
-                </tr>
-                <tr style="background-color:#F0F8FF;">
-                    <td width="150">Costo</td>
-                    <td width="250">
-                        <input type="text" name="costo" size="25" maxlength="50"/>
-                    </td>
-                </tr>
+                    <tr style="background-color:#F0F8FF;">
+                        <td width="150">Nome</td>
+                        <td width="250">
+                            <input type="text" name="nome" size="50" maxlength="50"/>
+                        </td>
+                    </tr>
+                    <tr style="background-color:#F0F8FF;">
+                        <td width="150">Costo</td>
+                        <td width="250">
+                            <input type="text" name="costo" placeholder="esempio: 12.34" size="25" maxlength="50"/>
+                        </td>
+                    </tr>
                 </table>
                 
                 <input type="hidden" name="status" value="addSubscription"/>
@@ -114,22 +114,29 @@
         </form>
     </div>  
 <%}else if(status.equals("viewEditSubscription")){%>
+
+    <form style="float: left; margin: 10px 20px;" name="back" method="post" action="Contributi.jsp">
+        <input type="hidden" name="status" value="view">
+        <input type="image" alt="indietro" name="submit" src="images/back.png">        
+        <br/>
+        <span style="font-size: 10px;">indietro</span>
+    </form>
     <div id="titolo"><b>Modifica contributo o abbonamento</b></div>
     <div id="testo" >
-        <form name="fregister" method="post" action="Contributi.jsp">            
+        <form name="fregister" method="post" action="Contributi.jsp" onsubmit="return editContributoOnSubmit(this)">            
                 <table style="background-color:#F0F8FF; width: auto;padding-bottom:0px;padding-top:0px">
                      <tr style="background-color:#F0F8FF;">
-                    <td width="150">Nome Dispositivo</td>
-                    <td width="250">
-                        <input type="text" name="nome" size="50" maxlength="50" value="<%=contributiManagement.getSelectedContributo().Nome%>"/>
-                    </td>
-                </tr>
-                <tr style="background-color:#F0F8FF;">
-                    <td width="150">Costo</td>
-                    <td width="250">
-                        <input type="text" name="costo" size="25" maxlength="50"  value="<%=contributiManagement.getSelectedContributo().Costo%>"/>
-                    </td>
-                </tr>
+                        <td width="150">Nome Dispositivo</td>
+                        <td width="250">
+                            <input type="text" name="nome" size="50" maxlength="50" value="<%=contributiManagement.getSelectedContributo().Nome%>"/>
+                        </td>
+                    </tr>
+                    <tr style="background-color:#F0F8FF;">
+                        <td width="150">Costo</td>
+                        <td width="250">
+                            <input type="text" name="costo" size="25" maxlength="50"  value="<%=contributiManagement.getSelectedContributo().Costo%>"/>
+                        </td>
+                    </tr>
                 </table>
                 <input type="hidden" name="idContributo" value="<%=contributiManagement.getSelectedContributo().IdContributo%>">                                        
                 <input type="hidden" name="status" value="editSubscription"/>

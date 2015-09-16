@@ -5,7 +5,6 @@
  */
 package bflows;
 
-import blogics.ExtractedPdfPage;
 import blogics.Consumo;
 import blogics.ConsumoService;
 import blogics.Fattura;
@@ -13,37 +12,15 @@ import blogics.FatturaService;
 import blogics.Telefono;
 import blogics.TelefonoService;
 import blogics.User;
-import blogics.UserService;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
-import static com.sun.org.apache.xml.internal.serialize.OutputFormat.Defaults.Encoding;
-//import com.snowtide.PDF;
-//import com.snowtide.pdf.Document;
-//import com.snowtide.pdf.OutputTarget;
-//import com.snowtide.pdf.Page;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
-
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
-import org.icepdf.core.exceptions.PDFException;
-import org.icepdf.core.pobjects.Document;
-import org.icepdf.core.pobjects.graphics.text.LineText;
-import org.icepdf.core.pobjects.graphics.text.PageText;
-import org.icepdf.core.pobjects.graphics.text.WordText;
 import services.databaseservice.DBService;
 import services.databaseservice.DataBase;
 import services.databaseservice.exception.DuplicatedRecordDBException;
@@ -64,6 +41,9 @@ public class FattureManagement implements Serializable {
     private String errorMessage;
     private int result;
     private String data;
+    private double totale;
+    private double contributi;
+    private double altri;
     
     public FattureManagement() {}   
    
@@ -95,6 +75,11 @@ public class FattureManagement implements Serializable {
         
             boolean startPointFound = false;
             boolean dateFound = false;
+            boolean totaleFound = false;
+            boolean contributiFound = false;
+            boolean altriFound = false;
+            
+            
             Consumo consumo = null;             
 
             for(String line : lines)
@@ -114,8 +99,44 @@ public class FattureManagement implements Serializable {
                             }                            
                         }
                     }  
-                }          
-
+                }       
+                
+                //recupero totale fattura con iva
+                if(!totaleFound)
+                {
+                    if(line.contains("IMPORTO"))
+                    {
+                        String cleanLine = line.replaceAll("\\s+"," ").replaceAll("_","");
+                        String importo  = cleanLine.replace("IMPORTO: ","").replace("Euro","").trim();
+                        totale = Double.parseDouble(importo.replace(".","").replace(",","."));
+                        totaleFound = true;
+                    }
+                }
+                
+                //recupero importo contributi e abbonamenti
+                if(!contributiFound)
+                {
+                    if(line.contains("CONTRIBUTI E ABBONAMENTI"))
+                    {
+                        String cleanLine = line.replaceAll("\\s+"," ");
+                        String importo  = cleanLine.replace("CONTRIBUTI E ABBONAMENTI ","");
+                        contributi = Double.parseDouble(importo.replace(".","").replace(",","."));
+                        contributiFound = true;
+                    }
+                }
+                
+                //recupero importo altri addebiti e accrediti
+                if(!altriFound)
+                {
+                    if(line.contains("ALTRI ADDEBITI E ACCREDITI"))
+                    {
+                        String cleanLine = line.replaceAll("\\s+"," ");
+                        String importo  = cleanLine.replace("ALTRI ADDEBITI E ACCREDITI ","");
+                        altri = Double.parseDouble(importo.replace(".","").replace(",","."));
+                        altriFound = true;
+                    }
+                }
+                
                 //RIEPILOGO UTENZA segna l'inizio della tabella
                 if(line.contains("RIEPILOGO PER UTENZA"))
                     startPointFound = !startPointFound;
@@ -304,9 +325,9 @@ public class FattureManagement implements Serializable {
                        
             //creo nuova fattura
             if(data == null)
-                FatturaService.insertNewFattura(database, "");            
+                FatturaService.insertNewFattura(database, "",totale,contributi,altri);            
             else            
-                FatturaService.insertNewFattura(database, data);    
+                FatturaService.insertNewFattura(database,data,totale,contributi,altri);    
             
             database.commit();            
             
@@ -578,5 +599,35 @@ public class FattureManagement implements Serializable {
     public void setData(String data)
     {
         this.data = data;
+    }
+    
+    public double getTotale()
+    {
+        return totale;
+    }
+    
+    public void setTotale(double totale)
+    {
+        this.totale = totale;
+    }
+    
+    public double getContributi ()
+    {
+        return contributi;
+    }
+    
+    public void setContirbuti(double contributi)
+    {
+        this.contributi = contributi;
+    }
+    
+    public double getAltri ()
+    {
+        return altri;
+    }
+    
+    public void setAltri(double altri)
+    {
+        this.altri = altri;
     }
 }

@@ -41,6 +41,28 @@ public class TelefonoService {
         return telefono;
     }
     
+    public static Telefono getTelefonoById(DataBase database,int IdTelefono) 
+            throws NotFoundDBException, ResultSetDBException
+    {
+        Telefono telefono;
+        String sql = "";
+        sql += " SELECT * FROM telefono" +
+               " WHERE Id='"+IdTelefono+"'";              
+        
+        ResultSet resultSet=database.select(sql);
+    
+        try {
+            if (resultSet.next()) {
+              telefono=new Telefono(resultSet);
+            } else 
+                return null; 
+        } catch (SQLException ex) {
+            throw new ResultSetDBException("TelefonoService: getTelefono():  Errore nel ResultSet: "+ex.getMessage(),database);
+        }
+
+        return telefono;
+    }
+    
     public static ArrayList<Telefono> getTelefoni(DataBase database) throws NotFoundDBException, ResultSetDBException
     {
         ArrayList<Telefono> telefoni = new ArrayList<Telefono>();

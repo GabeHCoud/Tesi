@@ -20,19 +20,29 @@ import util.Conversion;
 public class Fattura {
     public int IdFattura;
     public String Data;
+    public double Totale;
+    public double CA;
+    public double AAA;
     
     public Fattura(){}
     
 
-    public Fattura(String Data)
+    public Fattura(String Data,double Totale,double CA,double AAA)
     {
         this.Data = Data;
+        this.Totale = Totale;
+        this.CA = CA;
+        this.AAA = AAA;
     }
     
     public Fattura(ResultSet resultSet)
     {
         try {IdFattura=resultSet.getInt("IdFattura");} catch (SQLException sqle) {}
         try {Data=resultSet.getString("Data");} catch (SQLException sqle) {}
+        try {Totale=resultSet.getDouble("Totale");} catch (SQLException sqle) {}
+        try {CA=resultSet.getDouble("CA");} catch (SQLException sqle) {}
+        try {AAA=resultSet.getDouble("AAA");} catch (SQLException sqle) {}
+
     }
     
     public void insert(DataBase database) throws NotFoundDBException,DuplicatedRecordDBException,ResultSetDBException 
@@ -52,8 +62,8 @@ public class Fattura {
         }        
 
         sql =  " INSERT INTO fattura" +
-               " (Data)"+
-               " VALUES ('"+Conversion.getDatabaseString(Data)+"')";
+               " (Data,Totale,CA,AAA)"+
+               " VALUES ('"+Conversion.getDatabaseString(Data)+"'," + Totale +"," + CA +","+ AAA +")";
         
         database.modify(sql);        
     }
@@ -72,7 +82,10 @@ public class Fattura {
         
         String sql = "";
         sql +=  " UPDATE fattura "+
-                " SET Data ='" + Conversion.getDatabaseString(Data) + "'" +                 
+                " SET Data ='" + Conversion.getDatabaseString(Data) + "'," +     
+                " Totale="+Totale+","+
+                " CA="+CA+","+
+                " AAA="+AAA+
                 " WHERE IdFattura="+IdFattura;
         
         database.modify(sql);  

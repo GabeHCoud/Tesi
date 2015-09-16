@@ -7,8 +7,12 @@ package bflows;
 
 import blogics.Consumo;
 import blogics.ConsumoService;
+import blogics.Dispositivo;
+import blogics.DispositivoService;
 import blogics.Fattura;
 import blogics.FatturaService;
+import blogics.Telefono;
+import blogics.TelefonoService;
 import blogics.User;
 import blogics.UserService;
 import java.beans.*;
@@ -24,10 +28,12 @@ public class ConsumiManagement implements Serializable {
     private ArrayList<Fattura> fatture;
     private ArrayList<Consumo> consumi;  
     private ArrayList<User> utenti;
+    private ArrayList<Telefono> telefoni;
+    private ArrayList<Dispositivo> dispositivi;
     private int idFattura;    
     private Fattura selectedFattura;
     private Consumo selectedConsumo;
-    private String telefono;
+    private String numero;
     private String contributi;
     private String altri;
     private String abbonamenti;
@@ -84,6 +90,8 @@ public class ConsumiManagement implements Serializable {
             selectedFattura = FatturaService.getFatturaById(database, idFattura);
             utenti = UserService.getUtenti(database);
             consumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
+            telefoni = TelefonoService.getTelefoni(database);
+            dispositivi = DispositivoService.getDispositivi(database);            
             
             database.commit();
             
@@ -119,7 +127,7 @@ public class ConsumiManagement implements Serializable {
             database=DBService.getDataBase("new");
             
             selectedFattura = FatturaService.getFatturaById(database, idFattura);            
-            selectedConsumo = ConsumoService.getConsumoByFatturaIdAndTelefono(database, idFattura, telefono);
+            selectedConsumo = ConsumoService.getConsumoByFatturaIdAndTelefono(database, idFattura, numero);
             
             database.commit();
             
@@ -154,7 +162,7 @@ public class ConsumiManagement implements Serializable {
         {
             database=DBService.getDataBase("new");
             
-            selectedConsumo = ConsumoService.getConsumoByFatturaIdAndTelefono(database, idFattura, telefono);
+            selectedConsumo = ConsumoService.getConsumoByFatturaIdAndTelefono(database, idFattura, numero);
             selectedConsumo.CRB = Double.parseDouble(contributi);
             selectedConsumo.AAA = Double.parseDouble(altri);
             selectedConsumo.ABB = Double.parseDouble(abbonamenti);
@@ -168,6 +176,8 @@ public class ConsumiManagement implements Serializable {
             fatture = FatturaService.getFatture(database);            
             selectedFattura = FatturaService.getFatturaById(database, idFattura);
             consumi = ConsumoService.getConsumiByFatturaId(database, idFattura);
+            telefoni = TelefonoService.getTelefoni(database);
+            dispositivi = DispositivoService.getDispositivi(database);   
             
         }catch (NotFoundDBException ex) 
         {
@@ -295,6 +305,46 @@ public class ConsumiManagement implements Serializable {
         this.utenti = utenti;
     }
     
+    public Telefono getTelefono(int i)
+    {
+        return telefoni.get(i);
+    }
+    
+    public void setTelefono(int i,Telefono telefono)
+    {
+        telefoni.set(i, telefono);
+    }
+    
+    public ArrayList<Telefono> getTelefoni()
+    {
+        return telefoni;
+    }
+    
+    public void setTelefoni(ArrayList<Telefono> telefoni)
+    {
+        this.telefoni = telefoni;
+    }    
+    
+    public Dispositivo getDispositivo(int i)
+    {
+        return dispositivi.get(i);
+    }
+    
+    public void setDispositivo(int i,Dispositivo dispositivo)
+    {
+        dispositivi.set(i, dispositivo);
+    }
+    
+    public ArrayList<Dispositivo> getDispositivi()
+    {
+        return dispositivi;
+    }
+    
+    public void setDispositivi(ArrayList<Dispositivo> dispositivi)
+    {
+        this.dispositivi = dispositivi;
+    }
+    
     public int getIdFattura() 
     {
         return idFattura;
@@ -325,14 +375,14 @@ public class ConsumiManagement implements Serializable {
         this.selectedConsumo = selectedConsumo;
     }
     
-    public String getTelefono() 
+    public String getNumero() 
     {
-        return telefono;
+        return numero;
     }
     
-    public void setTelefono(String telefono) 
+    public void setNumero(String telefono) 
     {
-        this.telefono = telefono;
+        this.numero = telefono;
     }
     
     public String getContributi() 

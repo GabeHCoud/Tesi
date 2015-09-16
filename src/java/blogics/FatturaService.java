@@ -99,9 +99,9 @@ public class FatturaService {
         return f;   
     }
     
-    public static void insertNewFattura(DataBase database,String data) throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException
+    public static void insertNewFattura(DataBase database,String data,double Totale,double CA,double AAA) throws NotFoundDBException, DuplicatedRecordDBException, ResultSetDBException
     {
-        Fattura fattura = new Fattura(data);        
+        Fattura fattura = new Fattura(data,Totale,CA,AAA);        
         fattura.insert(database);        
     }
 }

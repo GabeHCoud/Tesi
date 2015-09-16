@@ -38,13 +38,13 @@
         </div>
     </form>     
     <br/><br/><br/>
-    <form name="form2" action="ProcessCSV.jsp" method="post" enctype="multipart/form-data">          
+    <!--<form name="form2" action="ProcessCSV.jsp" method="post" enctype="multipart/form-data">          
         <div id="testo">Carica il file csv<br/><br/><input type="file" name="file"/>
             <span >
                 <input type="submit" value="ok"/>
             </span>
         </div>
-    </form>
+    </form>-->
  <%}%>       
 
 <%@include file="Footer.jsp" %>

@@ -6,7 +6,7 @@
         <title>Fattura Telecom</title>
         <link rel="stylesheet" type="text/css" href="css/generic.css" />
         <link rel="shortcut icon" href="images/fav.ico" >
-        <script src="funzioni.js" type="text/javascript"></script>
+        <script src="js/funzioni.js" type="text/javascript"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 
     </head>

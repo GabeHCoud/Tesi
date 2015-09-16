@@ -29,6 +29,7 @@ import services.errorservice.EService;
 
 public class UserManagement implements Serializable {
     private String numero;    
+    private int idTelefono;
     private String newnumero;
     private int idFattura;
     private String nome;
@@ -369,7 +370,7 @@ public class UserManagement implements Serializable {
             database=DBService.getDataBase("new");
             
             selectedUser = UserService.getUtenteByEmail(database, email);
-            selectedTelefono = TelefonoService.getTelefono(database, numero);
+            selectedTelefono = TelefonoService.getTelefonoById(database, idTelefono);
             contributi = ContributoService.getContributi(database);
             dispositivi = DispositivoService.getDispositivi(database);             
             
@@ -444,7 +445,7 @@ public class UserManagement implements Serializable {
         {
             database=DBService.getDataBase("new");            
             
-            Telefono t = TelefonoService.getTelefono(database, numero);
+            Telefono t = TelefonoService.getTelefonoById(database, idTelefono);
             t.delete(database);     
             
             database.commit();
@@ -482,7 +483,7 @@ public class UserManagement implements Serializable {
         {
             database=DBService.getDataBase("new");
             
-            selectedTelefono = TelefonoService.getTelefono(database, numero);             
+            selectedTelefono = TelefonoService.getTelefonoById(database, idTelefono);             
             
             if(!newnumero.equals(numero))//se l'email cambia aggiorno                     
                 selectedTelefono.updateNumero(database,newnumero);
@@ -525,7 +526,7 @@ public class UserManagement implements Serializable {
         {
             database=DBService.getDataBase("new");
             
-            selectedTelefono = TelefonoService.getTelefono(database, numero);            
+            selectedTelefono = TelefonoService.getTelefonoById(database, idTelefono);            
             selectedTelefono.IdContributo = idContributo;
             selectedTelefono.update(database);            
             database.commit();
@@ -563,7 +564,7 @@ public class UserManagement implements Serializable {
         {
             database=DBService.getDataBase("new");
             
-            selectedTelefono = TelefonoService.getTelefono(database, numero);            
+            selectedTelefono = TelefonoService.getTelefonoById(database, idTelefono);            
             selectedTelefono.IdContributo = 0;
             selectedTelefono.update(database);            
             database.commit();
@@ -601,7 +602,7 @@ public class UserManagement implements Serializable {
         {
             database=DBService.getDataBase("new");
             
-            selectedTelefono = TelefonoService.getTelefono(database, numero);            
+            selectedTelefono = TelefonoService.getTelefonoById(database, idTelefono);            
             selectedTelefono.IdDispositivo = idDispositivo;
             selectedTelefono.update(database);            
             database.commit();
@@ -639,7 +640,7 @@ public class UserManagement implements Serializable {
         {
             database=DBService.getDataBase("new");
             
-            selectedTelefono = TelefonoService.getTelefono(database, numero);            
+            selectedTelefono = TelefonoService.getTelefonoById(database, idTelefono);            
             selectedTelefono.IdDispositivo = 0;
             selectedTelefono.update(database);            
             database.commit();
@@ -677,6 +678,16 @@ public class UserManagement implements Serializable {
     public void setNumero(String numero)
     {
         this.numero = numero;
+    }
+    
+    public int getIdTelefono()
+    {
+        return idTelefono;
+    }
+    
+    public void setIdTelefono(int idTelefono)
+    {
+        this.idTelefono = idTelefono;
     }
     
     public String getNewnumero()

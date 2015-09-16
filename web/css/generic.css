@@ -67,6 +67,9 @@ body,html{
     /* width:100%; */   
     
 }
+.back{
+    float: left;
+}
 .cont
 {
     height: 100%;
@@ -95,6 +98,7 @@ tr.alternate {
 }
 td {
     padding: 8px;
+    /* text-align: center; */
 }
 span.tab2{
     padding: 0 50px;

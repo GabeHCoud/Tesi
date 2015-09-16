@@ -54,10 +54,21 @@
     </div>
 <%}else if(status.equals("editUserView") || status.equals("addPhone") || status.equals("deletePhone") || status.equals("editPhone"))
 {%>
-    <div id="titolo"><b>Utente <%=userManagement.getSelectedUser().Cognome%> <%=userManagement.getSelectedUser().Nome%></b></div>
-    <div id="titolo"><b>Modifica Utente</b></div>          
+    
+    <form style="float: left; margin: 10px 20px;" name="back" method="post" action="Utenti.jsp">
+        <input type="hidden" name="status" value="view">
+        <input type="image" alt="indietro" name="submit" src="images/back.png">        
+        <br/>
+        <span style="font-size: 10px;">indietro</span>
+    </form>
+    <div id="titolo">
+        <b>Utente <%=userManagement.getSelectedUser().Cognome%> <%=userManagement.getSelectedUser().Nome%></b>
+    </div>
+    <div id="titolo">
+        <b>Modifica Utente</b>
+    </div>          
     <div id="testo">
-        <form name="edit" method="post" action="Utenti.jsp">
+        <form name="edit" method="post" action="Utenti.jsp" onsubmit="return editUserOnSubmit(this)">
             <table cellspacing="0" >
                 <tr style="background-color:#F0F8FF">  
                     <td>Nome</td>      
@@ -144,15 +155,15 @@
                 <td>
                     <form action="ModificaLinea.jsp" method="post">
                         <input type="hidden" name="status" value="editPhoneView"/>
-                        <input type="hidden" name="numero" value="<%=t.Numero%>"/>
+                        <input type="hidden" name="idTelefono" value="<%=t.Id%>"/>
                         <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
                         <center><input type="image" name="submit" src="images/edit.jpg"></center>
                     </form>
                 </td>
                 <td>
-                    <form action="ModificaUtente.jsp" method="post">
+                    <form action="ModificaUtente.jsp" method="post" onsubmit="return deleteTelefonoOnSubmit()">
                         <input type="hidden" name="status" value="deletePhone"/>
-                        <input type="hidden" name="numero" value="<%=t.Numero%>"/>
+                        <input type="hidden" name="idTelefono" value="<%=t.Id%>"/>
                         <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
                         <center><input type="image" name="submit" src="images/delete.jpg"></center>
                     </form>
@@ -167,16 +178,14 @@
     <br/>
     <div id="titolo"><b>Aggiungi un Numero</b></div>
     <div id="testo">
-        <form name="addNumber" method="post" action="ModificaUtente.jsp">
+        <form name="addNumber" method="post" action="ModificaUtente.jsp" onsubmit="return addTelefonoOnSubmit(this)">
             <input type="hidden" name="status" value="addPhone"/>
             <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
-            <input type="text" name="numero" maxlength="11"/>
+            <input type="text" name="numero" placeholder="esempio: 123-1234567" maxlength="11"/>
             <input type="submit" value="Aggiungi"/>
         </form>
     </div>
-    <br/>
-    <br/>
-    <br/>
+    <br/><br/><br/>
 <%}%>
 
 <%@include file="Footer.jsp" %>

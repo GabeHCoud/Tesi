@@ -39,19 +39,19 @@ public class Mail {
     
     String sql="";
     
-    sql+=   " SELECT * FROM mail"+
-            " WHERE IdFattura="+IdFattura+
-            " AND Email='"+Conversion.getDatabaseString(Email)+"'";
-    
-    ResultSet resultSet=database.select(sql);
-    
-    try {
-        if (resultSet.next()) {
-            throw new DuplicatedRecordDBException("E' già stata inviata una email all'utente per la fattura selezionata.");
-        } 
-    } catch (SQLException ex) {
-        throw new ResultSetDBException("Mail: insert():  Errore nel ResultSet: "+ex.getMessage(),database);
-    }   
+//    sql+=   " SELECT * FROM mail"+
+//            " WHERE IdFattura="+IdFattura+
+//            " AND Email='"+Conversion.getDatabaseString(Email)+"'";
+//    
+//    ResultSet resultSet=database.select(sql);
+//    
+//    try {
+//        if (resultSet.next()) {
+//            throw new DuplicatedRecordDBException("E' già stata inviata una email all'utente per la fattura selezionata.");
+//        } 
+//    } catch (SQLException ex) {
+//        throw new ResultSetDBException("Mail: insert():  Errore nel ResultSet: "+ex.getMessage(),database);
+//    }   
     
     
     sql =" INSERT INTO mail(Data,Testo,IdFattura,Email)"

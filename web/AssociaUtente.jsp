@@ -25,38 +25,36 @@
     }
     
     if(status.equals("view")){
-            userManagement.viewUsers();
-    } 
-       else if(status.equals("associate")){
-            userManagement.associate();
-            
-            if(userManagement.getResult() >= 0)
-            {
-                Integer id = userManagement.getIdFattura();
-                Cookie cookie = new Cookie("status","details");
-                response.addCookie(cookie);
-                cookie = new Cookie("idFattura",id.toString());
-                response.addCookie(cookie);
-                response.sendRedirect("Fatture.jsp");
-            }
-            
-        }else if(status.equals("register"))
-            {
-            userManagement.register();
-            
-            if(userManagement.getResult() >= 0)
-            {
-                Integer id = userManagement.getIdFattura();
-                Cookie cookie = new Cookie("status","details");
-                response.addCookie(cookie);
-                cookie = new Cookie("idFattura",id.toString());
-                response.addCookie(cookie);
-                response.sendRedirect("Fatture.jsp");
-            }
-              
+        userManagement.viewUsers();
+    }else if(status.equals("associate")){
+        userManagement.associate();
+
+        if(userManagement.getResult() >= 0)
+        {
+            Integer id = userManagement.getIdFattura();
+            Cookie cookie = new Cookie("status","details");
+            response.addCookie(cookie);
+            cookie = new Cookie("idFattura",id.toString());
+            response.addCookie(cookie);
+            response.sendRedirect("Fatture.jsp");
+        }
+
+    }else if(status.equals("register"))
+    {
+        userManagement.register();
+
+        if(userManagement.getResult() >= 0)
+        {
+            Integer id = userManagement.getIdFattura();
+            Cookie cookie = new Cookie("status","details");
+            response.addCookie(cookie);
+            cookie = new Cookie("idFattura",id.toString());
+            response.addCookie(cookie);
+            response.sendRedirect("Fatture.jsp");
+        }
     }  
   %>        
-  <%@include file="Header.jsp" %>   
+  <%@include file="Header.jsp" %>  
     <%if(userManagement.getErrorMessage() != null){%>
         <div id="titolo">
             Si è verificato un Errore!
@@ -72,6 +70,13 @@
     <%}else if(status.equals("view")) 
     {%>
         <div>
+            <form style="float: left; margin: 10px 20px;" name="back" method="post" action="Fatture.jsp">
+                <input type="hidden" name="idFattura" value="<%=userManagement.getIdFattura()%>"/>
+                <input type="hidden" name="status" value="details"/>
+                <input type="image" name="submit" src="images/back.png">        
+                <br/>
+                <span style="font-size: 10px;">indietro</span>
+            </form>
             <div id="titolo">
                 Seleziona un utente a cui associare il numero
             </div>
@@ -81,7 +86,7 @@
                         <%for(User u : userManagement.getUtenti())
                         {%>
                         <option value="<%=u.Email%>">
-                            <%=u.Nome%> <%=u.Cognome%>
+                            <%=u.Cognome%> <%=u.Nome%>
                         </option>
                         <%}%>
                     </select>
@@ -95,7 +100,7 @@
         </div>  
                 
                 
-        <form name="fregister" method="post" action="AssociaUtente.jsp">
+        <form name="fregister" method="post" action="AssociaUtente.jsp" onsubmit="return registerUserOnSubmit(this)">
             <div id="titolo"><b> Registra un nuovo utente per il numero <%=userManagement.getNumero()%></b></div>
             <div id="testo">
                 <table style="background-color:#F0F8FF;width:auto;padding-top:0px;">
@@ -114,7 +119,7 @@
                 <tr style="background-color:#F0F8FF;">
                     <td width="150">Mail</td>
                     <td width="250">
-                        <input type="text" name="email" size="25" maxlength="50" />
+                        <input type="text" name="email" placeholder="esempio: nome.cognome@unife.it" size="25" maxlength="50" />
                     </td>
                 </tr>                
             </table>
