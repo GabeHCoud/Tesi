@@ -156,19 +156,30 @@ public class FattureManagement implements Serializable {
                     //se entro qui significa che inizia una nuova fattura
                     ArrayList<String> splitted = SplitLine.splitLine1(line);   
 
-                    if(consumo != null) //salvo la precedente
-                    {    
-                        consumi.add(consumo);
+                    if(consumo != null && splitted.get(0).equals(consumo.Telefono)) //è il continuo del precedente
+                    {
+                        if(splitted.get(1).contains("Contributi"))
+                            consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
+                        else if(splitted.get(1).contains("Altri"))
+                            consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
+                        else if(splitted.get(1).contains("Abbonamenti"))
+                            consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
+                    }else
+                    {
+                        if(consumo != null) //salvo la precedente
+                        {    
+                            consumi.add(consumo);
+                        }
+                        consumo = new Consumo();
+                        consumo.Telefono = splitted.get(0); 
+                        
+                        if(splitted.get(1).contains("Contributi"))
+                            consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
+                        else if(splitted.get(1).contains("Altri"))
+                            consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
+                        else if(splitted.get(1).contains("Abbonamenti"))
+                            consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
                     }
-                    consumo = new Consumo();
-                    consumo.Telefono = splitted.get(0); 
-
-                    if(splitted.get(1).contains("Contributi"))
-                        consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
-                    else if(splitted.get(1).contains("Altri"))
-                        consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
-                    else if(splitted.get(1).contains("Abbonamenti"))
-                        consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
                 }   
 
                 if(line.matches("((?:\\w+\\s+)+)(\\d+,\\d+)"))//(any number of words followed by whitespaces)(1+ digits),(1+ digits)
@@ -298,6 +309,7 @@ public class FattureManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }         
@@ -305,6 +317,7 @@ public class FattureManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  

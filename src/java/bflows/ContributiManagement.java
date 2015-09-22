@@ -7,11 +7,6 @@ package bflows;
 
 import blogics.Contributo;
 import blogics.ContributoService;
-import blogics.Dispositivo;
-import blogics.DispositivoService;
-import blogics.User;
-import blogics.UserService;
-import java.beans.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import services.databaseservice.DBService;
@@ -84,6 +79,7 @@ public class ContributiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }catch (DuplicatedRecordDBException ex) 
@@ -97,6 +93,7 @@ public class ContributiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -125,6 +122,7 @@ public class ContributiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -132,6 +130,7 @@ public class ContributiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -156,6 +155,7 @@ public class ContributiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -163,6 +163,7 @@ public class ContributiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -193,6 +194,7 @@ public class ContributiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -200,6 +202,7 @@ public class ContributiManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  

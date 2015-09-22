@@ -100,8 +100,8 @@
             <%} else {%>
         <tr class="alternate"> 
             <%}%>
-            <td>
-                <%=u.Cognome%> <%=u.Nome%><br/>
+            <td >
+                <span style="font-size: 18px;"><%=u.Cognome%> <%=u.Nome%></span><br/>
                 <span style="font-size: 12px;"><%=u.Email%></span>            
             </td>
             <td colspan='3' style='padding-left: 0;padding-right: 0;'>  
@@ -109,30 +109,30 @@
                     <%for (Telefono t : userManagement.getTelefoni()) {
                         if (t.Email.equals(u.Email)) {%>                            
                     <tr class='invisible'>
-                        <td style='padding: 0;width: 100px;'>
-                            <%=t.Numero%><br/>
+                        <td style='padding-bottom: 6px;padding-top: 6px;width: 100px;'>
+                            <%=t.Numero%>
                         </td>
-                        <td style='padding: 0;width: 200px;'>
+                        <td style='padding-bottom: 6px;padding-top: 6px;width: 200px;'>
                             <%if (userManagement.getContributi() != null) {
-                                                for (Contributo c : userManagement.getContributi()) {
-                                                    if (c.IdContributo == t.IdContributo) {%>
+                                for (Contributo c : userManagement.getContributi()) {
+                                    if (c.IdContributo == t.IdContributo) {%>
                         <center>
-                            <span style='font-size: 14px'><%=c.Nome%></span>
-                        </center><br/>
-                            <%}
-                                                        }
-                                                    }%>  
+                            <%=c.Nome%><br/>
+                        </center>
+                            <%      }
+                                }
+                            }%>  
                         </td>
-                        <td style='padding: 0;width: 100px;'>
+                        <td style='padding-bottom: 6px;padding-top: 6px;width: 100px;'>
                             <%if (userManagement.getDispositivi() != null) {
-                                                for (Dispositivo d : userManagement.getDispositivi()) {
-                                                    if (d.IdDispositivo == t.IdDispositivo) {%>
+                                for (Dispositivo d : userManagement.getDispositivi()) {
+                                    if (d.IdDispositivo == t.IdDispositivo) {%>
                         <center>
-                            <span style='font-size: 14px'><%=d.Nome%></span>
-                        </center><br/>
-                            <%}
-                                                        }
-                                                    }%>
+                            <%=d.Nome%><br/>
+                        </center>
+                            <%      }
+                                }
+                            }%>
                         </td>
                     </tr>
                     <%}

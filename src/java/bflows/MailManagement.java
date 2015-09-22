@@ -54,6 +54,7 @@ public class MailManagement implements Serializable {
     private ArrayList<Dispositivo> dispositivi;
     private ArrayList<Contributo> contributi;
     private String messaggio;
+    private String sender;
     private String password;
     
     private String errorMessage;
@@ -75,6 +76,7 @@ public class MailManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -82,6 +84,7 @@ public class MailManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -112,6 +115,7 @@ public class MailManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -119,6 +123,7 @@ public class MailManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -147,6 +152,7 @@ public class MailManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -154,6 +160,7 @@ public class MailManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }  
@@ -162,7 +169,7 @@ public class MailManagement implements Serializable {
             try { database.close(); }
             catch (NotFoundDBException e) { EService.logAndRecover(e); }
         }
-    }
+    }   
     
     public void sendTest()
     {
@@ -181,7 +188,10 @@ public class MailManagement implements Serializable {
         
             for(int i=0; i<selectedUsers.length;i++)
             {   
-                String baseMessage = messaggio.trim();  
+                
+                String baseMessage = messaggio.trim();
+                baseMessage = baseMessage.replaceAll("â.¬","€");
+                baseMessage = baseMessage.replace("Si ringrazia anticipatamente.", "");
                 resultMessage = "";
                 
                 //imposto messaggio
@@ -195,87 +205,153 @@ public class MailManagement implements Serializable {
                 baseMessage = baseMessage.replace("<nome>", utente.Nome);
                 baseMessage = baseMessage.replace("<cognome>", utente.Cognome);                    
                 boolean isFirst = true;
+                double Totale = 0.0;                             
+                DecimalFormat dbf = new DecimalFormat("0.00");
+                ArrayList<String> selectedPhones = new ArrayList<String>(); //lista ausiliaria per gestire duplicati
+                ArrayList<Double> parziali = new ArrayList<Double>(); //lista totali per numero
                 
                 for(Telefono t : telefoni)
-                {    
+                {                        
                     if(t.Email.equals(utente.Email))
                     {
-                        if(isFirst)
+                        if(selectedPhones.contains(t.Numero)) //numero duplicato, devo sommare i costi
                         {
-                            isFirst = false;
-                        }else
-                        {    
-                            // dal 2° numero in poi inizio un nuovo messaggio da aggiungere
-                            baseMessage = messaggio.trim();
-                            int startIndex = baseMessage.indexOf("Telefono");                        
-                            baseMessage = baseMessage.substring(startIndex,baseMessage.length());                            
-                        }
-                        
-                        baseMessage = baseMessage.replace("<telefono>", t.Numero);
-                        DecimalFormat df = new DecimalFormat("####.##");  
-                        for(Consumo c : selectedConsumi){                        
-                            if(c.Telefono.equals(t.Numero))
-                            {    
-                                
-                                baseMessage = baseMessage.replace("<contributi>", Double.toString(c.CRB));
-                                double crbI = c.CRB + c.CRB * 22/100;
-                                baseMessage = baseMessage.replace("<contributiI>", df.format(crbI));
-                                baseMessage = baseMessage.replace("<aaa>", Double.toString(c.AAA));
-                                double aaaI = c.AAA + c.AAA * 22/100;
-                                baseMessage = baseMessage.replace("<aaaI>", df.format(aaaI));
-                                baseMessage = baseMessage.replace("<abb>", Double.toString(c.ABB));
-                                double abbI = c.ABB + c.ABB * 22/100;
-                                baseMessage = baseMessage.replace("<abbI>", df.format(abbI));
-                                baseMessage = baseMessage.replace("<totale>", Double.toString(c.Totale));
-                                double totaleI = c.Totale + c.Totale * 22/100;
-                                baseMessage = baseMessage.replace("<totaleI>", df.format(totaleI));
-                            }
-                        }
-                        
-                        if(t.IdContributo > 0)
-                        {
-                            for(Contributo c : contributi)
-                            {
-                                if(c.IdContributo == t.IdContributo)
-                                {
-                                    baseMessage = baseMessage.replace("<contributo>",c.Nome);
-                                    baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(c.Costo));
-                                    double costoI = c.Costo + c.Costo * 22/100;
-                                    baseMessage = baseMessage.replaceFirst("<costoI>", df.format(costoI));
-                                }
-                            }
-                        }else //nessun contributo
-                        {
-                            baseMessage = baseMessage.replace("<contributo>", "nessun contributo o abbonamento");
-                            baseMessage = baseMessage.replaceFirst("<costo>","0");
-                            baseMessage = baseMessage.replaceFirst("\\(<costoI> con IVA\\)","");
-                        }
-                        
-                        if(t.IdDispositivo > 0)
-                        {
+                            String expr = t.Numero.toString();
+                            int startIndex = resultMessage.indexOf(expr);           
+                            
+                            String before = resultMessage.substring(0, startIndex);
+                            String after = resultMessage.substring(startIndex, resultMessage.length() - 1);
                             for(Dispositivo d : dispositivi)
                             {
                                 if(d.IdDispositivo == t.IdDispositivo)
                                 {
-                                    df = new DecimalFormat("####.####"); 
-                                    baseMessage = baseMessage.replace("<dispositivo>",d.Nome);
-                                    baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(d.Costo));
-                                    double costoI = d.Costo + d.Costo * 22/100;
-                                    baseMessage = baseMessage.replaceFirst("<costoI>", df.format(costoI));
-                                    baseMessage += "<br/><br/>";
+                                    String replacement = "Dispositivo "+d.Nome+": € "+dbf.format(d.Costo)+"<br/>Dispositivo ";
+                                    after = after.replaceFirst("Dispositivo",replacement);                                   
+                                    Totale += d.Costo;
+                                    
+                                    //aggiorno la lista dei totali per numero con l'importo del dispositivo
+                                    for(String phone : selectedPhones)
+                                    {
+                                        if(phone.equals(t.Numero))
+                                        {
+                                            int index = selectedPhones.indexOf(phone);
+                                            parziali.set(index, parziali.get(index) + d.Costo);
+                                        }
+                                    }
+                                }
+                            }                   
+                            resultMessage = before+after;
+                            
+                        }else{   
+                            selectedPhones.add(t.Numero); //aggiungo nuovo numero     
+                            
+                            if(isFirst)
+                            {
+                                isFirst = false;
+                            }else
+                            {    
+                                // dal 2° numero in poi inizio un nuovo messaggio 
+                                baseMessage = messaggio.trim();
+                                baseMessage = baseMessage.replaceAll("â.¬","€");
+                                baseMessage = baseMessage.replace("Si ringrazia anticipatamente.", "");
+                                int startIndex = baseMessage.indexOf("Telefono");                        
+                                baseMessage = baseMessage.substring(startIndex,baseMessage.length());
+                            }
+
+                            baseMessage = baseMessage.replace("<telefono>", t.Numero);
+
+                            boolean foundConsumo = false;
+
+                            for(Consumo c : selectedConsumi)
+                            {
+                                if(c.Telefono.equals(t.Numero))
+                                {    
+                                    foundConsumo = true;
+
+                                    if(t.IdDispositivo > 0)
+                                    {
+                                        for(Dispositivo d : dispositivi)
+                                        {
+                                            if(d.IdDispositivo == t.IdDispositivo)
+                                            {
+                                                baseMessage = baseMessage.replace("<dispositivoNome>",d.Nome);
+                                                baseMessage = baseMessage.replace("<dispositivoCosto>",dbf.format(d.Costo));
+                                                Totale += d.Costo;
+                                            }
+                                        }
+                                    }else //nessun dispostivo
+                                    {
+                                        baseMessage = baseMessage.replace("Dispositivo <dispositivoNome>: € <dispositivoCosto>", "Dispositivo: nessuno dispositivo");
+                                    }  
+
+                                    if(t.IdContributo > 0)
+                                    {
+                                        for(Contributo co : contributi)
+                                        {
+                                            if(co.IdContributo == t.IdContributo)
+                                            {
+                                                baseMessage = baseMessage.replace("<contributiNome>",co.Nome);
+                                            }
+                                        }
+                                    }else{
+                                        baseMessage = baseMessage.replace("<contributiNome>","Contributo Ricaricabile Business");
+                                    }
+
+                                    baseMessage = baseMessage.replace("<contributi>", dbf.format(c.CRB));
+                                    baseMessage = baseMessage.replace("<aaa>", dbf.format(c.AAA));
+                                    baseMessage = baseMessage.replace("<abb>", dbf.format(c.ABB));
+
+                                    Totale += c.Totale;
                                 }
                             }
-                        }else //nessun dispostivo
-                        {
-                            baseMessage = baseMessage.replace("<dispositivo>", "nessun dispositivo");
-                            baseMessage = baseMessage.replaceFirst("<costo>","0");
-                            baseMessage = baseMessage.replaceFirst("\\(<costoI> con IVA\\)","");
-                            baseMessage += "<br/><br/>";
-                        }           
-                        
-                        resultMessage += baseMessage.replaceAll("\n","<br/>");
+
+                            if(!foundConsumo)
+                            {
+                                if(t.IdDispositivo > 0)
+                                {
+                                    for(Dispositivo d : dispositivi)
+                                    {
+                                        if(d.IdDispositivo == t.IdDispositivo)
+                                        {
+                                            baseMessage = baseMessage.replace("<dispositivoNome>",d.Nome);
+                                            baseMessage = baseMessage.replace("<dispositivoCosto>",dbf.format(d.Costo));
+                                            Totale += d.Costo;
+                                        }
+                                    }
+                                }else //nessun dispostivo
+                                {
+                                    baseMessage = baseMessage.replace("Dispositivo <dispositivoNome>: € <dispositivoCosto>", "Dispositivo: nessuno dispositivo");
+                                }
+
+                                baseMessage = baseMessage.replace("<contributiNome>","Contributo Ricaricabile Business");
+                                baseMessage = baseMessage.replace("<contributi>","0.00");
+                                baseMessage = baseMessage.replace("<aaa>", "0.00");
+                                baseMessage = baseMessage.replace("<abb>", "0.00");                          
+
+                            }
+                            
+                            //salvo il totale per questo numero     
+                            Double parziale_i = Totale;
+                            for(Double p : parziali)
+                            {
+                                parziale_i -= p;
+                            }
+                            parziali.add(parziale_i);
+                            
+                            resultMessage += baseMessage.replaceAll("\n","<br/>");
+                        }                        
                     }                        
                 }      
+                
+                //imposto i totali per telefono
+                for(Double p : parziali)
+                {
+                    resultMessage = resultMessage.replaceFirst("<totale_i>", dbf.format(p));
+                }
+                
+                resultMessage = resultMessage.replace("<totale>", dbf.format(Totale));
+                resultMessage = resultMessage + "Si ringrazia anticipatamente.";
+                resultMessage = resultMessage.replaceAll("€","&euro;");
                 
                 //salvo nel db
                 Date d = new Date();
@@ -289,6 +365,7 @@ public class MailManagement implements Serializable {
                 {
                     EService.logAndRecover(ex);
                     setResult(EService.UNRECOVERABLE_ERROR);
+                    setErrorMessage(ex.getMessage().replace("Warning: ", ""));
                     if(database!=null)
                     database.rollBack();
                 }catch (DuplicatedRecordDBException ex) 
@@ -303,6 +380,7 @@ public class MailManagement implements Serializable {
                 {
                     EService.logAndRecover(ex);
                     setResult(EService.UNRECOVERABLE_ERROR);
+                    setErrorMessage(ex.getMessage().replace("Warning: ", ""));
                     if(database!=null)
                     database.rollBack();
                 }
@@ -312,6 +390,7 @@ public class MailManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -319,9 +398,10 @@ public class MailManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
-        }          
+        }         
         finally 
         {
             try { database.close(); }
@@ -353,23 +433,26 @@ public class MailManagement implements Serializable {
 
             Session session = Session.getDefaultInstance(props,new Authenticator() {
                  protected PasswordAuthentication getPasswordAuthentication() {
-                      return new PasswordAuthentication("erika.foli@unife.it",password); 
+                      return new PasswordAuthentication(sender,password); 
                  }
             });
             
             Message message = new MimeMessage(session);
-            InternetAddress from = new InternetAddress("erika.foli@unife.it");
+            InternetAddress from = new InternetAddress(sender);
             InternetAddress to[];
+            
             for(int i=0; i<selectedUsers.length;i++)
             {   
-                String baseMessage = messaggio.trim();    
+                String baseMessage = messaggio.trim();
+                baseMessage = baseMessage.replaceAll("â.¬","€");
+                baseMessage = baseMessage.replace("Si ringrazia anticipatamente.", "");
                 resultMessage = "";
                 
                 to = InternetAddress.parse(selectedUsers[i]);
 
                 message.setFrom(from);
                 message.setRecipients(Message.RecipientType.TO, to);
-                message.setSubject("Fattura Telecom");
+                message.setSubject("Fattura TIM del "+selectedFattura.Data);
                 message.setSentDate(new java.util.Date());
                 
                 //imposto messaggio
@@ -383,92 +466,162 @@ public class MailManagement implements Serializable {
                 baseMessage = baseMessage.replace("<nome>", utente.Nome);
                 baseMessage = baseMessage.replace("<cognome>", utente.Cognome);                    
                 boolean isFirst = true;
-                
+                double Totale = 0.0;                        
+                DecimalFormat dbf = new DecimalFormat("0.00");
+                ArrayList<String> selectedPhones = new ArrayList<String>();
+                ArrayList<Double> parziali = new ArrayList<Double>(); //lista totali per numero
+
                 for(Telefono t : telefoni)
-                {    
+                {                        
                     if(t.Email.equals(utente.Email))
                     {
-                        if(isFirst)
+                        if(selectedPhones.contains(t.Numero)) //numero duplicato, devo sommare i costi
                         {
-                            isFirst = false;
-                        }else
-                        {    
-                            // dal 2° numero in poi inizio un nuovo messaggio da aggiungere
-                            baseMessage = messaggio.trim();
-                            int startIndex = baseMessage.indexOf("Telefono");                        
-                            baseMessage = baseMessage.substring(startIndex,baseMessage.length());                            
-                        }
-                        
-                        baseMessage = baseMessage.replace("<telefono>", t.Numero);
-                        DecimalFormat df = new DecimalFormat("####.##");  
-                        for(Consumo c : selectedConsumi){                        
-                            if(c.Telefono.equals(t.Numero))
-                            {    
-                                
-                                baseMessage = baseMessage.replace("<contributi>", Double.toString(c.CRB));
-                                double crbI = c.CRB + c.CRB * 22/100;
-                                baseMessage = baseMessage.replace("<contributiI>", df.format(crbI));
-                                baseMessage = baseMessage.replace("<aaa>", Double.toString(c.AAA));
-                                double aaaI = c.AAA + c.AAA * 22/100;
-                                baseMessage = baseMessage.replace("<aaaI>", df.format(aaaI));
-                                baseMessage = baseMessage.replace("<abb>", Double.toString(c.ABB));
-                                double abbI = c.ABB + c.ABB * 22/100;
-                                baseMessage = baseMessage.replace("<abbI>", df.format(abbI));
-                                baseMessage = baseMessage.replace("<totale>", Double.toString(c.Totale));
-                                double totaleI = c.Totale + c.Totale * 22/100;
-                                baseMessage = baseMessage.replace("<totaleI>", df.format(totaleI));
-                            }
-                        }
-                        
-                        if(t.IdContributo > 0)
-                        {
-                            for(Contributo c : contributi)
-                            {
-                                if(c.IdContributo == t.IdContributo)
-                                {
-                                    baseMessage = baseMessage.replace("<contributo>",c.Nome);
-                                    baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(c.Costo));
-                                    double costoI = c.Costo + c.Costo * 22/100;
-                                    baseMessage = baseMessage.replaceFirst("<costoI>", df.format(costoI));
-                                }
-                            }
-                        }else //nessun contributo
-                        {
-                            baseMessage = baseMessage.replace("<contributo>", "nessun contributo o abbonamento");
-                            baseMessage = baseMessage.replaceFirst("<costo>","0");
-                            baseMessage = baseMessage.replaceFirst("\\(<costoI> con IVA\\)","");
-                        }
-                        
-                        if(t.IdDispositivo > 0)
-                        {
+                            String expr = t.Numero.toString();
+                            int startIndex = resultMessage.indexOf(expr);           
+                            
+                            String before = resultMessage.substring(0, startIndex);
+                            String after = resultMessage.substring(startIndex, resultMessage.length() - 1);
                             for(Dispositivo d : dispositivi)
                             {
                                 if(d.IdDispositivo == t.IdDispositivo)
                                 {
-                                    df = new DecimalFormat("####.####"); 
-                                    baseMessage = baseMessage.replace("<dispositivo>",d.Nome);
-                                    baseMessage = baseMessage.replaceFirst("<costo>",Double.toString(d.Costo));
-                                    double costoI = d.Costo + d.Costo * 22/100;
-                                    baseMessage = baseMessage.replaceFirst("<costoI>", df.format(costoI));
-                                    baseMessage += "<br/><br/>";
+                                    String replacement = "Dispositivo "+d.Nome+": € "+dbf.format(d.Costo)+"<br/>Dispositivo ";
+                                    after = after.replaceFirst("Dispositivo",replacement);                                   
+                                    Totale += d.Costo;
+                                    
+                                    //aggiorno la lista dei totali per numero con l'importo del dispositivo
+                                    for(String phone : selectedPhones)
+                                    {
+                                        if(phone.equals(t.Numero))
+                                        {
+                                            int index = selectedPhones.indexOf(phone);
+                                            parziali.set(index, parziali.get(index) + d.Costo);
+                                        }
+                                    }
+                                }
+                            }                   
+                            resultMessage = before+after;
+                            
+                        }else{   
+                            selectedPhones.add(t.Numero); //aggiungo nuovo numero     
+                            
+                            if(isFirst)
+                            {
+                                isFirst = false;
+                            }else
+                            {    
+                                // dal 2° numero in poi inizio un nuovo messaggio 
+                                baseMessage = messaggio.trim();
+                                baseMessage = baseMessage.replaceAll("â.¬","€");
+                                baseMessage = baseMessage.replace("Si ringrazia anticipatamente.", "");
+                                int startIndex = baseMessage.indexOf("Telefono");                        
+                                baseMessage = baseMessage.substring(startIndex,baseMessage.length());
+                            }
+
+                            baseMessage = baseMessage.replace("<telefono>", t.Numero);
+
+                            boolean foundConsumo = false;
+
+                            for(Consumo c : selectedConsumi)
+                            {
+                                if(c.Telefono.equals(t.Numero))
+                                {    
+                                    foundConsumo = true;
+
+                                    if(t.IdDispositivo > 0)
+                                    {
+                                        for(Dispositivo d : dispositivi)
+                                        {
+                                            if(d.IdDispositivo == t.IdDispositivo)
+                                            {
+                                                baseMessage = baseMessage.replace("<dispositivoNome>",d.Nome);
+                                                baseMessage = baseMessage.replace("<dispositivoCosto>",dbf.format(d.Costo));
+                                                Totale += d.Costo;
+                                            }
+                                        }
+                                    }else //nessun dispostivo
+                                    {
+                                        baseMessage = baseMessage.replace("Dispositivo <dispositivoNome>: € <dispositivoCosto>", "Dispositivo: nessuno dispositivo");
+                                    }  
+
+                                    if(t.IdContributo > 0)
+                                    {
+                                        for(Contributo co : contributi)
+                                        {
+                                            if(co.IdContributo == t.IdContributo)
+                                            {
+                                                baseMessage = baseMessage.replace("<contributiNome>",co.Nome);
+                                            }
+                                        }
+                                    }else{
+                                        baseMessage = baseMessage.replace("<contributiNome>","Contributo Ricaricabile Business");
+                                    }
+
+                                    baseMessage = baseMessage.replace("<contributi>", dbf.format(c.CRB));
+                                    baseMessage = baseMessage.replace("<aaa>", dbf.format(c.AAA));
+                                    baseMessage = baseMessage.replace("<abb>", dbf.format(c.ABB));
+
+                                    Totale += c.Totale;
                                 }
                             }
-                        }else //nessun dispostivo
-                        {
-                            baseMessage = baseMessage.replace("<dispositivo>", "nessun dispositivo");
-                            baseMessage = baseMessage.replaceFirst("<costo>","0");
-                            baseMessage = baseMessage.replaceFirst("\\(<costoI> con IVA\\)","");
-                            baseMessage += "<br/><br/>";
-                        }           
-                        
-                        resultMessage += baseMessage.replaceAll("\n","<br/>");
+
+                            if(!foundConsumo)
+                            {
+                                if(t.IdDispositivo > 0)
+                                {
+                                    for(Dispositivo d : dispositivi)
+                                    {
+                                        if(d.IdDispositivo == t.IdDispositivo)
+                                        {
+                                            baseMessage = baseMessage.replace("<dispositivoNome>",d.Nome);
+                                            baseMessage = baseMessage.replace("<dispositivoCosto>",dbf.format(d.Costo));
+                                            Totale += d.Costo;
+                                        }
+                                    }
+                                }else //nessun dispostivo
+                                {
+                                    baseMessage = baseMessage.replace("Dispositivo <dispositivoNome>: € <dispositivoCosto>", "Dispositivo: nessuno dispositivo");
+                                }
+
+                                baseMessage = baseMessage.replace("<contributiNome>","Contributo Ricaricabile Business");
+                                baseMessage = baseMessage.replace("<contributi>","0.00");
+                                baseMessage = baseMessage.replace("<aaa>", "0.00");
+                                baseMessage = baseMessage.replace("<abb>", "0.00");                          
+
+                            }
+                            
+                            //salvo il totale per questo numero     
+                            Double parziale_i = Totale;
+                            for(Double p : parziali)
+                            {
+                                parziale_i -= p;
+                            }
+                            parziali.add(parziale_i);
+                            
+                            resultMessage += baseMessage.replaceAll("\n","<br/>");
+                        }                        
                     }                        
-                }               
+                }    
                 
+                 //imposto i totali per telefono
+                for(Double p : parziali)
+                {
+                    resultMessage = resultMessage.replaceFirst("<totale_i>", dbf.format(p));
+                }
+                
+                resultMessage = resultMessage.replace("<totale>", dbf.format(Totale));
+                resultMessage = resultMessage + "Si ringrazia anticipatamente.";
+                resultMessage = resultMessage.replaceAll("€","&euro;");                
+                
+                resultMessage = resultMessage.replace("<totale>", dbf.format(Totale));
+                resultMessage = resultMessage + "Si ringrazia anticipatamente.";      
+                
+                resultMessage = resultMessage.replaceAll("€","&euro;");
                 message.setText(resultMessage);
                 message.setContent(resultMessage, "text/html; charset=ISO-8859-1");
                 Transport tr = session.getTransport("smtp");
-                tr.connect("smtp.gmail.com", "erika.foli@unife.it",password);
+                tr.connect("smtp.gmail.com",sender,password);
                 message.saveChanges();
                 tr.sendMessage(message, message.getAllRecipients());
                 tr.close(); 
@@ -485,6 +638,7 @@ public class MailManagement implements Serializable {
                 {
                     EService.logAndRecover(ex);
                     setResult(EService.UNRECOVERABLE_ERROR);
+                    setErrorMessage(ex.getMessage().replace("Warning: ", ""));
                     if(database!=null)
                     database.rollBack();
                 }catch (DuplicatedRecordDBException ex) 
@@ -499,19 +653,29 @@ public class MailManagement implements Serializable {
                 {
                     EService.logAndRecover(ex);
                     setResult(EService.UNRECOVERABLE_ERROR);
+                    setErrorMessage(ex.getMessage().replace("Warning: ", ""));
                     if(database!=null)
                     database.rollBack();
                 }
             }
-        } 
+        }
+        catch(AuthenticationFailedException ex)
+        {
+            Logger.getLogger(MailManagement.class.getName()).log(Level.SEVERE, null, ex);
+            setResult(EService.RECOVERABLE_ERROR);
+            setErrorMessage("Autenticazione Fallita: la password inserita non è corretta.");
+        }
         catch (MessagingException ex) 
         {
             Logger.getLogger(MailManagement.class.getName()).log(Level.SEVERE, null, ex);
+            setResult(EService.RECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
         }
         catch (NotFoundDBException ex) 
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
         }
@@ -519,9 +683,16 @@ public class MailManagement implements Serializable {
         {
             EService.logAndRecover(ex);
             setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
             if(database!=null)
             database.rollBack();
-        }          
+        }catch(Exception ex)
+        {
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }        
         finally 
         {
             try { database.close(); }
@@ -738,6 +909,16 @@ public class MailManagement implements Serializable {
     public void setMessaggio(String messaggio)
     {
         this.messaggio = messaggio;
+    }
+    
+    public String getSender()
+    {
+        return sender;
+    }
+    
+    public void setSender(String sender)
+    {
+        this.sender = sender;
     }
     
     public String getPassword()

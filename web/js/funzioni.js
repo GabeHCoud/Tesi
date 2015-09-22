@@ -356,12 +356,22 @@ function deselectAll()
 }
 
 function sendOnSubmit(form)
-{  
+{      
+    if(isBlank(form.sender.value))
+    {
+        alert("Inserire un'email!");
+        return false;
+    }    
+    if(!validEmail(form.sender.value))
+    {
+        alert("Indirizzo email non valido.");
+        return false;
+    }
     if(isBlank(form.password.value))
     {
         alert("Inserire una password!");
         return false;
-    }    
+    }       
     
     var r = window.confirm("Attenzione! Si stanno per inviare le email. Confermi?");
     if(r === true) 
