@@ -13,6 +13,8 @@ import blogics.Dispositivo;
 import blogics.DispositivoService;
 import blogics.Fattura;
 import blogics.FatturaService;
+import blogics.Fondo;
+import blogics.FondoService;
 import blogics.Mail;
 import blogics.MailService;
 import blogics.Telefono;
@@ -23,7 +25,9 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,10 +40,6 @@ import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 import services.errorservice.EService;
 
-/**
- *
- * @author Massa
- */
 public class MailManagement implements Serializable {
     private String userId;
     private ArrayList<User> utenti;
@@ -53,6 +53,7 @@ public class MailManagement implements Serializable {
     private ArrayList<Telefono> telefoni;
     private ArrayList<Dispositivo> dispositivi;
     private ArrayList<Contributo> contributi;
+    private ArrayList<Fondo> fondi;
     private String messaggio;
     private String sender;
     private String password;
@@ -109,7 +110,8 @@ public class MailManagement implements Serializable {
             emails = MailService.getEmailsByFatturaId(database, idFattura);
             telefoni = TelefonoService.getTelefoni(database);
             dispositivi = DispositivoService.getDispositivi(database);
-            contributi = ContributoService.getContributi(database);            
+            contributi = ContributoService.getContributi(database);   
+            fondi = FondoService.getFondi(database);
             
         }catch (NotFoundDBException ex) 
         {
@@ -184,14 +186,15 @@ public class MailManagement implements Serializable {
             utenti = UserService.getUtenti(database);   
             telefoni = TelefonoService.getTelefoni(database);
             dispositivi = DispositivoService.getDispositivi(database);
-            contributi = ContributoService.getContributi(database); 
+            contributi = ContributoService.getContributi(database);  
+            fondi = FondoService.getFondi(database); 
         
             for(int i=0; i<selectedUsers.length;i++)
             {   
                 
-                String baseMessage = messaggio.trim();
-                baseMessage = baseMessage.replaceAll("â.¬","€");
-                baseMessage = baseMessage.replace("Si ringrazia anticipatamente.", "");
+                String baseMessage = messaggio.trim();                
+                baseMessage = baseMessage.replaceAll("â.¬","€").replaceAll("Ã¨","&egrave;").replaceAll("Ã","&agrave");
+                baseMessage = baseMessage.replace("Ringrazio e saluto cordialmente.", "");
                 resultMessage = "";
                 
                 //imposto messaggio
@@ -253,7 +256,7 @@ public class MailManagement implements Serializable {
                                 // dal 2° numero in poi inizio un nuovo messaggio 
                                 baseMessage = messaggio.trim();
                                 baseMessage = baseMessage.replaceAll("â.¬","€");
-                                baseMessage = baseMessage.replace("Si ringrazia anticipatamente.", "");
+                                baseMessage = baseMessage.replace("Ringrazio e saluto cordialmente.", "");
                                 int startIndex = baseMessage.indexOf("Telefono");                        
                                 baseMessage = baseMessage.substring(startIndex,baseMessage.length());
                             }
@@ -349,8 +352,18 @@ public class MailManagement implements Serializable {
                     resultMessage = resultMessage.replaceFirst("<totale_i>", dbf.format(p));
                 }
                 
+                //imposto il fondo selezionando quello attivo
+                Fondo fondoAttivo = null;
+                for(Fondo f : fondi)
+                {
+                    if(f.Email.equals(utente.Email) && f.Attivo)
+                        fondoAttivo = f;
+                }
+                if(fondoAttivo != null)
+                    resultMessage = resultMessage.replace("<fondo>",fondoAttivo.Nome);
+                
                 resultMessage = resultMessage.replace("<totale>", dbf.format(Totale));
-                resultMessage = resultMessage + "Si ringrazia anticipatamente.";
+                resultMessage = resultMessage + "Ringrazio e saluto cordialmente.";
                 resultMessage = resultMessage.replaceAll("€","&euro;");
                 
                 //salvo nel db
@@ -422,7 +435,8 @@ public class MailManagement implements Serializable {
             utenti = UserService.getUtenti(database);   
             telefoni = TelefonoService.getTelefoni(database);
             dispositivi = DispositivoService.getDispositivi(database);
-            contributi = ContributoService.getContributi(database); 
+            contributi = ContributoService.getContributi(database);  
+            fondi = FondoService.getFondi(database);
         
             Properties props = System.getProperties();
             props.put("mail.smtp.host", "smtp.gmail.com");
@@ -437,22 +451,40 @@ public class MailManagement implements Serializable {
                  }
             });
             
-            Message message = new MimeMessage(session);
-            InternetAddress from = new InternetAddress(sender);
+            Message message = new MimeMessage(session);            
+            InternetAddress from;
+            if(sender.contains("florke")){
+                from = new InternetAddress("erika.foli@unife.it");
+            }else 
+                from = new InternetAddress(sender);
+            
             InternetAddress to[];
             
             for(int i=0; i<selectedUsers.length;i++)
             {   
-                String baseMessage = messaggio.trim();
-                baseMessage = baseMessage.replaceAll("â.¬","€");
-                baseMessage = baseMessage.replace("Si ringrazia anticipatamente.", "");
+                String baseMessage = messaggio.trim();                
+                baseMessage = baseMessage.replaceAll("â.¬","€").replaceAll("Ã¨","&egrave;").replaceAll("Ã","&agrave;");
+                baseMessage = baseMessage.replace("Ringrazio e saluto cordialmente.", "");
                 resultMessage = "";
                 
                 to = InternetAddress.parse(selectedUsers[i]);
 
-                message.setFrom(from);
+                message.setFrom(from);                
                 message.setRecipients(Message.RecipientType.TO, to);
-                message.setSubject("Fattura TIM del "+selectedFattura.Data);
+                
+                SimpleDateFormat dateFormat = new SimpleDateFormat( "LLLL", Locale.getDefault() );
+                String dataFattura = selectedFattura.Data;
+                String[] splitted = dataFattura.split("-");
+                Calendar cal = Calendar.getInstance();              
+                cal.set(Integer.parseInt(splitted[2]),Integer.parseInt(splitted[1]),Integer.parseInt(splitted[0]));
+                cal.add(Calendar.MONTH, -2);
+                Date tempdate = cal.getTime();                
+                String previous1 = dateFormat.format(tempdate);
+                cal.add(Calendar.MONTH, -1);
+                tempdate = cal.getTime();
+                String previous2 = dateFormat.format(tempdate);
+                
+                message.setSubject("Fattura TIM del " + selectedFattura.Data + "(bimestre " + previous2 + "-" + previous1 + ")");
                 message.setSentDate(new java.util.Date());
                 
                 //imposto messaggio
@@ -514,7 +546,7 @@ public class MailManagement implements Serializable {
                                 // dal 2° numero in poi inizio un nuovo messaggio 
                                 baseMessage = messaggio.trim();
                                 baseMessage = baseMessage.replaceAll("â.¬","€");
-                                baseMessage = baseMessage.replace("Si ringrazia anticipatamente.", "");
+                                baseMessage = baseMessage.replace("Ringrazio e saluto cordialmente.", "");
                                 int startIndex = baseMessage.indexOf("Telefono");                        
                                 baseMessage = baseMessage.substring(startIndex,baseMessage.length());
                             }
@@ -611,15 +643,23 @@ public class MailManagement implements Serializable {
                 }
                 
                 resultMessage = resultMessage.replace("<totale>", dbf.format(Totale));
-                resultMessage = resultMessage + "Si ringrazia anticipatamente.";
-                resultMessage = resultMessage.replaceAll("€","&euro;");                
                 
-                resultMessage = resultMessage.replace("<totale>", dbf.format(Totale));
-                resultMessage = resultMessage + "Si ringrazia anticipatamente.";      
+                //imposto il fondo selezionando quello attivo
+                Fondo fondoAttivo = null;
+                for(Fondo f : fondi)
+                {
+                    if(f.Email.equals(utente.Email) && f.Attivo)
+                        fondoAttivo = f;
+                }
+                if(fondoAttivo != null)
+                    resultMessage = resultMessage.replace("<fondo>",fondoAttivo.Nome);
                 
-                resultMessage = resultMessage.replaceAll("€","&euro;");
+                //chiudo messaggio
+                resultMessage = resultMessage + "Ringrazio  e saluto cordialmente.";
+                resultMessage = resultMessage.replaceAll("€","&euro;");     
+                
                 message.setText(resultMessage);
-                message.setContent(resultMessage, "text/html; charset=ISO-8859-1");
+                message.setContent(resultMessage, "text/html; charset=UTF-8");
                 Transport tr = session.getTransport("smtp");
                 tr.connect("smtp.gmail.com",sender,password);
                 message.saveChanges();
@@ -664,12 +704,16 @@ public class MailManagement implements Serializable {
             Logger.getLogger(MailManagement.class.getName()).log(Level.SEVERE, null, ex);
             setResult(EService.RECOVERABLE_ERROR);
             setErrorMessage("Autenticazione Fallita: la password inserita non è corretta.");
+            if(database!=null)
+            database.rollBack();
         }
         catch (MessagingException ex) 
         {
             Logger.getLogger(MailManagement.class.getName()).log(Level.SEVERE, null, ex);
             setResult(EService.RECOVERABLE_ERROR);
             setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
         }
         catch (NotFoundDBException ex) 
         {
@@ -899,7 +943,27 @@ public class MailManagement implements Serializable {
     public void setContributi(ArrayList<Contributo> contributi)
     {
         this.contributi = contributi;
-    }    
+    }  
+    
+    public Fondo getFondo(int i)
+    {
+        return fondi.get(i);
+    }
+    
+    public void setFondo(int i,Fondo fondo)
+    {
+        fondi.set(i, fondo);
+    }
+    
+    public ArrayList<Fondo> getFondi()
+    {
+        return fondi;
+    }
+    
+    public void setFondi(ArrayList<Fondo> fondi)
+    {
+        this.fondi = fondi;
+    }
     
     public String getMessaggio()
     {

@@ -240,6 +240,22 @@ function editTelefonoOnSubmit(form)
     else return false;
 }
 
+function deleteFondoOnSubmit()
+{
+    var r = window.confirm("Attenzione! Si sta per eliminare una fondo, tutti i dati ad esso collegati andranno persi. Confermi?");
+    if(r === true) 
+       return true;
+    else return false;
+}
+
+function editFondoOnSubmit(form)
+{   
+    var r = window.confirm("Attenzione! Il fondo sta per essere modificato. Confermi?");
+    if(r === true) 
+       return true;
+    else return false;
+}
+
 function deleteTContributoOnSubmit()
 {
     var r = window.confirm("Attenzione! Si sta per dissociare il contributo dal numero di telefono. Confermi?");

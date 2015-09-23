@@ -26,7 +26,17 @@
     }else if (status.equals("editUser")){
         userManagement.editUser();
     }else if (status.equals("deleteUser")){                
-        userManagement.deleteUser(); 
+        userManagement.deleteUser();
+    }else if (status.equals("editFondoView")){
+        userManagement.viewEditFondo();
+    }else if (status.equals("addFondo")){
+        userManagement.addFondo();
+    }else if (status.equals("deleteFondo")){
+        userManagement.deleteFondo();
+    }else if (status.equals("editFondo")){  
+        userManagement.editFondo();
+    }else if (status.equals("activateFondo")){
+        userManagement.activateFondo();    
     }else if(status.equals("editPhoneView")){
         userManagement.viewEditPhone();                       
     }else if (status.equals("addPhone")){
@@ -52,7 +62,7 @@
         </a>
         <br/>
     </div>
-<%}else if(status.equals("editUserView") || status.equals("addPhone") || status.equals("deletePhone") || status.equals("editPhone"))
+<%}else if(status.equals("editUserView") || status.equals("addPhone") || status.equals("deletePhone") || status.equals("editPhone") || status.equals("addFondo") || status.equals("deleteFondo") || status.equals("editFondo") || status.equals("activateFondo"))
 {%>
     
     <form style="float: left; margin: 10px 20px;" name="back" method="post" action="Utenti.jsp">
@@ -95,6 +105,103 @@
         </form>
     </div>    
     <br/>
+    <div id="titolo">
+        <b>Gestione Fondi</b>
+    </div>  
+    <%if(userManagement.getFondi() != null && !userManagement.getFondi().isEmpty())
+    {%>
+    <div id="testo">       
+        <table cellspacing="0"> 
+            <tr class="alternate">                
+                <td width="80%">
+                    <b>Nome</b>
+                </td>   
+                <td width="5%">
+                    <center>
+                        <b>Attivo</b>
+                    </center>   
+                </td>
+                <td width="5%">
+                    <center>
+                        <b>Imposta Attivo</b>
+                    </center>   
+                </td>
+                <td width="5%">
+                    <b>Modifica</b>
+                </td>         
+                <td width="5%">
+                    <b>Cancella</b>
+                </td>                
+            </tr>   
+            <%for(Fondo f : userManagement.getFondi())
+            {    
+                if(f.Email.equals(userManagement.getSelectedUser().Email))
+                {
+                    if((userManagement.getFondi().indexOf(f) % 2) == 0)
+                    {%>                
+                    <tr>
+                    <%}else{%>
+                    <tr class="alternate">
+                    <%}%>
+                    <td><%=f.Nome%></td>  
+                    <td>
+                        <center>
+                            <%if(f.Attivo){%> 
+                            <img src="images/on.png" style="width: 24px;height: 24px;"/>
+                            <%}else{%>
+                            <img src="images/off.png" style="width: 24px;height: 24px;"/>
+                            <%}%>
+                        </center>
+                    </td>
+                    <td>
+                        <center>
+                            <%if(!f.Attivo){%> 
+                            <form action="ModificaUtente.jsp" method="post">
+                                <input type="hidden" name="status" value="activateFondo"/>
+                                <input type="hidden" name="idFondo" value="<%=f.Id%>"/>
+                                <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
+                                <center>
+                                    <input type="image" name="submit" style="width: 32px;height: 32px;" src="images/check.png"/>
+                                </center>
+                            </form>
+                            <%}%>
+                        </center>
+                    </td>
+                    <td>
+                        <form action="ModificaUtente.jsp" method="post">
+                            <input type="hidden" name="status" value="editFondoView"/>
+                            <input type="hidden" name="idFondo" value="<%=f.Id%>"/>
+                            <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
+                            <center><input type="image" name="submit" src="images/edit.jpg"></center>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="ModificaUtente.jsp" method="post" onsubmit="return deleteFondoOnSubmit()">
+                            <input type="hidden" name="status" value="deleteFondo"/>
+                            <input type="hidden" name="idFondo" value="<%=f.Id%>"/>
+                            <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
+                            <center><input type="image" name="submit" src="images/delete.jpg"></center>
+                        </form>
+                    </td>
+                </tr>                    
+                <%}
+            }%>
+        </table>        
+    </div>  
+    <%}else{%>
+    <div>Non sono associati fondi all'utente selezionato</div>
+    <%}%>
+    <br/>
+    <div id="titolo"><b>Aggiungi un Fondo</b></div>
+    <div id="testo">
+        <form name="addFondo" method="post" action="ModificaUtente.jsp">
+            <input type="hidden" name="status" value="addFondo"/>
+            <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
+            <input type="text" name="nome"/>
+            <input type="submit" value="Aggiungi"/>
+        </form>
+    </div>
+    <br/>
     <div id="titolo"><b>Gestione Numeri</b></div>          
     <div id="testo">
         <%if(userManagement.getTelefoni() != null && !userManagement.getTelefoni().isEmpty())
@@ -126,8 +233,7 @@
                 <%}else{%>
                 <tr class="alternate">
                 <%}%>
-                <td><%=t.Numero%></td>
-                
+                <td><%=t.Numero%></td>                
                 <td>
                     <%if(userManagement.getContributi() != null)
                     {
@@ -186,6 +292,35 @@
         </form>
     </div>
     <br/><br/><br/>
+<%}else if (status.equals("editFondoView")){
+%>
+    <form style="float: left; margin: 10px 20px;" name="back" method="post" action="ModificaUtente.jsp">
+        <input type="hidden" name="status" value="editUserView">
+        <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
+        <input type="image" alt="indietro" name="submit" src="images/back.png">        
+        <br/>
+        <span style="font-size: 10px;">indietro</span>
+    </form>
+    <div id="titolo">
+        <b>Utente <%=userManagement.getSelectedUser().Cognome%> <%=userManagement.getSelectedUser().Nome%></b>
+    </div>
+    <div id="titolo"><b>Modifica Fondo</b></div>          
+    <div id="testo">
+        <form method="post" action="ModificaUtente.jsp" onsubmit="return editFondoOnSubmit(this);">
+            <table cellspacing="0" >
+                <tr style="background-color:#F0F8FF">  
+                    <td>Fondo</td>      
+                    <td>
+                        <input type="text" name="nome" size="30" value="<%=userManagement.getSelectedFondo().Nome%>">
+                    </td>
+                </tr>                
+            </table>
+            <input type="hidden" name="idFondo" value="<%=userManagement.getSelectedFondo().Id%>"/>
+            <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
+            <input type="hidden" name="status" value="editFondo"/>
+            <input type="submit" value="Modifica Fondo"/>
+        </form>
+    </div> 
 <%}%>
 
 <%@include file="Footer.jsp" %>

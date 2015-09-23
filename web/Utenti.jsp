@@ -48,12 +48,6 @@
 </div>
 <%  } else if (status.equals("view") || status.equals("editUser") || status.equals("deleteUser") || status.equals("addUser")) {%>     
 <div id="titolo"><b>Utenti Registrati</b></div>
-<div>
-    <%
-        
-    
-    %>
-</div>
 <div id="testo"> 
     <%if (userManagement.getUtenti() != null && !userManagement.getUtenti().isEmpty()) 
     {%>
@@ -62,6 +56,9 @@
             <td width="15%">
                 <b>Utente</b>
             </td>     
+            <td width="100">
+                <b>Fondi</b>
+            </td>
             <td width="100">
                 <b>Numeri</b>
             </td>
@@ -103,6 +100,20 @@
             <td >
                 <span style="font-size: 18px;"><%=u.Cognome%> <%=u.Nome%></span><br/>
                 <span style="font-size: 12px;"><%=u.Email%></span>            
+            </td>
+            <td width="100">
+                <%               
+                for(Fondo f : userManagement.getFondi())
+                {
+                    if(f.Email.equals(u.Email))
+                    {                       
+                       %>
+                       <span style="font-size: 12px;"><%=f.Nome%> 
+                           <%if(f.Attivo){%> <img src="images/check.png" style="width: 14px;height: 14px;"/> <%}%>
+                       </span><br/>
+                       <%
+                    }
+                }%>
             </td>
             <td colspan='3' style='padding-left: 0;padding-right: 0;'>  
                 <table class='invisible'>                               

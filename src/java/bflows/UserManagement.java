@@ -13,6 +13,8 @@ import blogics.Dispositivo;
 import blogics.DispositivoService;
 import blogics.Fattura;
 import blogics.FatturaService;
+import blogics.Fondo;
+import blogics.FondoService;
 import blogics.Telefono;
 import blogics.TelefonoService;
 import blogics.User;
@@ -39,8 +41,11 @@ public class UserManagement implements Serializable {
     private ArrayList<Telefono> telefoni;
     private ArrayList<Contributo> contributi;
     private ArrayList<Dispositivo> dispositivi;
+    private ArrayList<Fondo> fondi;
     private User selectedUser;
     private Telefono selectedTelefono;
+    private Fondo selectedFondo;
+    private int idFondo;
     private int idContributo;
     private int idDispositivo;
     
@@ -63,6 +68,7 @@ public class UserManagement implements Serializable {
             telefoni = TelefonoService.getTelefoni(database);
             contributi = ContributoService.getContributi(database);
             dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);
             
         }catch (NotFoundDBException ex) 
         {
@@ -213,6 +219,7 @@ public class UserManagement implements Serializable {
             telefoni = TelefonoService.getTelefoniByEmail(database, email);
             contributi = ContributoService.getContributi(database);
             dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondiByEmail(database,email);
             
             database.commit();
             
@@ -253,6 +260,7 @@ public class UserManagement implements Serializable {
             telefoni = TelefonoService.getTelefoni(database);
             contributi = ContributoService.getContributi(database);
             dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);
             
             database.commit();
             
@@ -300,6 +308,7 @@ public class UserManagement implements Serializable {
             telefoni = TelefonoService.getTelefoni(database);
             contributi = ContributoService.getContributi(database);
             dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);
             
             database.commit();
             
@@ -347,7 +356,8 @@ public class UserManagement implements Serializable {
             utenti = UserService.getUtenti(database);
             telefoni = TelefonoService.getTelefoni(database);
             contributi = ContributoService.getContributi(database);
-            dispositivi = DispositivoService.getDispositivi(database);       
+            dispositivi = DispositivoService.getDispositivi(database);  
+            fondi = FondoService.getFondi(database);     
             
             
         }catch (NotFoundDBException ex) 
@@ -383,7 +393,8 @@ public class UserManagement implements Serializable {
             selectedUser = UserService.getUtenteByEmail(database, email);
             selectedTelefono = TelefonoService.getTelefonoById(database, idTelefono);
             contributi = ContributoService.getContributi(database);
-            dispositivi = DispositivoService.getDispositivi(database);             
+            dispositivi = DispositivoService.getDispositivi(database);   
+            fondi = FondoService.getFondi(database);          
             
         }catch (NotFoundDBException ex) 
         {
@@ -422,7 +433,9 @@ public class UserManagement implements Serializable {
             selectedUser = UserService.getUtenteByEmail(database, email);
             telefoni = TelefonoService.getTelefoniByEmail(database, email);  
             contributi = ContributoService.getContributi(database);
-            dispositivi = DispositivoService.getDispositivi(database);   
+            dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);
+            
         }catch (NotFoundDBException ex) 
         {
             EService.logAndRecover(ex);
@@ -468,7 +481,8 @@ public class UserManagement implements Serializable {
             selectedUser = UserService.getUtenteByEmail(database, email);
             telefoni = TelefonoService.getTelefoniByEmail(database, email);  
             contributi = ContributoService.getContributi(database);
-            dispositivi = DispositivoService.getDispositivi(database);    
+            dispositivi = DispositivoService.getDispositivi(database);  
+            fondi = FondoService.getFondi(database);  
             
         }catch (NotFoundDBException ex) 
         {
@@ -512,7 +526,8 @@ public class UserManagement implements Serializable {
             selectedUser = UserService.getUtenteByEmail(database, email);
             telefoni = TelefonoService.getTelefoniByEmail(database, email);  
             contributi = ContributoService.getContributi(database);
-            dispositivi = DispositivoService.getDispositivi(database);                  
+            dispositivi = DispositivoService.getDispositivi(database); 
+            fondi = FondoService.getFondi(database);                 
             
         }catch (NotFoundDBException ex) 
         {
@@ -552,7 +567,8 @@ public class UserManagement implements Serializable {
             
             selectedUser = UserService.getUtenteByEmail(database, email);
             contributi = ContributoService.getContributi(database);
-            dispositivi = DispositivoService.getDispositivi(database);             
+            dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);             
             
         }catch (NotFoundDBException ex) 
         {
@@ -592,7 +608,8 @@ public class UserManagement implements Serializable {
             
             selectedUser = UserService.getUtenteByEmail(database, email);
             contributi = ContributoService.getContributi(database);
-            dispositivi = DispositivoService.getDispositivi(database);             
+            dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);             
             
         }catch (NotFoundDBException ex) 
         {
@@ -632,7 +649,8 @@ public class UserManagement implements Serializable {
             
             selectedUser = UserService.getUtenteByEmail(database, email);
             contributi = ContributoService.getContributi(database);
-            dispositivi = DispositivoService.getDispositivi(database);             
+            dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);             
             
         }catch (NotFoundDBException ex) 
         {
@@ -672,7 +690,8 @@ public class UserManagement implements Serializable {
             
             selectedUser = UserService.getUtenteByEmail(database, email);
             contributi = ContributoService.getContributi(database);
-            dispositivi = DispositivoService.getDispositivi(database);             
+            dispositivi = DispositivoService.getDispositivi(database); 
+            fondi = FondoService.getFondi(database);            
             
         }catch (NotFoundDBException ex) 
         {
@@ -696,6 +715,228 @@ public class UserManagement implements Serializable {
             catch (NotFoundDBException e) { EService.logAndRecover(e); }
         }
     }
+    
+    public void viewEditFondo()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            selectedFondo = FondoService.getFondoById(database, idFondo);
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }        
+    }
+    
+    public void addFondo()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            Fondo fondo = FondoService.InsertNewFondo(database, email, nome, false);
+            database.commit();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            telefoni = TelefonoService.getTelefoniByEmail(database, email);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);             
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }catch (DuplicatedRecordDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.RECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void editFondo()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            Fondo fondo = FondoService.getFondoById(database, idFondo);
+            if(!fondo.Nome.equals(nome))
+            {
+                fondo.Nome = nome;
+                fondo.update(database);
+            }            
+            
+            database.commit();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            telefoni = TelefonoService.getTelefoniByEmail(database, email);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);             
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void activateFondo()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            Fondo selectedFondo = FondoService.getFondoById(database, idFondo);
+            ArrayList<Fondo> userFondi = FondoService.getFondiByEmail(database, email);
+            
+            for(Fondo f : userFondi)
+            {
+                if(f.Id == idFondo)
+                {
+                    f.Attivo = true;
+                }else{
+                    f.Attivo = false;
+                }
+                f.update(database);
+            }
+            
+            database.commit();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            telefoni = TelefonoService.getTelefoniByEmail(database, email);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);                           
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }
+    
+    public void deleteFondo()
+    {
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");
+            
+            Fondo fondo = FondoService.getFondoById(database, idFondo);
+            fondo.delete(database);
+            database.commit();
+            
+            selectedUser = UserService.getUtenteByEmail(database, email);
+            telefoni = TelefonoService.getTelefoniByEmail(database, email);
+            contributi = ContributoService.getContributi(database);
+            dispositivi = DispositivoService.getDispositivi(database);
+            fondi = FondoService.getFondi(database);             
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+    }  
+    
     
     public String getNumero()
     {
@@ -856,6 +1097,26 @@ public class UserManagement implements Serializable {
     {
         this.dispositivi = dispositivi;
     }
+    
+    public Fondo getFondo(int i)
+    {
+        return fondi.get(i);
+    }
+    
+    public void setFondo(int i,Fondo fondo)
+    {
+        fondi.set(i, fondo);
+    }
+    
+    public ArrayList<Fondo> getFondi()
+    {
+        return fondi;
+    }
+    
+    public void setFondi(ArrayList<Fondo> fondi)
+    {
+        this.fondi = fondi;
+    }
         
     public User getSelectedUser()
     {
@@ -875,6 +1136,26 @@ public class UserManagement implements Serializable {
     public void setSelectedTelefono(Telefono selectedTelefono)
     {
         this.selectedTelefono = selectedTelefono;
+    }
+    
+    public Fondo getSelectedFondo()
+    {
+        return selectedFondo;
+    }
+    
+    public void setSelectedTelefono(Fondo selectedFondo)
+    {
+        this.selectedFondo = selectedFondo;
+    }
+    
+    public int getIdFondo()
+    {
+        return this.idFondo;
+    }
+    
+    public void setIdFondo(int idFondo)
+    {
+        this.idFondo = idFondo;
     }
     
     public int getIdContributo()

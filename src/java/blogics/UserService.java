@@ -44,7 +44,7 @@ public class UserService {
             } else 
                 return null; 
         } catch (SQLException ex) {
-            throw new ResultSetDBException("FatturaService: getFatturaByTelefonoAndData():  Errore nel ResultSet: "+ex.getMessage(),database);
+            throw new ResultSetDBException("UserService: getUtenteByEmail():  Errore nel ResultSet: "+ex.getMessage(),database);
         }
 
         return user;
