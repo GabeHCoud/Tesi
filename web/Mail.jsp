@@ -1,3 +1,8 @@
+<%@page import="java.io.Writer"%>
+<%@page import="java.io.BufferedWriter"%>
+<%@page import="java.io.OutputStreamWriter"%>
+<%@page import="java.io.FileReader"%>
+<%@page import="java.io.BufferedReader"%>
 <%@page import="java.text.DecimalFormat"%>
 <%@page import="java.util.Locale"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -11,7 +16,7 @@
 <%@page import="java.io.File"%>
 <%@page import="java.io.DataInputStream"%>
 <%@page import="util.Conversion"%>
-<%@page contentType="text/html" pageEncoding="UTF-8" session="false"%>
+<%@page contentType="text/html" pageEncoding="ISO-8859-1" session="false"%>
 <%//@page import="services.sessionservice.*" %>
 <%@page import="util.*"%>
 
@@ -22,10 +27,12 @@
 <jsp:setProperty name="mailManagement" property="*"/>
         
 <% 
-    String status=null;      
+    String status=null;          
     status=request.getParameter("status");
     
-
+    String path= getServletContext().getRealPath("/");
+    mailManagement.setAbsolutePath(path);
+    
     if(status==null)
     {
        status="view"; 
@@ -43,6 +50,9 @@
     }else if(status.equals("send"))
     {          
         mailManagement.send();
+    }else if(status.equals("saveDefaultMail"))
+    {
+        mailManagement.saveDefaultMail();
     }
 %>
 
@@ -50,7 +60,7 @@
 <%  if(mailManagement.getErrorMessage() != null)
     {%>     
     <div id="titolo">
-        Si √® verificato un Errore!
+        Si Ë verificato un Errore!
     </div>
     <div id="testo">
     <%=mailManagement.getErrorMessage()%>
@@ -60,7 +70,7 @@
         </a>
         <br/>
     </div>
-<%  }else if(status.equals("view")){%>    
+<%  }else if(status.equals("view") || status.equals("saveDefaultMail")){%>    
     <div id="titolo">
         <b>Seleziona una fattura per inviare le email</b>
     </div>
@@ -82,7 +92,23 @@
         <%}else{%>
         Nessuna fattura nel database.
         <%}%>
-    </div>               
+    </div>   
+    <div id="titolo">
+        <b>Modifica messaggio</b>
+    </div>
+    <div id="testo">
+        <form name="updateDefaultMessage" method="post" action="Mail.jsp">
+    <%if(mailManagement.getMessaggio() == null || mailManagement.getMessaggio().isEmpty())
+        {%>
+        <textarea id="messaggio" name="messaggio" rows="20" cols="100">Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt;.&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.</textarea>
+        <%}else{%>
+        <textarea id="messaggio" name="messaggio" rows="20" cols="100"><%=mailManagement.getMessaggio()%></textarea>
+        <%}%>
+        <br/>
+        <input type="hidden" name="status" value="saveDefaultMail"/>
+        <input type="submit" value="Salva"/>
+        </form>
+    </div>
     
 <%}else if(status.equals("viewFattura")){%>
     <div id='titolo'>Fattura del <%=mailManagement.getSelctedFattura().Data%></div>
@@ -145,7 +171,7 @@
                             if(count > 0)
                             {%>
                             <br/>
-                            <span style="font-size: 10px; font-style: italic; color: red;">Email gi√† inviate per questa fattura: <%=count%></span>
+                            <span style="font-size: 10px; font-style: italic; color: red;">Email gi‡ inviate per questa fattura: <%=count%></span>
                             <%}%>
                         </td>
                         <td width='77%'>
@@ -287,26 +313,19 @@
                 
             </table>
             
-            <button type="button" onclick="selectAll();">Seleziona tutti</button><button type="button" onclick="deselectAll();">Deseleziona tutti</button>
+            <button type="button" onclick="selectAll();">Seleziona tutti</button>   <button type="button" onclick="deselectAll();">Deseleziona tutti</button>
             <br/> 
-            <b>Messaggio<b>
-            <br/>       
-            <%
-                SimpleDateFormat dateFormat = new SimpleDateFormat( "LLLL", Locale.getDefault() );
-                String dataFattura = mailManagement.getSelctedFattura().Data;
-                String[] splitted = dataFattura.split("-");
-                Calendar c = Calendar.getInstance();              
-                c.set(Integer.parseInt(splitted[2]),Integer.parseInt(splitted[1]),Integer.parseInt(splitted[0]));
-                c.add(Calendar.MONTH, -2);
-                Date date = c.getTime();                
-                String previous1 = dateFormat.format(date);
-                c.add(Calendar.MONTH, -1);
-                date = c.getTime();
-                String previous2 = dateFormat.format(date);
-
-            %>
-            <textarea id="messaggio" name="messaggio" rows="20" cols="100">Gentile &lt;nome&gt; &lt;cognome&gt;,&NewLine;&NewLine;la sua quota per la fattura TIM del <%=mailManagement.getSelctedFattura().Data%> (relativa al bimestre <%=previous2.toLowerCase() %>-<%=previous1.toLowerCase() %>) &egrave; complessivamente di &euro; &lt;totale&gt;.&NewLine;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&NewLine;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&NewLine;&NewLine;Le inviamo di seguito i dettagli:&NewLine;&NewLine;Telefono: &lt;telefono&gt;&NewLine;&NewLine;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&NewLine;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&NewLine;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&NewLine;Abbonamenti: &euro; &lt;abb&gt;&NewLine;Totale: &euro; &lt;totale_i&gt;&NewLine;&NewLine;Ringrazio e saluto cordialmente.</textarea>
-            <br/>
+            <br/> 
+            <div id="titolo"><b>Invia Mail</b></div>
+            <!--<div id="titolo"><b>Anteprima Messaggio</b></div>
+           
+            <%if(false || mailManagement.getMessaggio() == null || mailManagement.getMessaggio().isEmpty())
+            {%>
+            <div id="testo">Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt;.&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.</div>
+            <%}else if(false){%>
+            <div id="testo"><%=mailManagement.getMessaggio().replaceAll("&#010;","<br/>")%></div>
+            <%}%>
+            <br/>-->
             <input type="hidden" name="idFattura" value="<%=mailManagement.getSelctedFattura().IdFattura%>"/>
             Indirizzo email: <input type="text" name="sender" placeholder="esempio: nome.cognome@unife.it" size="25" maxlength="50" /></br>
             Password email: <input type="password" name="password" />
@@ -377,7 +396,7 @@
     <%if(mailManagement.getErrorMessage() != null)
     {%>     
         <div id="titolo">
-            Si √® verificato un Errore!
+            Si Ë verificato un Errore!
         </div>
         <div id="testo">
         <%=mailManagement.getErrorMessage()%>
