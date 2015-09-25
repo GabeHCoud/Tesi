@@ -784,6 +784,7 @@ public class MailManagement implements Serializable {
     
     public void saveDefaultMail()
     {
+        messaggio = messaggio.replaceAll("\r\n", "&#010;");
         try {
             
             File file = new File(absolutePath + "/defaultMail.txt");    
