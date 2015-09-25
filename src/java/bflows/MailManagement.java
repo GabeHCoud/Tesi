@@ -27,13 +27,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -52,7 +49,6 @@ import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 import services.errorservice.EService;
-import sun.misc.IOUtils;
 
 public class MailManagement implements Serializable {
     private String absolutePath;

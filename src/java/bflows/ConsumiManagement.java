@@ -15,7 +15,6 @@ import blogics.Telefono;
 import blogics.TelefonoService;
 import blogics.User;
 import blogics.UserService;
-import java.beans.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import services.databaseservice.DBService;
