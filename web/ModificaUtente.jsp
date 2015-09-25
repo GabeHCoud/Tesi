@@ -261,7 +261,7 @@
                 <td>
                     <form action="ModificaLinea.jsp" method="post">
                         <input type="hidden" name="status" value="editPhoneView"/>
-                        <input type="hidden" name="idTelefono" value="<%=t.Id%>"/>
+                        <input type="hidden" name="idTelefono" value="<%=t.IdTelefono%>"/>
                         <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
                         <center><input type="image" name="submit" src="images/edit.jpg"></center>
                     </form>
@@ -269,7 +269,7 @@
                 <td>
                     <form action="ModificaUtente.jsp" method="post" onsubmit="return deleteTelefonoOnSubmit()">
                         <input type="hidden" name="status" value="deletePhone"/>
-                        <input type="hidden" name="idTelefono" value="<%=t.Id%>"/>
+                        <input type="hidden" name="idTelefono" value="<%=t.IdTelefono%>"/>
                         <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
                         <center><input type="image" name="submit" src="images/delete.jpg"></center>
                     </form>

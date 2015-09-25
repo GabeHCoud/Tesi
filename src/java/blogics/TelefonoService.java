@@ -47,7 +47,7 @@ public class TelefonoService {
         Telefono telefono;
         String sql = "";
         sql += " SELECT * FROM telefono" +
-               " WHERE Id='"+IdTelefono+"'";              
+               " WHERE IdTelefono='"+IdTelefono+"'";              
         
         ResultSet resultSet=database.select(sql);
     

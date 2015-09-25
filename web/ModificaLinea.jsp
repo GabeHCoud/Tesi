@@ -73,7 +73,7 @@
                     </td>
                 </tr>                
             </table>
-            <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().Id%>"/>
+            <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().IdTelefono%>"/>
             <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
             <input type="hidden" name="status" value="editPhone"/>
             <input type="submit" value="Modifica Numero"/>
@@ -105,7 +105,7 @@
                         <td width="25%">
                             <form name="del" method="post" action="ModificaLinea.jsp" onsubmit="return deleteTContributoOnSubmit()">
                                 <input type="hidden" name="idContributo" value="<%=c.IdContributo%>">
-                                <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().Id%>"/>
+                                <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().IdTelefono%>"/>
                                 <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
                                 <input type="hidden" name="status" value="deleteSubscription">
                                 <center><input type="image" name="submit" src="images/delete.jpg"></center>
@@ -136,7 +136,7 @@
                         <option value="<%=c.IdContributo%>"><%=c.Nome%></option>
                     <%}%>
                 </select>                
-                <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().Id%>"/>
+                <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().IdTelefono%>"/>
                 <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
                 <input type="hidden" name="status" value="addSubscription"/>
                 <center>
@@ -174,7 +174,7 @@
                         <td width="25%">
                             <form name="del" method="post" action="ModificaLinea.jsp" onsubmit="return deleteTDispositivoOnSubmit()">
                                 <input type="hidden" name="idDispositivo" value="<%=d.IdDispositivo%>">
-                                <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().Id%>"/>
+                                <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().IdTelefono%>"/>
                                 <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
                                 <input type="hidden" name="status" value="deleteDevice">
                                 <center><input type="image" name="submit" src="images/delete.jpg"></center>
@@ -205,7 +205,7 @@
                         <option value="<%=d.IdDispositivo%>"><%=d.Nome%></option>
                     <%}%>
                 </select>                
-                <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().Id%>"/>
+                <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().IdTelefono%>"/>
                 <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>"/>
                 <input type="hidden" name="status" value="addDevice"/>
                 <center>

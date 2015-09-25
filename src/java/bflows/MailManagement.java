@@ -21,7 +21,20 @@ import blogics.Telefono;
 import blogics.TelefonoService;
 import blogics.User;
 import blogics.UserService;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,8 +52,10 @@ import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 import services.errorservice.EService;
+import sun.misc.IOUtils;
 
 public class MailManagement implements Serializable {
+    private String absolutePath;
     private String userId;
     private ArrayList<User> utenti;
     private ArrayList<Mail> emails;
@@ -72,6 +87,8 @@ public class MailManagement implements Serializable {
             database=DBService.getDataBase("new");            
             
             fatture = FatturaService.getFatture(database);
+            
+            messaggio = getDefaultMail();
             
         }catch (NotFoundDBException ex) 
         {
@@ -111,7 +128,9 @@ public class MailManagement implements Serializable {
             telefoni = TelefonoService.getTelefoni(database);
             dispositivi = DispositivoService.getDispositivi(database);
             contributi = ContributoService.getContributi(database);   
-            fondi = FondoService.getFondi(database);
+            fondi = FondoService.getFondi(database);         
+            
+            messaggio = getDefaultMail();
             
         }catch (NotFoundDBException ex) 
         {
@@ -135,7 +154,7 @@ public class MailManagement implements Serializable {
             catch (NotFoundDBException e) { EService.logAndRecover(e); }
         }
     }
-    
+        
     public void viewUser()
     {
         DataBase database = null;        
@@ -189,13 +208,29 @@ public class MailManagement implements Serializable {
             contributi = ContributoService.getContributi(database);  
             fondi = FondoService.getFondi(database); 
         
+            messaggio = getDefaultMail().replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&egrave;","è").replaceAll("&agrave;","à").replace("&euro;","€");
+            
             for(int i=0; i<selectedUsers.length;i++)
             {   
                 
-                String baseMessage = messaggio.trim();                
-                baseMessage = baseMessage.replaceAll("â.¬","€").replaceAll("Ã¨","&egrave;").replaceAll("Ã","&agrave");
+                String baseMessage = messaggio.trim();
                 baseMessage = baseMessage.replace("Ringrazio e saluto cordialmente.", "");
                 resultMessage = "";
+                
+                SimpleDateFormat dateFormat = new SimpleDateFormat( "LLLL", Locale.getDefault() );
+                String dataFattura = selectedFattura.Data;
+                String[] splitted = dataFattura.split("-");
+                Calendar cal = Calendar.getInstance();              
+                cal.set(Integer.parseInt(splitted[2]),Integer.parseInt(splitted[1]),Integer.parseInt(splitted[0]));
+                cal.add(Calendar.MONTH, -2);
+                Date tempdate = cal.getTime();                
+                String previous1 = dateFormat.format(tempdate);
+                cal.add(Calendar.MONTH, -1);
+                tempdate = cal.getTime();
+                String previous2 = dateFormat.format(tempdate);                               
+                
+                baseMessage = baseMessage.replace("<data>",selectedFattura.Data);
+                baseMessage = baseMessage.replace("<bimestre>",previous2 + "-" + previous1);
                 
                 //imposto messaggio
                 User utente = null;               
@@ -206,7 +241,9 @@ public class MailManagement implements Serializable {
                 } 
                 
                 baseMessage = baseMessage.replace("<nome>", utente.Nome);
-                baseMessage = baseMessage.replace("<cognome>", utente.Cognome);                    
+                baseMessage = baseMessage.replace("<cognome>", utente.Cognome); 
+                
+                
                 boolean isFirst = true;
                 double Totale = 0.0;                             
                 DecimalFormat dbf = new DecimalFormat("0.00");
@@ -255,7 +292,6 @@ public class MailManagement implements Serializable {
                             {    
                                 // dal 2° numero in poi inizio un nuovo messaggio 
                                 baseMessage = messaggio.trim();
-                                baseMessage = baseMessage.replaceAll("â.¬","€");
                                 baseMessage = baseMessage.replace("Ringrazio e saluto cordialmente.", "");
                                 int startIndex = baseMessage.indexOf("Telefono");                        
                                 baseMessage = baseMessage.substring(startIndex,baseMessage.length());
@@ -341,7 +377,7 @@ public class MailManagement implements Serializable {
                             }
                             parziali.add(parziale_i);
                             
-                            resultMessage += baseMessage.replaceAll("\n","<br/>");
+                            resultMessage += baseMessage.replaceAll("&#010;","<br/>");
                         }                        
                     }                        
                 }      
@@ -438,6 +474,8 @@ public class MailManagement implements Serializable {
             contributi = ContributoService.getContributi(database);  
             fondi = FondoService.getFondi(database);
         
+            messaggio = getDefaultMail().replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&egrave;","è").replaceAll("&agrave;","à").replace("&euro;","€");            
+            
             Properties props = System.getProperties();
             props.put("mail.smtp.host", "smtp.gmail.com");
             props.put("mail.smtp.socketFactory.port", "465");
@@ -463,7 +501,6 @@ public class MailManagement implements Serializable {
             for(int i=0; i<selectedUsers.length;i++)
             {   
                 String baseMessage = messaggio.trim();                
-                baseMessage = baseMessage.replaceAll("â.¬","€").replaceAll("Ã¨","&egrave;").replaceAll("Ã","&agrave;");
                 baseMessage = baseMessage.replace("Ringrazio e saluto cordialmente.", "");
                 resultMessage = "";
                 
@@ -487,6 +524,8 @@ public class MailManagement implements Serializable {
                 message.setSubject("Fattura TIM del " + selectedFattura.Data + "(bimestre " + previous2 + "-" + previous1 + ")");
                 message.setSentDate(new java.util.Date());
                 
+                baseMessage = baseMessage.replace("<data>",selectedFattura.Data);
+                baseMessage = baseMessage.replace("<bimestre>",previous2 + "-" + previous1);
                 //imposto messaggio
                 User utente = null;               
                 for(User u : utenti)
@@ -545,7 +584,6 @@ public class MailManagement implements Serializable {
                             {    
                                 // dal 2° numero in poi inizio un nuovo messaggio 
                                 baseMessage = messaggio.trim();
-                                baseMessage = baseMessage.replaceAll("â.¬","€");
                                 baseMessage = baseMessage.replace("Ringrazio e saluto cordialmente.", "");
                                 int startIndex = baseMessage.indexOf("Telefono");                        
                                 baseMessage = baseMessage.substring(startIndex,baseMessage.length());
@@ -631,7 +669,7 @@ public class MailManagement implements Serializable {
                             }
                             parziali.add(parziale_i);
                             
-                            resultMessage += baseMessage.replaceAll("\n","<br/>");
+                            resultMessage += baseMessage.replaceAll("&#010;","<br/>");
                         }                        
                     }                        
                 }    
@@ -659,7 +697,7 @@ public class MailManagement implements Serializable {
                 resultMessage = resultMessage.replaceAll("€","&euro;");     
                 
                 message.setText(resultMessage);
-                message.setContent(resultMessage, "text/html; charset=UTF-8");
+                message.setContent(resultMessage, "text/html; charset=ISO-8859-1");
                 Transport tr = session.getTransport("smtp");
                 tr.connect("smtp.gmail.com",sender,password);
                 message.saveChanges();
@@ -744,6 +782,125 @@ public class MailManagement implements Serializable {
         }
     }
     
+    public void saveDefaultMail()
+    {
+        try {
+            
+            File file = new File(absolutePath + "/defaultMail.txt");    
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                    file.createNewFile();
+            }
+            
+            FileOutputStream is = new FileOutputStream(file);
+            OutputStreamWriter osw = new OutputStreamWriter(is,"ISO-8859-1");    
+            Writer w = new BufferedWriter(osw);             
+                    
+            w.write(messaggio);
+            w.close();
+            
+            
+        } catch (IOException ex) {
+            setResult(EService.RECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));            
+        }
+        
+        DataBase database = null;        
+        
+        try 
+        {
+            database=DBService.getDataBase("new");            
+            
+            fatture = FatturaService.getFatture(database);
+            
+        }catch (NotFoundDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }
+        catch (ResultSetDBException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+            if(database!=null)
+            database.rollBack();
+        }  
+        finally 
+        {
+            try { database.close(); }
+            catch (NotFoundDBException e) { EService.logAndRecover(e); }
+        }
+        
+    }
+    
+    private String getDefaultMail()
+    {
+        File file = new File(absolutePath+"/defaultMail.txt");
+        String text = "";
+        try{
+            if (!file.exists()) {
+                file.createNewFile();
+                
+                FileOutputStream is = new FileOutputStream(file);
+                OutputStreamWriter osw = new OutputStreamWriter(is);    
+                Writer w = new BufferedWriter(osw);
+                
+                SimpleDateFormat dateFormat = new SimpleDateFormat( "LLLL", Locale.getDefault() );
+                String dataFattura = selectedFattura.Data;
+                String[] splitted = dataFattura.split("-");
+                Calendar cal = Calendar.getInstance();              
+                cal.set(Integer.parseInt(splitted[2]),Integer.parseInt(splitted[1]),Integer.parseInt(splitted[0]));
+                cal.add(Calendar.MONTH, -2);
+                Date tempdate = cal.getTime();                
+                String previous1 = dateFormat.format(tempdate);
+                cal.add(Calendar.MONTH, -1);
+                tempdate = cal.getTime();
+                String previous2 = dateFormat.format(tempdate);
+                
+                text = "Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt;.&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.";
+                        
+                w.write(text);
+                w.close();
+            }else{            
+                BufferedReader bufferedReader = 
+                    new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO-8859-1"));
+                String line = "";                
+                while((line = bufferedReader.readLine()) != null) {
+                    text += line;
+                } 
+                bufferedReader.close();   
+            }
+        } catch (FileNotFoundException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));            
+        }catch (IOException ex) 
+        {
+            EService.logAndRecover(ex);
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));
+        }catch(Exception ex)
+        {
+            setResult(EService.UNRECOVERABLE_ERROR);
+            setErrorMessage(ex.getMessage().replace("Warning: ", ""));            
+        }
+        return text;
+    }
+    
+    public String getAbsolutePath()
+    {
+        return this.absolutePath;
+    }
+    
+    public void setAbsolutePath(String absolutePath)
+    {
+        this.absolutePath = absolutePath;
+    }
     
     public String getUserId()
     {

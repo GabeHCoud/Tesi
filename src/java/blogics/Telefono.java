@@ -15,7 +15,7 @@ import util.Conversion;
 
 
 public class Telefono {
-    public int Id;
+    public int IdTelefono;
     public String Numero;
     public String Email;
     public int IdContributo;
@@ -39,7 +39,7 @@ public class Telefono {
     
     public Telefono(ResultSet resultSet)
     {
-        try {Id=resultSet.getInt("Id");} catch(SQLException sqle) {}
+        try {IdTelefono=resultSet.getInt("IdTelefono");} catch(SQLException sqle) {}
         try {Numero=resultSet.getString("Numero");} catch (SQLException sqle) {}
         try {Email=resultSet.getString("Email");} catch (SQLException sqle) {}
         try {IdContributo=resultSet.getInt("IdContributo");} catch (SQLException sqle) {}
@@ -63,7 +63,7 @@ public class Telefono {
     {
         String sql = "";
         sql+= " DELETE FROM telefono " +
-              " WHERE Id='"+Id+"'";
+              " WHERE IdTelefono="+IdTelefono;
               
         
         database.modify(sql); 
@@ -80,28 +80,28 @@ public class Telefono {
                     " SET Email='" + Conversion.getDatabaseString(Email) + "'," +     
                     " IdContributo=" + null + "," +
                     " IdDispositivo=" + null +
-                    " WHERE Id="+Id;     
+                    " WHERE IdTelefono="+IdTelefono;     
         }else if(IdContributo == 0)
         {
             sql +=  " UPDATE telefono "+
                     " SET Email='" + Conversion.getDatabaseString(Email) + "'," +     
                     " IdContributo=" + null + "," +
                     " IdDispositivo=" + IdDispositivo +
-                    " WHERE Id="+Id;  
+                    " WHERE IdTelefono="+IdTelefono;  
         }else if(IdDispositivo == 0)
         {
             sql +=  " UPDATE telefono "+
                     " SET Email='" + Conversion.getDatabaseString(Email) + "'," +     
                     " IdContributo=" + IdContributo + "," +
                     " IdDispositivo=" + null + 
-                    " WHERE Id="+Id;  
+                    " WHERE IdTelefono="+IdTelefono;  
         }else
         {
             sql +=  " UPDATE telefono "+
                     " SET Email='" + Conversion.getDatabaseString(Email) + "'," +     
                     " IdContributo=" + IdContributo + "," +
                     " IdDispositivo=" + IdDispositivo + 
-                    " WHERE Id="+Id;
+                    " WHERE IdTelefono="+IdTelefono;
         }
         
         database.modify(sql);  
@@ -114,7 +114,7 @@ public class Telefono {
         
         sql +=  " UPDATE telefono "+
                     " SET Numero='" + Conversion.getDatabaseString(newnumero) + "'" +
-                    " WHERE Id="+Id+"";
+                    " WHERE IdTelefono="+IdTelefono;
         
         database.modify(sql);  
 
