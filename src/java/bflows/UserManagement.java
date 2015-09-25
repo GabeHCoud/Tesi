@@ -856,7 +856,7 @@ public class UserManagement implements Serializable {
             
             for(Fondo f : userFondi)
             {
-                if(f.Id == idFondo)
+                if(f.IdFondo == idFondo)
                 {
                     f.Attivo = true;
                 }else{

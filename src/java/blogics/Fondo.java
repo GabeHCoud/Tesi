@@ -10,7 +10,7 @@ import services.databaseservice.exception.ResultSetDBException;
 import util.Conversion;
 
 public class Fondo {
-    public int Id;
+    public int IdFondo;
     public String Email;
     public String Nome;
     public boolean Attivo;
@@ -26,7 +26,7 @@ public class Fondo {
     
     public Fondo(ResultSet resultSet)
     {
-        try {Id=resultSet.getInt("Id");} catch (SQLException sqle) {}
+        try {IdFondo=resultSet.getInt("IdFondo");} catch (SQLException sqle) {}
         try {Email=resultSet.getString("Email");} catch (SQLException sqle) {}
         try {Nome=resultSet.getString("Nome");} catch (SQLException sqle) {}        
         try {Attivo=resultSet.getBoolean("Attivo");} catch (SQLException sqle) {}
@@ -49,7 +49,7 @@ public class Fondo {
     {
         String sql = "";
         sql+=   " DELETE FROM fondo "+
-                " WHERE Id="+Id;                
+                " WHERE IdFondo="+IdFondo;                
         
         database.modify(sql); 
     }
@@ -62,7 +62,7 @@ public class Fondo {
                 " SET Nome = '" + Conversion.getDatabaseString(Nome) + "',"+
                 " Email = '" + Conversion.getDatabaseString(Email) +"',"+
                 " Attivo = " + Attivo+     
-                " WHERE Id="+Id;        
+                " WHERE IdFondo="+IdFondo;        
         
         database.modify(sql);  
     }   

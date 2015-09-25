@@ -19,7 +19,7 @@ public class FondoService {
         String sql=" SELECT * " +
                     " FROM fondo " +
                     " WHERE " +
-                    " Id="+id;
+                    " IdFondo="+id;
 
         ResultSet resultSet = database.select(sql);
         try {
