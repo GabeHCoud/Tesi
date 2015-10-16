@@ -5,10 +5,7 @@ import java.sql.*;
 import services.databaseservice.*;
 import services.databaseservice.exception.*;
 import util.Conversion;
-/**
- *
- * @author Angela
- */
+
 public class Consumo {    
     public String Telefono;    
     public double CRB;

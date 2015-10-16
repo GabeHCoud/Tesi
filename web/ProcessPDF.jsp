@@ -47,14 +47,14 @@
 <%@include file="Header.jsp" %>
 <%if(fattureManagement.getErrorMessage() != null)
 {%>     
-    <div id="titolo">
+    <div class="titolo">
         Si è verificato un Errore!
     </div>
-    <div id="testo">
+    <div class="testo">
     <%=fattureManagement.getErrorMessage()%>
         <br/><br/><br/>
         <a href="Index.jsp">
-            <div class="button" style="width: 150px; margin: 0 auto;">Torna all'Home Page</div>
+            <div class="button goHome-button">Torna all'Home Page</div>
         </a>
         <br/>
     </div>

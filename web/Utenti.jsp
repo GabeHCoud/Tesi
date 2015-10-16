@@ -35,95 +35,135 @@
 
 <%@include file="Header.jsp" %>
 <%  if (userManagement.getErrorMessage() != null) {%>     
-<div id="titolo">
+<div class="titolo">
     Si è verificato un Errore!
 </div>
-<div id="testo">
+<div class="testo">
     <%=userManagement.getErrorMessage()%>
     <br/><br/><br/>
     <a href="Index.jsp">
-        <div class="button" style="width: 150px; margin: 0 auto;">Torna all'Home Page</div>
+        <div class="button goHome-button">Torna all'Home Page</div>
     </a>
     <br/>
 </div>
 <%  } else if (status.equals("view") || status.equals("editUser") || status.equals("deleteUser") || status.equals("addUser")) {%>     
-<div id="titolo"><b>Utenti Registrati</b></div>
-<div id="testo"> 
+
+<div class="titolo"><b>Aggiungi Utente</b></div>          
+<div class="testo">
+    <form name="edit" method="post" action="Utenti.jsp" onsubmit="return registerUserOnSubmit(this)">
+        <table class="invisible-table">                    
+            <tr>
+                <td>Nome</td>
+                <td>
+                    <input type="text" name="nome" size="30" maxlength="20">
+                </td>
+            </tr>                    
+            <tr>
+                <td>Cognome</td>
+                <td>
+                    <input type="text" name="cognome" size="30" maxlength="20">
+                </td>
+            </tr>                    
+            <tr>
+                <td>Email</td>
+                <td>
+                    <input type="text" name="email" placeholder="esempio: nome.cognome@unife.it" size="50" maxlength="50">
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" name="status" value="addUser"/>
+        <input type="submit" value="Aggiungi Utente"/>
+    </form>     
+</div>
+<div class="titolo"><b>Utenti Registrati</b></div>
+<div class="testo"> 
     <%if (userManagement.getUtenti() != null && !userManagement.getUtenti().isEmpty()) 
-    {%>
-    <table cellspacing="0"> 
-        <tr class="alternate">                
-            <td width="15%">
+    {
+        String[] alphabet = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}; 
+        ArrayList<Character> done = new ArrayList<Character>();
+        
+        for(String s : alphabet)
+        {
+            %>
+            <a href="#<%=s%>" ><%=s%></a>
+            <%
+        }        
+    %>
+    
+    <table class="table-classic"> 
+        <tr>        
+            <td class="w15">
                 <b>Utente</b>
             </td>     
-            <td width="100">
+            <td class="w100p">
                 <b>Fondi</b>
             </td>
-            <td width="100">
+            <td class="w100p">
                 <b>Numeri</b>
             </td>
-            <td width='200'>
+            <td class="w200p">
             <center>
                 <b>Contributi Abbonamenti</b>
             </center>
             </td>
-            <td width='100'>
+            <td class="w100p">
             <center>
                 <b>Dispositivi</b>
             </center>
             </td>                              
-            <td width='8%'>
+            <td class="w8">
             <center>
                 <b>Modifica</b>
             </center>
             </td>         
-            <td width='8%'>
+            <td class="w8">
             <center>
                 <b>Cancella</b>
             </center>
             </td>
-            <td width='8%'>
+            <td class="w8">
             <center>
                 <b>Storico Mail</b>
             </center>
             </td>
         </tr>  
-        
         <%       
         for (User u : userManagement.getUtenti()) 
-        {            
-            if ((userManagement.getUtenti().indexOf(u) % 2) == 0) {%>
+        {%>
         <tr>
-            <%} else {%>
-        <tr class="alternate"> 
-            <%}%>
             <td >
-                <span style="font-size: 18px;"><%=u.Cognome%> <%=u.Nome%></span><br/>
-                <span style="font-size: 12px;"><%=u.Email%></span>            
+                <%if(!done.contains(u.Cognome.charAt(0))){
+                    Character letter = u.Cognome.charAt(0);
+                    done.add(letter);                   
+                    
+                    %><a id="<%=letter%>" ></a>
+                <%}%>
+                <span class="f18"><%=u.Cognome%> <%=u.Nome%></span><br/>
+                <span class="f12"><%=u.Email%></span>            
             </td>
-            <td width="100">
+            <td class="w100p">
                 <%               
                 for(Fondo f : userManagement.getFondi())
                 {
                     if(f.Email.equals(u.Email))
                     {                       
                        %>
-                       <span style="font-size: 12px;"><%=f.Nome%> 
-                           <%if(f.Attivo){%> <img src="images/check.png" style="width: 14px;height: 14px;"/> <%}%>
+                       <span class="f12"><%=f.Nome%> 
+                           <%if(f.Attivo){%> <img src="images/check.png" class="image14"/> <%}%>
                        </span><br/>
                        <%
                     }
                 }%>
             </td>
-            <td colspan='3' style='padding-left: 0;padding-right: 0;'>  
+            <td colspan='3' class="no-padding">  
                 <table class='invisible'>                               
                     <%for (Telefono t : userManagement.getTelefoni()) {
                         if (t.Email.equals(u.Email)) {%>                            
                     <tr class='invisible'>
-                        <td style='padding-bottom: 6px;padding-top: 6px;width: 100px;'>
+                        <td class="padding6tb w100p" >
                             <%=t.Numero%>
                         </td>
-                        <td style='padding-bottom: 6px;padding-top: 6px;width: 200px;'>
+                        <td class="padding6tb w200p">
                             <%if (userManagement.getContributi() != null) {
                                 for (Contributo c : userManagement.getContributi()) {
                                     if (c.IdContributo == t.IdContributo) {%>
@@ -134,7 +174,7 @@
                                 }
                             }%>  
                         </td>
-                        <td style='padding-bottom: 6px;padding-top: 6px;width: 100px;'>
+                        <td class="padding6tb w100p">
                             <%if (userManagement.getDispositivi() != null) {
                                 for (Dispositivo d : userManagement.getDispositivi()) {
                                     if (d.IdDispositivo == t.IdDispositivo) {%>
@@ -176,34 +216,7 @@
     </table>        
     <%}else{%>
     Nessun utente nel database
-    <%}%>
-    <div id="titolo"><b>Aggiungi Utente</b></div>          
-    <div id="testo">
-        <form name="edit" method="post" action="Utenti.jsp" onsubmit="return registerUserOnSubmit(this)">
-            <table cellspacing="0" >                    
-                <tr style="background-color:#F0F8FF">  
-                    <td>Nome</td>
-                    <td>
-                        <input type="text" name="nome" size="30" maxlength="20">
-                    </td>
-                </tr>                    
-                <tr style="background-color:#F0F8FF">      
-                    <td>Cognome</td>
-                    <td>
-                        <input type="text" name="cognome" size="30" maxlength="20">
-                    </td>
-                </tr>                    
-                <tr style="background-color:#F0F8FF">
-                    <td>Email</td>
-                    <td>
-                        <input type="text" name="email" placeholder="esempio: nome.cognome@unife.it" size="50" maxlength="50">
-                    </td>
-                </tr>
-            </table>
-            <input type="hidden" name="status" value="addUser"/>
-            <input type="submit" value="Aggiungi Utente"/>
-        </form>     
-    </div>
+    <%}%>    
     <br/><br/><br/><br/><br/>
 </div>
 <%}%>

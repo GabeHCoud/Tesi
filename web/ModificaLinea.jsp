@@ -37,36 +37,36 @@
 <%@include file="Header.jsp" %>
 <%  if(userManagement.getErrorMessage() != null)
     {%>     
-    <div id="titolo">
+    <div class="titolo">
         Si è verificato un Errore!
     </div>
-    <div id="testo">
+    <div class="testo">
     <%=userManagement.getErrorMessage()%>
         <br/><br/><br/>
         <a href="Index.jsp">
-            <div class="button" style="width: 150px; margin: 0 auto;">Torna all'Home Page</div>
+            <div class="button goHome-button">Torna all'Home Page</div>
         </a>
         <br/>
     </div>
 <%}else if(status.equals("editPhoneView") || status.equals("addSubscription") || status.equals("deleteSubscription") || status.equals("addDevice") || status.equals("deleteDevice"))
 {%>      
     
-    <form style="float: left; margin: 10px 20px;" name="back" method="post" action="ModificaUtente.jsp">
+    <form class="back-button" name="back" method="post" action="ModificaUtente.jsp">
         <input type="hidden" name="email" value="<%=userManagement.getSelectedUser().Email%>">
         <input type="hidden" name="status" value="editUserView">
         <input type="image" alt="indietro" name="submit" src="images/back.png">        
         <br/>
-        <span style="font-size: 10px;">indietro</span>
+        <span class="f10">indietro</span>
     </form>
-    <div id="titolo">
+    <div class="titolo">
         <b>Utente <%=userManagement.getSelectedUser().Cognome%> <%=userManagement.getSelectedUser().Nome%> - Numero <%=userManagement.getSelectedTelefono().Numero%></b>
     </div>
 
-    <div id="titolo"><b>Modifica Numero</b></div>          
-    <div id="testo">
+    <div class="titolo"><b>Modifica Numero</b></div>          
+    <div class="testo">
         <form method="post" action="ModificaUtente.jsp" onsubmit="return editTelefonoOnSubmit(this)">
-            <table cellspacing="0" >
-                <tr style="background-color:#F0F8FF">  
+            <table class="invisible-table" cellspacing="0" >
+                <tr>
                     <td>Numero</td>      
                     <td>
                         <input type="text" name="newnumero" placeholder="esempio: 123-1234567" size="30" maxlength="20" value="<%=userManagement.getSelectedTelefono().Numero%>">
@@ -81,28 +81,28 @@
     </div> 
             
     <div class="col">                 
-        <div id="titolo"><b>Gestione Contributi Abbonamenti</b></div>          
-        <div id="testo" >        
+        <div class="titolo"><b>Gestione Contributi Abbonamenti</b></div>          
+        <div class="testo" >        
             <%if(userManagement.getSelectedTelefono().IdContributo > 0)
             {%>
-            <table cellspacing="0"> 
-                <tr class="alternate">
-                    <td width="50%"><b>Nome</b></td>
-                    <td width="25%"><center><b>Costo</b></center></td>
-                    <td width="25%"><center><b>Elimina</b></center></td>
+            <table class="table-classic" cellspacing="0"> 
+                <tr>
+                    <td class="w50"><b>Nome</b></td>
+                    <td class="w25"><center><b>Costo</b></center></td>
+                    <td class="w25"><center><b>Elimina</b></center></td>
                 </tr>
                 <%for(Contributo c : userManagement.getContributi())
                 {
                     if(c.IdContributo == userManagement.getSelectedTelefono().IdContributo)
                     {%>   
                     <tr>
-                        <td width="50%"> 
+                        <td class="w50"> 
                             <%=c.Nome%>
                         </td>
-                        <td width="25%">
+                        <td class="w25">
                         <center><%=c.Costo%></center>
                         </td>
-                        <td width="25%">
+                        <td class="w25">
                             <form name="del" method="post" action="ModificaLinea.jsp" onsubmit="return deleteTContributoOnSubmit()">
                                 <input type="hidden" name="idContributo" value="<%=c.IdContributo%>">
                                 <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().IdTelefono%>"/>
@@ -119,7 +119,7 @@
             Nessun contributo o abbonamento associato al numero <%=userManagement.getSelectedTelefono().Numero%>
             <%}%>
         </div>
-        <div id="titolo">
+        <div class="titolo">
             <b>
                 <%if(userManagement.getSelectedTelefono().IdContributo == 0){%>
                 Aggiungi un contributo o abbonamento
@@ -128,7 +128,7 @@
                 <%}%>                
             </b>
         </div>
-        <div id="testo">
+        <div class="testo">
             <form name="fregister" method="post" action="ModificaLinea.jsp">  
                 <select name="idContributo">
                     <%for(Contributo c : userManagement.getContributi())
@@ -150,28 +150,28 @@
         </div>  
     </div>
     <div class="col">                 
-        <div id="titolo"><b>Gestione Dispositivi</b></div>          
-        <div id="testo" >        
+        <div class="titolo"><b>Gestione Dispositivi</b></div>          
+        <div class="testo" >        
             <%if(userManagement.getSelectedTelefono().IdDispositivo > 0)
             {%>
-            <table cellspacing="0"> 
-                <tr class="alternate">
-                    <td width="50%"><b>Nome</b></td>
-                    <td width="25%"><center><b>Costo</b></center></td>
-                    <td width="25%"><center><b>Elimina</b></center></td>
+            <table class="table-classic"> 
+                <tr>
+                    <td class="w50"><b>Nome</b></td>
+                    <td class="w25"><center><b>Costo</b></center></td>
+                    <td class="w25"><center><b>Elimina</b></center></td>
                 </tr>
                 <%for(Dispositivo d : userManagement.getDispositivi())
                 {
                     if(d.IdDispositivo == userManagement.getSelectedTelefono().IdDispositivo)
                     {%>   
                     <tr>
-                        <td width="50%"> 
+                        <td class="w50"> 
                             <%=d.Nome%>
                         </td>
-                        <td width="25%">
+                        <td class="w25">
                         <center><%=d.Costo%></center>
                         </td>
-                        <td width="25%">
+                        <td class="w25">
                             <form name="del" method="post" action="ModificaLinea.jsp" onsubmit="return deleteTDispositivoOnSubmit()">
                                 <input type="hidden" name="idDispositivo" value="<%=d.IdDispositivo%>">
                                 <input type="hidden" name="idTelefono" value="<%=userManagement.getSelectedTelefono().IdTelefono%>"/>
@@ -188,7 +188,7 @@
             Nessun dispositivo associato al numero <%=userManagement.getSelectedTelefono().Numero%>
             <%}%>
         </div>
-        <div id="titolo">
+        <div class="titolo">
             <b>
                 <%if(userManagement.getSelectedTelefono().IdContributo == 0){%>
                 Aggiungi un dispositivo
@@ -197,7 +197,7 @@
                 <%}%>    
             </b>
         </div>
-        <div id="testo">
+        <div class="testo">
             <form name="fregister" method="post" action="ModificaLinea.jsp">  
                 <select name="idDispositivo">
                     <%for(Dispositivo d : userManagement.getDispositivi())

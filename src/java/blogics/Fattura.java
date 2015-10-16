@@ -13,10 +13,7 @@ import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 import util.Conversion;
 
-/**
- *
- * @author Massa
- */
+
 public class Fattura {
     public int IdFattura;
     public String Data;

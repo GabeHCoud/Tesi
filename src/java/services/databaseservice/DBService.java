@@ -15,9 +15,9 @@ public class DBService extends Object {
      try{
         Class.forName("com.mysql.jdbc.Driver");
         Connection connection = null;
-        if(version.equals("old"))
-            connection = DriverManager.getConnection(Constants.DB_CONNECTION_STRING_1); 
-        else if(version.equals("new"))
+//        if(version.equals("old"))
+//            connection = DriverManager.getConnection(Constants.DB_CONNECTION_STRING_1); 
+//        else if(version.equals("new"))
             connection = DriverManager.getConnection(Constants.DB_CONNECTION_STRING_2); 
 
         return new DataBase(connection);

@@ -66,14 +66,14 @@
  
 <%if(consumiManagement.getErrorMessage() != null)
 {%>     
-    <div id="titolo">
+    <div class="titolo">
         Si è verificato un Errore!
     </div>
-    <div id="testo">
+    <div class="testo">
     <%=consumiManagement.getErrorMessage()%>
         <br/><br/><br/>
         <a href="Index.jsp">
-            <div class="button" style="width: 150px; margin: 0 auto;">Torna all'Home Page</div>
+            <div class="button goHome-button">Torna all'Home Page</div>
         </a>
         <br/>
     </div>
@@ -82,21 +82,21 @@
     if(status.equals("editView"))
     {%>
             
-    <form style="float: left; margin: 10px 20px;" name="back" method="post" action="Fatture.jsp">
+    <form class="back-button" name="back" method="post" action="Fatture.jsp">
         <input type="hidden" name="idFattura" value="<%=consumiManagement.getSelectedFattura().IdFattura%>"/>
         <input type="hidden" name="status" value="details"/>
         <input type="image" name="submit" src="images/back.png">        
         <br/>
-        <span style="font-size: 10px;">indietro</span>
+        <span class="f10">indietro</span>
     </form>
-    <div id="titolo"> 
+    <div class="titolo"> 
         <b>Modifica consumi di <%=consumiManagement.getSelectedConsumo().Telefono%> in fattura del <%=consumiManagement.getSelectedFattura().Data%></b>
     </div>
-    <div id="testo">
+    <div class="testo">
         <form name="edit" method="post" action="Fatture.jsp" onSubmit="return editConsumoOnSubmit(this)">  
         
-            <table cellspacing="0" >
-                <tr style="background-color:#F0F8FF">
+            <table class="invisible-table" cellspacing="0" >
+                <tr>
                     <td>
                         <b>Descrizione</b>
                     </td>
@@ -107,7 +107,7 @@
                         <b>Modifica</b>
                     </td>
                 </tr>
-                <tr style="background-color:#F0F8FF">
+                <tr>
                     <td>
                         Contributi Ricaricabile Business
                     </td>
@@ -115,10 +115,10 @@
                         <%=consumiManagement.getSelectedConsumo().CRB%>
                     </td>
                     <td>
-                        <input type="text" name="contributi" value="<%=consumiManagement.getSelectedConsumo().CRB%>">
+                        <input type="text" name="contributi" size="10" maxlength="20" value="<%=consumiManagement.getSelectedConsumo().CRB%>">
                     </td>
                 </tr>
-                <tr style="background-color:#F0F8FF">
+                <tr>
                     <td>
                         Altri addebiti e accrediti
                     </td>
@@ -129,7 +129,7 @@
                      <input type="text" name="altri" size="10" maxlength="20" value="<%=consumiManagement.getSelectedConsumo().AAA%>">
                     </td>
                 </tr>
-                <tr style="background-color:#F0F8FF">
+                <tr>
                     <td>
                         Abbonamenti
                     </td>
@@ -140,7 +140,7 @@
                         <input type="text" name="abbonamenti" size="10" maxlength="20" value="<%=consumiManagement.getSelectedConsumo().ABB%>">
                     </td>
                 </tr>
-                <tr style="background-color:#F0F8FF">
+                <tr>
                     <td>
                         Totale
                     </td>
@@ -160,77 +160,69 @@
     </div>
      
     <%}else{%>
-    <div id="titolo">
+    <div class="titolo">
         <b>Fatture</b>
     </div>
-    <div id="testo">
+    <div class="testo">
         <%  ArrayList<Fattura> fatture = consumiManagement.getFatture();
             if(fatture != null && !fatture.isEmpty())
             {%>
-            <table cellspacing="0"> 
-                <tr class="alternate">
-                    <td width="200">
+            <table class="table-classic" cellspacing="0"> 
+                <tr>
+                    <td class="w200p">
                         <b>Data</b>
                     </td>
-                    <td width="100">
+                    <td class="w100p">
                         <b>Importo Totale</b>
                     </td> 
-                    <td width="100">
+                    <td class="w100p">
                     <center>
                         <b>Dettagli</b>
                     </center>
                     </td> 
-                    <td width="100">
+                    <td class="w100p">
                     <center>
                         <b>Elimina</b>
                     </center>                        
                     </td>
-                    <td width="100">
+                    <!--<td class="w100p">
                     <center>
                         <b>Invia Mail</b>
                     </center>
-                    </td>
+                    </td>-->
                 </tr>  
 
                 <%
                 for(Fattura f : fatture)
-                {
-                    if((fatture.indexOf(f) % 2) == 1)//dispari
-                    {%>
-                    <tr class="alternate">  
-                    <%
-                    }else //pari
-                    {                
-                    %>
-                    <tr >
-                    <%}%>
-                        <td width="200"> 
+                {%>
+                    <tr>
+                        <td class="w200p">
                             Fattura del: <%=f.Data%>
                         </td>            
-                        <td width="100">
+                        <td class="w100p">
                             <%=f.Totale%> &euro;
                         </td>
-                        <td width="100">
+                        <td class="w100p">
                             <form name="details" method="post" action="Fatture.jsp">
                                 <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
                                 <input type="hidden" name="status" value="details">
                                 <center><input type="image" name="submit" src="images/details.png"></center>
                             </form>
                         </td>
-                        <td width="100">
+                        <td class="w100p">
                             <form name="delete" method="post" action="Fatture.jsp" onSubmit="return deleteFatturaOnSubmit();">
                                 <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
                                 <input type="hidden" name="status" value="delete"/>
                                 <center><input type="image" name="submit" src="images/delete.jpg"></center>
                             </form>
                         </td>
-                        <td width="100">
+                        <!--<td class="w100p">
                             <form name="viewMail" method="post" action="Mail.jsp">
-                                <input type="hidden" name="idFattura" value="<%=f.IdFattura%>"/>
+                                <input type="hidden" name="idFattura" value="<%--f.IdFattura--%>"/>
                                 <input type="hidden" name="status" value="viewFattura"/>
                                 <center><input type="image" name="submit" src="images/mail.jpg"></center>
                             </form>
-                        </td>
+                        </td>-->
                     </tr>
                 <%}%>  
             </table>
@@ -239,14 +231,14 @@
         <%}            
             if(consumiManagement.getConsumi() != null && !consumiManagement.getConsumi().isEmpty())
             {%>
-            <div id="titolo">
+            <div class="titolo">
                 <b>Fattura del: <%=consumiManagement.getSelectedFattura().Data%></b>
             </div>
-            <div id="testo">
+            <div class="testo">
                 <b>Importi Nominali</b><br/>
                 Importo Totale: <%=consumiManagement.getSelectedFattura().Totale%> &euro;<br/>
-                Contributi e Abbonamenti: <%=consumiManagement.getSelectedFattura().CA%> &euro;<br/>
-                Altri Addebiti e Accrediti: <%=consumiManagement.getSelectedFattura().AAA%> &euro;<br/>
+                <u>Totale Contributi e Abbonamenti: <%=consumiManagement.getSelectedFattura().CA%> &euro;</u><br/>
+                <u>Totale Altri Addebiti e Accrediti: <%=consumiManagement.getSelectedFattura().AAA%> &euro;</u><br/>
                 <br/>
                 <%
                 double contributi = 0;
@@ -281,28 +273,28 @@
                 <b>Importi Calcolati</b><br/>
                 Contributi e Abbonamenti Calcolati: <%=df.format(contributi)%> &euro;<br/>
                 Noleggi Calcolati: <%=df.format(noleggi)%> &euro;<br/>
-                Totale Contributi e Abbonamenti: <%=df.format(contributi + noleggi)%> &euro;<br/>
-                Altri Addebiti e Accrediti Calcolati: <%=df.format(altri)%> &euro;<br/><br/><br/>
+                <u>Totale Contributi e Abbonamenti: <%=df.format(contributi + noleggi)%> &euro;</u><br/>
+                <u>Altri Addebiti e Accrediti Calcolati: <%=df.format(altri)%> &euro;</u><br/><br/><br/>
             </div>
-            <div id="testo">
+            <div class="testo">
                 <b>Consumi</b>
-                <table cellspacing="0"> 
-                    <tr class="alternate">
-                        <td width="100">
+                <table class="table-classic" cellspacing="0"> 
+                    <tr>
+                        <td class="w100p">
                             <b>Telefono</b>
                         </td>
-                        <td width="200">
+                        <td class="w200p">
                             <b>Descrizione</b>
                         </td>
-                        <td width="100">
+                        <td class="w100p">
                             <b>Importo</b>
                         </td>
-                        <td width="50">
+                        <td class="w50p">
                         <center>
                             <b>Modifica</b>
                         </center>
                         </td>
-                        <td width="50">
+                        <td class="w50p">
                         <center>
                             <b>Utente</b>
                         </center>
@@ -310,28 +302,24 @@
                     </tr>   
                     <%
                     for(Consumo c : consumiManagement.getConsumi())
-                    {
-                        if((consumiManagement.getConsumi().indexOf(c) % 2) == 1)//dispari
-                        {%>
-                        <tr class="alternate">  
-                        <%}else{%>
-                        <tr >
-                        <%}%>
-                        <td width="100">
+                    {%>
+                    <tr>
+                        <td class="w100p">
                             <%=c.Telefono%>
                         </td>
-                        <td width="200">
+                        <td class="w200p">
                           Contributi Ricaricabile Business<br/>
                           Altri addebiti e accrediti<br/>
                           Abbonamenti<br/><br/>
                           Totale<br/>
                         </td>
-                        <td width="100"><%=c.CRB%><br/>
+                        <td class="w100p">
+                            <%=c.CRB%><br/>
                             <%=c.AAA%><br/>
                             <%=c.ABB%><br/><br/>
                             <%=c.Totale%><br/>
                         </td>
-                        <td width="50">
+                        <td class="w50p">
                             <form name="edit" method="post" action="Fatture.jsp">
                                 <input type="hidden" name="idFattura" value="<%=consumiManagement.getIdFattura()%>"/>
                                 <input type="hidden" name="numero" value="<%=c.Telefono %>">
@@ -339,7 +327,7 @@
                                 <center><input type="image" name="submit" src="images/edit.jpg"></center>
                             </form>
                         </td>
-                        <td width="50">
+                        <td class="w50p">
                             <form name="name" method="post" action="AssociaUtente.jsp">                                
                                 <input type="hidden" name="idFattura" value="<%=consumiManagement.getIdFattura()%>"/>
                                 <input type="hidden" name="numero" value="<%=c.Telefono%>"/>

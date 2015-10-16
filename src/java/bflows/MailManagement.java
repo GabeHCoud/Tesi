@@ -213,7 +213,7 @@ public class MailManagement implements Serializable {
                 baseMessage = baseMessage.replace("Ringrazio e saluto cordialmente.", "");
                 resultMessage = "";
                 
-                SimpleDateFormat dateFormat = new SimpleDateFormat( "LLLL", Locale.getDefault() );
+                SimpleDateFormat dateFormat = new SimpleDateFormat( "MMMM", Locale.ITALY );
                 String dataFattura = selectedFattura.Data;
                 String[] splitted = dataFattura.split("-");
                 Calendar cal = Calendar.getInstance();              
@@ -384,6 +384,9 @@ public class MailManagement implements Serializable {
                     resultMessage = resultMessage.replaceFirst("<totale_i>", dbf.format(p));
                 }
                 
+                Totale = Totale + (Totale * 22/100); //aggiungo iva
+                resultMessage = resultMessage.replace("<totale>", dbf.format(Totale));
+                
                 //imposto il fondo selezionando quello attivo
                 Fondo fondoAttivo = null;
                 for(Fondo f : fondi)
@@ -394,7 +397,6 @@ public class MailManagement implements Serializable {
                 if(fondoAttivo != null)
                     resultMessage = resultMessage.replace("<fondo>",fondoAttivo.Nome);
                 
-                resultMessage = resultMessage.replace("<totale>", dbf.format(Totale));
                 resultMessage = resultMessage + "Ringrazio e saluto cordialmente.";
                 resultMessage = resultMessage.replaceAll("€","&euro;");
                 
@@ -505,7 +507,7 @@ public class MailManagement implements Serializable {
                 message.setFrom(from);                
                 message.setRecipients(Message.RecipientType.TO, to);
                 
-                SimpleDateFormat dateFormat = new SimpleDateFormat( "LLLL", Locale.getDefault() );
+                SimpleDateFormat dateFormat = new SimpleDateFormat( "MMMM", Locale.ITALY );
                 String dataFattura = selectedFattura.Data;
                 String[] splitted = dataFattura.split("-");
                 Calendar cal = Calendar.getInstance();              
@@ -676,6 +678,8 @@ public class MailManagement implements Serializable {
                     resultMessage = resultMessage.replaceFirst("<totale_i>", dbf.format(p));
                 }
                 
+                Totale = Totale + (Totale * 22/100); //aggiungo iva
+                
                 resultMessage = resultMessage.replace("<totale>", dbf.format(Totale));
                 
                 //imposto il fondo selezionando quello attivo
@@ -780,7 +784,7 @@ public class MailManagement implements Serializable {
     
     public void saveDefaultMail()
     {
-        messaggio = messaggio.replaceAll("\r\n", "&#010;");
+        messaggio = messaggio.replaceAll("\r\n", "&#010;").replaceAll("<","&lt;").replaceAll(">","&gt;");
         try {
             
             File file = new File(absolutePath + "/defaultMail.txt");    
@@ -846,7 +850,7 @@ public class MailManagement implements Serializable {
                 OutputStreamWriter osw = new OutputStreamWriter(is);    
                 Writer w = new BufferedWriter(osw);
                 
-                SimpleDateFormat dateFormat = new SimpleDateFormat( "LLLL", Locale.getDefault() );
+                SimpleDateFormat dateFormat = new SimpleDateFormat( "MMMM", Locale.getDefault() );
                 String dataFattura = selectedFattura.Data;
                 String[] splitted = dataFattura.split("-");
                 Calendar cal = Calendar.getInstance();              
@@ -858,7 +862,7 @@ public class MailManagement implements Serializable {
                 tempdate = cal.getTime();
                 String previous2 = dateFormat.format(tempdate);
                 
-                text = "Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt;.&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.";
+                text = "Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt; (Iva inclusa).&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.";
                         
                 w.write(text);
                 w.close();
@@ -886,6 +890,9 @@ public class MailManagement implements Serializable {
             setResult(EService.UNRECOVERABLE_ERROR);
             setErrorMessage(ex.getMessage().replace("Warning: ", ""));            
         }
+        if(text.equals(""))
+            text = "Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt; (Iva inclusa).&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.";
+                        
         return text;
     }
     

@@ -56,32 +56,32 @@
   %>        
   <%@include file="Header.jsp" %>  
     <%if(userManagement.getErrorMessage() != null){%>
-        <div id="titolo">
+        <div class="titolo">
             Si è verificato un Errore!
         </div>
-        <div id="testo">
+        <div class="testo">
             <%=userManagement.getErrorMessage()%>
             <br/><br/><br/>
             <a href="Index.jsp">
-                <div class="button" style="width: 150px; margin: 0 auto;">Torna all'Home Page</div>
+                <div class="button goHome-button">Torna all'Home Page</div>
             </a>
             <br/>
         </div>  
     <%}else if(status.equals("view")) 
     {%>
         <div>
-            <form style="float: left; margin: 10px 20px;" name="back" method="post" action="Fatture.jsp">
+            <form class="back-button" name="back" method="post" action="Fatture.jsp">
                 <input type="hidden" name="idFattura" value="<%=userManagement.getIdFattura()%>"/>
                 <input type="hidden" name="status" value="details"/>
                 <input type="image" name="submit" src="images/back.png">        
                 <br/>
-                <span style="font-size: 10px;">indietro</span>
+                <span class="f10">indietro</span>
             </form>
-            <div id="titolo">
-                Seleziona un utente a cui associare il numero
+            <div class="titolo">
+                <b>Seleziona un utente a cui associare il numero</b>
             </div>
-            <div id="testo">
-                <form name="fassociate" method="post" action="AssociaUtente.jsp">                
+            <div class="testo">
+                <form name="fassociate" method="post" >                
                     <select name="email">
                         <%for(User u : userManagement.getUtenti())
                         {%>
@@ -101,27 +101,27 @@
                 
                 
         <form name="fregister" method="post" action="AssociaUtente.jsp" onsubmit="return registerUserOnSubmit(this)">
-            <div id="titolo"><b> Registra un nuovo utente per il numero <%=userManagement.getNumero()%></b></div>
-            <div id="testo">
-                <table style="background-color:#F0F8FF;width:auto;padding-top:0px;">
-                <tr style="background-color:#F0F8FF;">
-                    <td width="150">Nome</td>
-                    <td width="250">
-                        <input type="text" name="nome" size="25" maxlength="50"/>
-                    </td>
-                </tr>
-                <tr style="background-color:#F0F8FF;">
-                    <td width="150">Cognome</td>
-                    <td width="250">
-                        <input type="text" name="cognome" size="25" maxlength="50"/>
-                    </td>
-                </tr>           
-                <tr style="background-color:#F0F8FF;">
-                    <td width="150">Mail</td>
-                    <td width="250">
-                        <input type="text" name="email" placeholder="esempio: nome.cognome@unife.it" size="25" maxlength="50" />
-                    </td>
-                </tr>                
+            <div class="titolo"><b> Registra un nuovo utente per il numero <%=userManagement.getNumero()%></b></div>
+            <div class="testo">
+                <table class="invisible-table">
+                    <tr>
+                        <td class="w150p">Nome</td>
+                        <td class="w250p">
+                            <input type="text" name="nome" size="25" maxlength="50"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="w150p">Cognome</td>
+                        <td class="w250p">
+                            <input type="text" name="cognome" size="25" maxlength="50"/>
+                        </td>
+                    </tr>           
+                    <tr>
+                        <td width="150">Mail</td>
+                        <td width="250">
+                            <input type="text" name="email" placeholder="esempio: nome.cognome@unife.it" size="25" maxlength="50" />
+                        </td>
+                    </tr>                
             </table>
             
             <input type="hidden" name="status" value="register"/>    

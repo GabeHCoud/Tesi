@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package blogics;
 
 import java.sql.ResultSet;
@@ -13,10 +8,6 @@ import services.databaseservice.exception.DuplicatedRecordDBException;
 import services.databaseservice.exception.NotFoundDBException;
 import services.databaseservice.exception.ResultSetDBException;
 
-/**
- *
- * @author Massa
- */
 public class TelefonoService {    
     
     public static Telefono getTelefono(DataBase database,String Numero) 
