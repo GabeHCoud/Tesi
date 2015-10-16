@@ -59,22 +59,22 @@
 <%@include file="Header.jsp" %>
 <%  if(mailManagement.getErrorMessage() != null)
     {%>     
-    <div id="titolo">
+    <div class="titolo">
         Si è verificato un Errore!
     </div>
-    <div id="testo">
+    <div class="testo">
     <%=mailManagement.getErrorMessage()%>
         <br/><br/><br/>
         <a href="Index.jsp">
-            <div class="button" style="width: 150px; margin: 0 auto;">Torna all'Home Page</div>
+            <div class="button goHome-button">Torna all'Home Page</div>
         </a>
         <br/>
     </div>
 <%  }else if(status.equals("view") || status.equals("saveDefaultMail")){%>    
-    <div id="titolo">
+    <div class="titolo">
         <b>Seleziona una fattura per inviare le email</b>
     </div>
-    <div id="testo">
+    <div class="testo">
         <%if( mailManagement.getFatture() != null && ! mailManagement.getFatture().isEmpty())
         {%>
         <form method="post" action="Mail.jsp">
@@ -93,14 +93,14 @@
         Nessuna fattura nel database.
         <%}%>
     </div>   
-    <div id="titolo">
+    <div class="titolo">
         <b>Modifica messaggio</b>
     </div>
-    <div id="testo">
+    <div class="testo">
         <form name="updateDefaultMessage" method="post" action="Mail.jsp">
     <%if(mailManagement.getMessaggio() == null || mailManagement.getMessaggio().isEmpty())
         {%>
-        <textarea id="messaggio" name="messaggio" rows="20" cols="100">Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt;.&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.</textarea>
+        <textarea id="messaggio" name="messaggio" rows="20" cols="100">Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt; (Iva inclusa).&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.</textarea>
         <%}else{%>
         <textarea id="messaggio" name="messaggio" rows="20" cols="100"><%=mailManagement.getMessaggio()%></textarea>
         <%}%>
@@ -111,20 +111,32 @@
     </div>
     
 <%}else if(status.equals("viewFattura")){%>
-    <div id='titolo'>Fattura del <%=mailManagement.getSelctedFattura().Data%></div>
-    <div id="testo">
+    <div class='titolo'>Fattura del <%=mailManagement.getSelctedFattura().Data%></div>
+    <div class="testo">
+        <%
+        String[] alphabet = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}; 
+        ArrayList<Character> done = new ArrayList<Character>();
+        
+        for(String s : alphabet)
+        {
+            %>
+            <a href="#<%=s%>" ><%=s%></a>
+            <%
+        }  
+        %>
         <form id="name" name="send" action="Mail.jsp" method="post" onsubmit="return sendOnSubmit(this)">
-            <table cellspacing="0"> 
-               
-                <tr class="alternate">
-                    <td width='2%'></td>
-                    <td width='15%'>
-                        <b>Utente</b>
+            <table class="table-classic" cellspacing="0">                
+                <tr>
+                    <td class="w2"></td>
+                    <td class="w13">
+                        <center><b>Utente</b></center>
                     </td>                            
-                    <td width='77%'><b>Descrizione</b></td>
-                    <td width="6%"><b>Totale</b></td>
+                    <td class="w77"><center><b>Descrizione</b></center></td>
+                    <td class="w8"><center><b>Totale<br/>(Iva inc.)</b></center></td>
                 </tr> 
-              <%for(User u : mailManagement.getUtenti())
+              <%
+                DecimalFormat dbf = new DecimalFormat("0.00");
+                for(User u : mailManagement.getUtenti())
                 {
                     ArrayList<Consumo> cs = new ArrayList<Consumo>();
 
@@ -136,20 +148,21 @@
 
                     //if(!cs.isEmpty())
                     //{
-                    %>
-                    
-                    <%if((mailManagement.getUtenti().indexOf(u) % 2) == 0){%>
-                    <tr >
-                    <%}else{%>
-                    <tr class='alternate'>
-                    <%}%>
-                        <td width='2%'> 
+                    %>                    
+                    <tr>
+                        <td class="w2"> 
                             <input type="checkbox" name="selectedUsers" value="<%=u.Email%>">
                         </td>
-                        <td width='15%'> 
+                        <td class="w13"> 
+                            <%if(!done.contains(u.Cognome.charAt(0))){
+                                Character letter = u.Cognome.charAt(0);
+                                done.add(letter);                   
+
+                                %><a id="<%=letter%>" ></a>
+                            <%}%>
                             <%=u.Cognome%> <%=u.Nome%><br/>
-                            <span style="font-size: 12px;"><%=u.Email%></span><br/>
-                            <span style="font-size: 12px;">Fondo Attivo: 
+                            <span class="f12"><%=u.Email%></span><br/>
+                            <span class="f12">Fondo Attivo: 
                             <%
                             for(Fondo f : mailManagement.getFondi())
                             {
@@ -171,10 +184,10 @@
                             if(count > 0)
                             {%>
                             <br/>
-                            <span style="font-size: 10px; font-style: italic; color: red;">Email già inviate per questa fattura: <%=count%></span>
+                            <span class="email-counter f10">Email già inviate per questa fattura: <%=count%></span>
                             <%}%>
                         </td>
-                        <td width='77%'>
+                        <td class="w77">
                             <%
                             Double Totale = 0.0;
                             if(!cs.isEmpty()){ //se ci sono consumi in bolletta
@@ -182,15 +195,15 @@
                                 {
                                     Totale+= c.Totale;
                                 %>
-                                <div style="width: 100%; display: inline-block;">
-                                    <div style="float: left; margin-right: 30px; min-width: 300px;">                                
+                                <div class="full-col">
+                                    <div class="mail-col consumi">                                
                                         <b>Numero: <%=c.Telefono%></b><br/>                            
                                         Contributi Ricaricabile Business: <%=c.CRB%><br/>
                                         Altri addebiti e accrediti: <%=c.AAA%><br/>
                                         Abbonamenti: <%=c.ABB%><br/>
                                         Totale: <%=c.Totale%><br/>
                                     </div>
-                                    <div style="float: left; margin-right: 30px; min-width: 250px;">                                              
+                                    <div class="mail-col dispositivi">                                              
                                         <%
                                         boolean found = false;
                                         if(mailManagement.getTelefoni() != null && !mailManagement.getTelefoni().isEmpty())
@@ -220,7 +233,7 @@
                                             Nessun dispositivo<br/><br/><br/><br/><br/>
                                         <%}%>                                
                                     </div>
-                                    <div style="float: left; margin-right: 30px; min-width: 300px; min-height: 130px;">  
+                                    <div class="mail-col contributi">  
                                         <%
                                         found = false;
                                         if(mailManagement.getTelefoni() != null && !mailManagement.getTelefoni().isEmpty())
@@ -253,7 +266,7 @@
                                 <%}
                             }else{//altrimenti verifico solo i dispositivi a noleggio
                             %>
-                            <div style="width: 100%; display: inline-block;">
+                            <div class="full-col">
                                 <%if(mailManagement.getTelefoni() != null && !mailManagement.getTelefoni().isEmpty())
                                 {
                                     for(Telefono t : mailManagement.getTelefoni())
@@ -261,14 +274,14 @@
                                         if(t.Email.equals(u.Email))
                                         {
                                             %>
-                                            <div style="float: left; margin-right: 30px; min-width: 300px;">                                
+                                            <div class="mail-row consumi">                                
                                                 <b>Numero: <%=t.Numero%></b><br/>                            
                                                 Contributi Ricaricabile Business: 0.0<br/>
                                                 Altri addebiti e accrediti: 0.0<br/>
                                                 Abbonamenti: 0.0<br/>
                                                 Totale: 0.0<br/>
                                             </div>
-                                            <div style="float: left; margin-right: 30px; min-width: 250px;">                                              
+                                            <div class="mail-row dispositivi">                                              
                                         <%
                                         boolean found = false;                                        
                                         if(t.IdDispositivo > 0 && !mailManagement.getDispositivi().isEmpty())
@@ -292,7 +305,7 @@
                                             Nessun dispositivo<br/><br/><br/><br/><br/>
                                         <%}%>                                
                                     </div>
-                                    <div style="float: left; margin-right: 30px; min-width: 300px; min-height: 130px;">  
+                                    <div class="mail-row contributi">  
                                             Nessun contributo o abbonamento <br/><br/><br/><br/><br/>
                                     </div>
                                         <%}
@@ -301,29 +314,26 @@
                                 </div>
                             <%}%>
                         </td>
-                        <td width="6%">
-                            <%
-                            DecimalFormat dbf = new DecimalFormat("0.00");
-                            %>
-                            <%=dbf.format(Totale)%> &euro;
+                        <td class="w8">  
+                            <% Totale = Totale + (Totale * 22/100);%>
+                            <center><%=dbf.format(Totale)%> &euro; </center>
                         </td>
                     </tr>
                     <%//}
                 }%>
                 
             </table>
-            
             <button type="button" onclick="selectAll();">Seleziona tutti</button>   <button type="button" onclick="deselectAll();">Deseleziona tutti</button>
             <br/> 
             <br/> 
-            <div id="titolo"><b>Invia Mail</b></div>
-            <!--<div id="titolo"><b>Anteprima Messaggio</b></div>
+            <div class="titolo"><b>Invia Mail</b></div>
+            <!--<div class="titolo"><b>Anteprima Messaggio</b></div>
            
             <%if(false || mailManagement.getMessaggio() == null || mailManagement.getMessaggio().isEmpty())
             {%>
-            <div id="testo">Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt;.&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.</div>
+            <div class="testo">Gentile &lt;nome&gt; &lt;cognome&gt;,&#010;&#010;la sua quota per la fattura TIM del &lt;data&gt; (relativa al bimestre &lt;bimestre&gt;) &egrave; complessivamente di &euro; &lt;totale&gt;.&#010;La spesa verr&agrave; addebitata sul fondo &lt;fondo&gt; come da lei indicato precedentemente.&#010;Se desidera cambiare il fondo la prego di comunicarmelo, rispondendo a questa mail, entro una settimana.&#010;&#010;Le inviamo di seguito i dettagli:&#010;&#010;Telefono: &lt;telefono&gt;&#010;&#010;Dispositivo &lt;dispositivoNome&gt;: &euro; &lt;dispositivoCosto&gt;&#010;&lt;contributiNome&gt;  (Accesso Internet): &euro; &lt;contributi&gt;&#010;Altri addebiti e accrediti (Ricariche effettuate): &euro; &lt;aaa&gt;&#010;Abbonamenti: &euro; &lt;abb&gt;&#010;Totale: &euro; &lt;totale_i&gt;&#010;&#010;Ringrazio e saluto cordialmente.</div>
             <%}else if(false){%>
-            <div id="testo"><%=mailManagement.getMessaggio().replaceAll("&#010;","<br/>")%></div>
+            <div class="testo"><%=mailManagement.getMessaggio().replaceAll("&#010;","<br/>")%></div>
             <%}%>
             <br/>-->
             <input type="hidden" name="idFattura" value="<%=mailManagement.getSelctedFattura().IdFattura%>"/>
@@ -338,25 +348,20 @@
     
     <%if(!mailManagement.getEmails().isEmpty())
     {%>
-    <div id="titolo">
+    <div class="titolo">
         <b>Cronologia email di <%=mailManagement.getSelectedUser().Cognome%> <%=mailManagement.getSelectedUser().Nome%></b>
     </div>
-    <div id="testo">
-        <table>
+    <div class="testo">
+        <table class="table-classic">
             <tbody>
-            <tr class="alternate">
-                <td width="10%"><b>Data Invio</b></td>
-                <td width="10%"><b>Data Fattura</b></td>
-                <td width="90%"><b>Testo</b></td>
+            <tr>
+                <td class="w10"><b>Data Invio</b></td>
+                <td class="w10"><b>Data Fattura</b></td>
+                <td class="w90"><b>Testo</b></td>
             </tr>
         <%for(Mail m : mailManagement.getEmails())
         {%>
-        <%if((mailManagement.getEmails().indexOf(m) %2) == 0)
-        {%>
-            <tr >
-        <%}else{%>
-            <tr class='alternate'>
-        <%}%>
+            <tr>
                 <td>
                     <%for(User u : mailManagement.getUtenti())
                     {
@@ -375,8 +380,8 @@
                         <%}
                     }%>
                 </td>
-                <td>
-                    <%=m.Testo%>
+                <td>                    
+                    <%=m.Testo.replace("?","&euro;")%>
                 </td>
             </tr>
         <%}%>
@@ -384,10 +389,10 @@
         </table>
     </div>
     <%}else{%>
-    <div id="titolo">
+    <div class="titolo">
         <b>Cronologia email di <%=mailManagement.getSelectedUser().Cognome%> <%=mailManagement.getSelectedUser().Nome%></b>
     </div>
-    <div id="testo">
+    <div class="testo">
         Nessuna email inviata 
     </div>
     <%}%>
@@ -395,20 +400,20 @@
 
     <%if(mailManagement.getErrorMessage() != null)
     {%>     
-        <div id="titolo">
+        <div class="titolo">
             Si è verificato un Errore!
         </div>
-        <div id="testo">
+        <div class="testo">
         <%=mailManagement.getErrorMessage()%>
             <br/><br/><br/>
             <a href="Index.jsp">
-                <div class="button" style="width: 150px; margin: 0 auto;">Torna all'Home Page</div>
+                <div class="button goHome-button">Torna all'Home Page</div>
             </a>
             <br/>
         </div>
     <%}else{%>
-    <div id="titolo"><b>Email inviata con successo a: </b></div>
-    <div id="testo">
+    <div class="titolo"><b>Email inviata con successo a: </b></div>
+    <div class="testo">
         <%for(String s: mailManagement.getSelectedUsers())
         {
             for(User u : mailManagement.getUtenti())
