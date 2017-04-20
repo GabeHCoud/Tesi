@@ -15,10 +15,13 @@ import blogics.User;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import services.databaseservice.DBService;
@@ -51,13 +54,13 @@ public class FattureManagement implements Serializable {
     public void processPDF()
     {
 //        Document pdf = null;
-//        BufferedWriter writer = null;
+        BufferedWriter writer = null;
         consumi = new ArrayList<Consumo>();        
         lines = new ArrayList<String>();
         
         try{
-            //outputFile = File.createTempFile("result", ".txt"); 
-            //writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile)));            
+            outputFile = new File("C:\\Users\\nklma\\Documents\\NetBeansProjects\\temp", "temp.txt"); 
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile)));            
             //FileOutputStream fileOutputStream = new FileOutputStream("extracted.txt");
             
             
@@ -72,6 +75,14 @@ public class FattureManagement implements Serializable {
                     lines.add(l[i]);                
             }
             pdfReader.close();   
+	    
+	    for(String line : lines)
+	    {
+		writer.write(line);
+		writer.newLine();
+	    }
+	    
+	    writer.close();    
         
             boolean startPointFound = false;
             boolean dateFound = false;
@@ -98,6 +109,7 @@ public class FattureManagement implements Serializable {
                                 data = s;
                             }                            
                         }
+			dateFound = true;
                     }  
                 }       
                 
@@ -150,13 +162,17 @@ public class FattureManagement implements Serializable {
                     return;
                 }
 
-                if(line.matches("(\\d{3}-\\d{7})((?:\\s+)(?:\\w+\\s+)+)(\\d+,\\d+)")) //(3 digits)-(7 digits)(any number of whitespaces)(any number of word followed by whitespace)(1+ digits),(1+digits)
+                if(line.matches("(\\d{3}(\\s+)?-(\\s+)?\\d{7})((?:\\s+)(?:\\w+\\s+)+)(\\d+,\\d+)")) //(3 digits)(optional whitespaces)-(optional whitespaces)(7 digits)(any number of whitespaces)(any number of words followed by whitespace)(1+ digits),(1+digits)
                 //if(line.matches("((\\d{3})-(\\d{7}))(\\s+)(\\w+\\s+)+(\\d+),(\\d+)")) 
                 {                        
-                    //se entro qui significa che inizia una nuova fattura
+		    //elimino gli spazi nel numero di telefono
+		    line = line.replace(" - ","-");
+		    
+                    //se entro qui significa che inizia un consumo
                     ArrayList<String> splitted = SplitLine.splitLine1(line);   
 
-                    if(consumo != null && splitted.get(0).equals(consumo.Telefono)) //è il continuo del precedente
+		    //esiste un consumo con lo stesso numero quindi i dati vanno aggiunti
+                    if(consumo != null && splitted.get(0).replaceAll("\\s+","").equals(consumo.Telefono)) //è il continuo del precedente
                     {
                         if(splitted.get(1).contains("Contributi"))
                             consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
@@ -166,10 +182,12 @@ public class FattureManagement implements Serializable {
                             consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
                     }else
                     {
+			//non esiste un consumo con il numero letto
                         if(consumo != null) //salvo la precedente
                         {    
                             consumi.add(consumo);
                         }
+			//creo un nuovo consumo
                         consumo = new Consumo();
                         consumo.Telefono = splitted.get(0); 
                         
