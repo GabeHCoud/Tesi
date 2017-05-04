@@ -59,12 +59,13 @@ public class FattureManagement implements Serializable {
         lines = new ArrayList<String>();
         
         try{
+	    // Salvo file temporaneo per debugging
             outputFile = new File("C:\\Users\\nklma\\Documents\\NetBeansProjects\\temp", "temp.txt"); 
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile)));            
             //FileOutputStream fileOutputStream = new FileOutputStream("extracted.txt");
             
             
-            //iText Library      
+            // iText Library      
             PdfReader pdfReader = new PdfReader(inputStream);
             for (int page = 1; page <= pdfReader.getNumberOfPages(); page++) 
             {               
@@ -161,62 +162,128 @@ public class FattureManagement implements Serializable {
                     consumi.add(consumo);
                     return;
                 }
+		
+		if(data.contains("2017"))
+		{
+		    // ------------------------------
+		    // PER FATTURE SUCCESSIVE AL 2017
+		    // ------------------------------
+		    if(line.matches("(?:Linea\\s)(\\d{10})"))
+		    {
+			// Nuovo consumo
+			ArrayList<String> splitted = SplitLine.splitNewLinea(line);
 
-                if(line.matches("(\\d{3}(\\s+)?-(\\s+)?\\d{7})((?:\\s+)(?:\\w+\\s+)+)(\\d+,\\d+)")) //(3 digits)(optional whitespaces)-(optional whitespaces)(7 digits)(any number of whitespaces)(any number of words followed by whitespace)(1+ digits),(1+digits)
-                //if(line.matches("((\\d{3})-(\\d{7}))(\\s+)(\\w+\\s+)+(\\d+),(\\d+)")) 
-                {                        
-		    //elimino gli spazi nel numero di telefono
-		    line = line.replace(" - ","-");
-		    
-                    //se entro qui significa che inizia un consumo
-                    ArrayList<String> splitted = SplitLine.splitLine1(line);   
-
-		    //esiste un consumo con lo stesso numero quindi i dati vanno aggiunti
-                    if(consumo != null && splitted.get(0).replaceAll("\\s+","").equals(consumo.Telefono)) //è il continuo del precedente
-                    {
-                        if(splitted.get(1).contains("Contributi"))
-                            consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
-                        else if(splitted.get(1).contains("Altri"))
-                            consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
-                        else if(splitted.get(1).contains("Abbonamenti"))
-                            consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
-                    }else
-                    {
-			//non esiste un consumo con il numero letto
-                        if(consumo != null) //salvo la precedente
-                        {    
-                            consumi.add(consumo);
-                        }
+			if(consumo != null) //salvo la precedente
+			{    
+			    consumi.add(consumo);
+			}
 			//creo un nuovo consumo
-                        consumo = new Consumo();
-                        consumo.Telefono = splitted.get(0); 
-                        
-                        if(splitted.get(1).contains("Contributi"))
-                            consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
-                        else if(splitted.get(1).contains("Altri"))
-                            consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
-                        else if(splitted.get(1).contains("Abbonamenti"))
-                            consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
-                    }
-                }   
+			consumo = new Consumo();
+			StringBuilder str = new StringBuilder(splitted.get(0)); 
+			str.insert(3,"-");
+			consumo.Telefono = str.toString();
+		    }
 
-                if(line.matches("((?:\\w+\\s+)+)(\\d+,\\d+)"))//(any number of words followed by whitespaces)(1+ digits),(1+ digits)
-                //if(line.matches("(\\w+\\s+)+(\\d+),(\\d+)")) 
-                {                  
-                    //continua la fattura precedente                    
-                    ArrayList<String> splitted = SplitLine.splitLine2(line); 
+		    if(line.matches("((?:(?:\\w+\\s)+\\w+-)?(?:\\w+\\s)+)(\\d{2}\\/\\d{2}\\/\\d{4})\\s((?:\\w+\\s)+)(\\d{2}\\/\\d{2}\\-\\d{2}\\/\\d{2})\\s(\\d+,\\d+)"))
+		    {
+			// Contributi o abbonamenti
+			ArrayList<String> splitted = SplitLine.splitNewConsumo(line);
 
-                    if(consumo != null){
-                        if(splitted.get(0).contains("Contributi"))
-                            consumo.CRB = Double.parseDouble(splitted.get(1).replace(",","."));
-                        else if(splitted.get(0).contains("Altri"))
-                            consumo.AAA = Double.parseDouble(splitted.get(1).replace(",","."));
-                        else if(splitted.get(0).contains("Abbonamenti"))
-                            consumo.ABB = Double.parseDouble(splitted.get(1).replace(",","."));
-                        else if(splitted.get(0).contains("Totale"))
-                            consumo.Totale = Double.parseDouble(splitted.get(1).replace(",","."));
-                    }   
-                }   
+			if(consumo != null)
+			{
+			    if(splitted.get(2).contains("Contributi"))
+				consumo.CRB += Double.parseDouble(splitted.get(4).replace(",","."));
+			    else if(splitted.get(2).contains("Abbonamenti"))
+				consumo.ABB += Double.parseDouble(splitted.get(4).replace(",","."));
+			}
+		    }
+
+		    if(line.matches("(Ricariche(?:\\s\\w+)+)(\\s\\d\\s)(\\d+,\\d+)"))
+		    {
+			// Ricariche
+			ArrayList<String> splitted = SplitLine.splitNewRicarica(line);
+
+			if(consumo != null)
+			{
+			    consumo.AAA += Double.parseDouble(splitted.get(2).replace(",","."));
+			}
+		    }
+
+		    if(line.matches("(Totale\\s+)(\\d+,\\d+)"))
+		    {
+			// Totale
+			ArrayList<String> splitted = SplitLine.splitNewTotale(line);
+
+			if(consumo != null)
+			{
+			    consumo.Totale += Double.parseDouble(splitted.get(1).replace(",","."));
+			}
+		    }   
+		}else
+		{
+		    // ------------------------------
+		    // PER FATTURE PRECEDENTI AL 2017
+		    // ------------------------------
+
+		    // Linea e consumo
+		    if(line.matches("(\\d{3}(\\s+)?-(\\s+)?\\d{7})((?:\\s+)(?:\\w+\\s+)+)(\\d+,\\d+)")) 
+		    // (3 digits)(optional whitespaces)-(optional whitespaces)(7 digits)
+		    // (any number of whitespaces)(any number of words followed by whitespace)(1+ digits),(1+digits)
+		    {                        
+			//elimino gli spazi nel numero di telefono
+			line = line.replace(" - ","-");
+
+			//se entro qui significa che inizia un consumo
+			ArrayList<String> splitted = SplitLine.splitConsumo1(line);   
+
+			//esiste un consumo con lo stesso numero quindi i dati vanno aggiunti
+			if(consumo != null && splitted.get(0).replaceAll("\\s+","").equals(consumo.Telefono)) //è il continuo del precedente
+			{
+			    if(splitted.get(1).contains("Contributi"))
+				consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
+			    else if(splitted.get(1).contains("Altri"))
+				consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
+			    else if(splitted.get(1).contains("Abbonamenti"))
+				consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
+			}else
+			{
+			    //non esiste un consumo con il numero letto
+			    if(consumo != null) //salvo la precedente
+			    {    
+				consumi.add(consumo);
+			    }
+			    //creo un nuovo consumo
+			    consumo = new Consumo();
+			    consumo.Telefono = splitted.get(0); 
+
+			    if(splitted.get(1).contains("Contributi"))
+				consumo.CRB = Double.parseDouble(splitted.get(2).replace(",","."));
+			    else if(splitted.get(1).contains("Altri"))
+				consumo.AAA = Double.parseDouble(splitted.get(2).replace(",","."));
+			    else if(splitted.get(1).contains("Abbonamenti"))
+				consumo.ABB = Double.parseDouble(splitted.get(2).replace(",","."));
+			}
+		    }   
+
+		    if(line.matches("((?:\\w+\\s+)+)(\\d+,\\d+)"))//(any number of words followed by whitespaces)(1+ digits),(1+ digits)
+		    {                  
+			//continua la fattura precedente                    
+			ArrayList<String> splitted = SplitLine.splitConsumo2(line); 
+
+			if(consumo != null){
+			    if(splitted.get(0).contains("Contributi"))
+				consumo.CRB = Double.parseDouble(splitted.get(1).replace(",","."));
+			    else if(splitted.get(0).contains("Altri"))
+				consumo.AAA = Double.parseDouble(splitted.get(1).replace(",","."));
+			    else if(splitted.get(0).contains("Abbonamenti"))
+				consumo.ABB = Double.parseDouble(splitted.get(1).replace(",","."));
+			    else if(splitted.get(0).contains("Totale"))
+				consumo.Totale = Double.parseDouble(splitted.get(1).replace(",","."));
+			}   
+		    }   
+		}
+		
+		
             }    
 
             //outputFile.delete();
