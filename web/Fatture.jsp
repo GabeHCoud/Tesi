@@ -237,13 +237,18 @@
             <div class="testo">
                 <b>Importi Nominali</b><br/>
                 Importo Totale: <%=consumiManagement.getSelectedFattura().Totale%> &euro;<br/>
-                <u>Totale Contributi e Abbonamenti: <%=consumiManagement.getSelectedFattura().CA%> &euro;</u><br/>
-                <u>Totale Altri Addebiti e Accrediti: <%=consumiManagement.getSelectedFattura().AAA%> &euro;</u><br/>
+                <u>Contributi e Abbonamenti: <%=consumiManagement.getSelectedFattura().CA%> &euro;</u><br/>
+		<% if(consumiManagement.getSelectedFattura().Data.contains("2017")){ %>	
+		<u>Noleggi  <%=consumiManagement.getSelectedFattura().PDT%> &euro;</u><br/>
+		<% } %>
+                <u>Altri Addebiti e Accrediti: <%=consumiManagement.getSelectedFattura().AAA%> &euro;</u><br/>
+		<u>IVA: <%=consumiManagement.getSelectedFattura().IVA%> &euro;</u><br/>
                 <br/>
                 <%
                 double contributi = 0;
                 double noleggi = 0;
                 double altri = 0;
+		double iva = 0;
                 
                 for(Consumo c : consumiManagement.getConsumi())
                 {
@@ -267,14 +272,26 @@
                         }
                     }                    
                 }
+		
+		iva = (contributi + noleggi + altri) * 22/100;
                 
                 DecimalFormat df = new DecimalFormat("####.####");   
                 %>
                 <b>Importi Calcolati</b><br/>
-                Contributi e Abbonamenti Calcolati: <%=df.format(contributi)%> &euro;<br/>
-                Noleggi Calcolati: <%=df.format(noleggi)%> &euro;<br/>
-                <u>Totale Contributi e Abbonamenti: <%=df.format(contributi + noleggi)%> &euro;</u><br/>
-                <u>Altri Addebiti e Accrediti Calcolati: <%=df.format(altri)%> &euro;</u><br/><br/><br/>
+		<% if(consumiManagement.getSelectedFattura().Data.contains("2017")){ %>	    
+		    Totale Calcolato: <%=df.format(contributi + noleggi + altri + iva)%> &euro;<br/>
+		    <u>Contributi e Abbonamenti Calcolati: <%=df.format(contributi)%> &euro;</u><br/>
+		    <u>Noleggi Calcolati: <%=df.format(noleggi)%> &euro;</u><br/>
+		    <u>Altri Addebiti e Accrediti Calcolati: <%=df.format(altri)%> &euro;</u><br/>
+		    <u>IVA Calcolata: <%=df.format(iva)%> &euro;</u><br/><br/><br/>
+		<% }else{ %>
+		    Totale Calcolato: <%=df.format(contributi + noleggi + altri + iva)%> &euro;<br/>
+		    Contributi e Abbonamenti Calcolati: <%=df.format(contributi)%> &euro;<br/>
+		    Noleggi Calcolati: <%=df.format(noleggi)%> &euro;<br/>
+		    <u>Totale Contributi e Abbonamenti: <%=df.format(contributi + noleggi)%> &euro;</u><br/>
+		    <u>Altri Addebiti e Accrediti Calcolati: <%=df.format(altri)%> &euro;</u><br/>
+		    <u>IVA Calcolata: <%=df.format(iva)%> &euro;</u><br/><br/><br/>
+		<% } %>                
             </div>
             <div class="testo">
                 <b>Consumi</b>

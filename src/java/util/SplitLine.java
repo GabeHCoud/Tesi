@@ -63,7 +63,7 @@ public class SplitLine {
 	ArrayList<String> splitted = new ArrayList<String>();
         ArrayList<Pattern> patterns = new ArrayList<Pattern>(
             Arrays.asList(
-                Pattern.compile("(?:Linea\\s)"), 
+                Pattern.compile("(?:\\bLinea\\b\\s)"), 
                 Pattern.compile("(\\d{10})")
             )
         );
@@ -84,12 +84,10 @@ public class SplitLine {
     {
 	ArrayList<String> splitted = new ArrayList<String>();
         ArrayList<Pattern> patterns = new ArrayList<Pattern>(
-            Arrays.asList(
-                Pattern.compile("((?:(?:\\w+\\s)+\\w+-)?(?:\\w+\\s)+)"), 
-                Pattern.compile("(\\d{2}\\/\\d{2}\\/\\d{4})\\s"),
-		Pattern.compile("((?:\\w+\\s)+)"),
-		Pattern.compile("(\\d{2}\\/\\d{2}\\-\\d{2}\\/\\d{2})\\s"),
-		Pattern.compile("(\\d+,\\d+)")
+            Arrays.asList(		    
+                Pattern.compile("((?:\\w+\\s|\\w+-\\w+\\s)+)(\\d{2}\\/\\d{2}\\/\\d{4}\\s)"), 
+		Pattern.compile("((?:\\D+\\s)+)(\\d{2}\\/\\d{2}-\\d{2}\\/\\d{2}\\s)"),
+		Pattern.compile("(\\d+\\,\\d+)")
             )
         );
         

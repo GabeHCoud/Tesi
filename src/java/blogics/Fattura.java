@@ -18,18 +18,23 @@ public class Fattura {
     public int IdFattura;
     public String Data;
     public double Totale;
-    public double CA;
-    public double AAA;
+    public double CA; // Contributi e abbonamenti
+    public double AAA; // Altri addebiti e accrediti
+    public double PDT; // Prodotti
+    public double IVA; // IVA   
+	    
     
+    // TODO: aggiungere noleggi e iva per le fatture 2017+
     public Fattura(){}
     
-
-    public Fattura(String Data,double Totale,double CA,double AAA)
+    public Fattura(String Data,double Totale,double CA,double AAA,double PDT, double IVA)
     {
         this.Data = Data;
         this.Totale = Totale;
         this.CA = CA;
-        this.AAA = AAA;
+        this.AAA = AAA;	
+	this.PDT = PDT;
+	this.IVA = IVA;
     }
     
     public Fattura(ResultSet resultSet)
@@ -39,7 +44,8 @@ public class Fattura {
         try {Totale=resultSet.getDouble("Totale");} catch (SQLException sqle) {}
         try {CA=resultSet.getDouble("CA");} catch (SQLException sqle) {}
         try {AAA=resultSet.getDouble("AAA");} catch (SQLException sqle) {}
-
+	try {PDT=resultSet.getDouble("PDT");} catch (SQLException sqle) {}
+	try {IVA=resultSet.getDouble("IVA");} catch (SQLException sqle) {}
     }
     
     public void insert(DataBase database) throws NotFoundDBException,DuplicatedRecordDBException,ResultSetDBException 
@@ -59,8 +65,8 @@ public class Fattura {
         }        
 
         sql =  " INSERT INTO fattura" +
-               " (Data,Totale,CA,AAA)"+
-               " VALUES ('"+Conversion.getDatabaseString(Data)+"'," + Totale +"," + CA +","+ AAA +")";
+               " (Data,Totale,CA,AAA,PDT,IVA)"+
+               " VALUES ('"+Conversion.getDatabaseString(Data)+ "'," + Totale + "," + CA + "," + AAA + "," + PDT + "," + IVA + ")";
         
         database.modify(sql);        
     }
@@ -82,7 +88,9 @@ public class Fattura {
                 " SET Data ='" + Conversion.getDatabaseString(Data) + "'," +     
                 " Totale="+Totale+","+
                 " CA="+CA+","+
-                " AAA="+AAA+
+                " AAA="+AAA+","+
+		" PDT="+PDT+","+
+		" IVA="+IVA+
                 " WHERE IdFattura="+IdFattura;
         
         database.modify(sql);  

@@ -32,6 +32,7 @@ import services.databaseservice.exception.ResultSetDBException;
 import services.errorservice.EService;
 import services.errorservice.FatalError;
 import util.SplitLine;
+import util.StringMatcher;
 
 public class FattureManagement implements Serializable {   
     
@@ -47,6 +48,8 @@ public class FattureManagement implements Serializable {
     private double totale;
     private double contributi;
     private double altri;
+    private double prodotti;
+    private double iva;
     
     public FattureManagement() {}   
    
@@ -60,8 +63,8 @@ public class FattureManagement implements Serializable {
         
         try{
 	    // Salvo file temporaneo per debugging
-            outputFile = new File("C:\\Users\\nklma\\Documents\\NetBeansProjects\\temp", "temp.txt"); 
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile)));            
+            //outputFile = new File("C:\\Users\\nklma\\Documents\\NetBeansProjects\\temp", "temp.txt"); 
+            //writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFile)));            
             //FileOutputStream fileOutputStream = new FileOutputStream("extracted.txt");
             
             
@@ -77,20 +80,21 @@ public class FattureManagement implements Serializable {
             }
             pdfReader.close();   
 	    
-	    for(String line : lines)
-	    {
-		writer.write(line);
-		writer.newLine();
-	    }
+	    //for(String line : lines)
+	    //{
+	    //	writer.write(line);
+	    //	writer.newLine();
+	    //}
 	    
-	    writer.close();    
+	    //writer.close();    
         
             boolean startPointFound = false;
             boolean dateFound = false;
             boolean totaleFound = false;
             boolean contributiFound = false;
+	    boolean prodottiFound = false;
             boolean altriFound = false;
-            
+	    boolean ivaFound = false;            
             
             Consumo consumo = null;             
 
@@ -137,6 +141,19 @@ public class FattureManagement implements Serializable {
                         contributiFound = true;
                     }
                 }
+		
+		//recupero importo prodotti (noleggi) 
+		// SOLO PER 2017+				
+		if(data != null && Integer.parseInt(data.split("-")[2]) >= 2017 && !prodottiFound)
+                {
+                    if(line.contains("PRODOTTI"))
+                    {
+                        String cleanLine = line.replaceAll("\\s+"," ");
+                        String importo  = cleanLine.replace("PRODOTTI ","");
+                        prodotti = Double.parseDouble(importo.replace(".","").replace(",","."));
+                        prodottiFound = true;
+                    }
+                }
                 
                 //recupero importo altri addebiti e accrediti
                 if(!altriFound)
@@ -149,9 +166,21 @@ public class FattureManagement implements Serializable {
                         altriFound = true;
                     }
                 }
+		
+		//recupero importo IVA
+                if((contributiFound || altriFound) && !ivaFound) // in questo modo si evitano match con "partita iva" ecc
+                {
+                    if(line.contains("IVA"))
+                    {
+                        String cleanLine = line.replaceAll("\\s+"," ");
+                        String importo  = cleanLine.replace("IVA ","");
+                        iva = Double.parseDouble(importo.replace(".","").replace(",","."));
+                        ivaFound = true;
+                    }
+                }
                 
-                //RIEPILOGO UTENZA segna l'inizio della tabella
-                if(line.contains("RIEPILOGO PER UTENZA"))
+                //Il primo RIEPILOGO PER UTENZA segna l'inizio della tabella dei consumi da analizzare
+                if(!startPointFound && line.contains("RIEPILOGO PER UTENZA"))
                     startPointFound = !startPointFound;
 
                 if(!startPointFound) continue;                    
@@ -163,16 +192,17 @@ public class FattureManagement implements Serializable {
                     return;
                 }
 		
-		if(data.contains("2017"))
+		if(Integer.parseInt(data.split("-")[2]) >= 2017)
 		{
 		    // ------------------------------
 		    // PER FATTURE SUCCESSIVE AL 2017
 		    // ------------------------------
-		    if(line.matches("(?:Linea\\s)(\\d{10})"))
+		    ArrayList<String> splitted;
+		    splitted = StringMatcher.matches(line, "\\bLinea\\b\\s((\\d{10}))");
+		    //if(line.matches("(?:(?:Linea)\\s)(\\d{10})"))
+		    if(!splitted.isEmpty())
 		    {
 			// Nuovo consumo
-			ArrayList<String> splitted = SplitLine.splitNewLinea(line);
-
 			if(consumo != null) //salvo la precedente
 			{    
 			    consumi.add(consumo);
@@ -182,41 +212,47 @@ public class FattureManagement implements Serializable {
 			StringBuilder str = new StringBuilder(splitted.get(0)); 
 			str.insert(3,"-");
 			consumo.Telefono = str.toString();
-		    }
-
-		    if(line.matches("((?:(?:\\w+\\s)+\\w+-)?(?:\\w+\\s)+)(\\d{2}\\/\\d{2}\\/\\d{4})\\s((?:\\w+\\s)+)(\\d{2}\\/\\d{2}\\-\\d{2}\\/\\d{2})\\s(\\d+,\\d+)"))
+		    }	
+		    
+		    splitted = StringMatcher.matches(line, "((?:\\w+\\s|\\w+-\\w+\\s)+)(?:\\d{2}\\/\\d{2}\\/\\d{4}\\s)((?:\\D+\\s)+)(?:\\d{2}\\/\\d{2}-\\d{2}\\/\\d{2}\\s)((\\d+,\\d+))$");
+		    //if(line.matches("(?:(?:(?:\w+\s)+\w+\-)?(?:\w+\s)+)(?:\d{2}\/\d{2}\/\d{4})\s((?:\w+\s)+)(?:\d{2}\/\d{2}\-\d{2}\/\d{2})\s(\d+,\d+)"))
+		    if(!splitted.isEmpty())
 		    {
 			// Contributi o abbonamenti
-			ArrayList<String> splitted = SplitLine.splitNewConsumo(line);
-
+			
 			if(consumo != null)
 			{
-			    if(splitted.get(2).contains("Contributi"))
-				consumo.CRB += Double.parseDouble(splitted.get(4).replace(",","."));
-			    else if(splitted.get(2).contains("Abbonamenti"))
-				consumo.ABB += Double.parseDouble(splitted.get(4).replace(",","."));
+			    String lel = splitted.get(1);
+			    if(splitted.get(1).contains("Contributi"))
+				consumo.CRB += Double.parseDouble(splitted.get(2).replace(",","."));
+			    else if(splitted.get(1).contains("Abbonamenti"))
+				consumo.ABB += Double.parseDouble(splitted.get(2).replace(",","."));
 			}
 		    }
-
-		    if(line.matches("(Ricariche(?:\\s\\w+)+)(\\s\\d\\s)(\\d+,\\d+)"))
+		    
+		    splitted = StringMatcher.matches(line, "\\bRicariche\\b(?:\\s\\w+)+(?:\\s\\d\\s)((\\d+,\\d+))$");
+		    if(!splitted.isEmpty())
+		    //if(line.matches("(Ricariche(?:\\s\\w+)+)(\\s\\d\\s)(\\d+,\\d+)"))
 		    {
 			// Ricariche
-			ArrayList<String> splitted = SplitLine.splitNewRicarica(line);
+			//splitted = SplitLine.splitNewRicarica(line);
 
 			if(consumo != null)
 			{
-			    consumo.AAA += Double.parseDouble(splitted.get(2).replace(",","."));
+			    consumo.AAA += Double.parseDouble(splitted.get(0).replace(",","."));
 			}
 		    }
-
-		    if(line.matches("(Totale\\s+)(\\d+,\\d+)"))
+		    
+		    splitted = StringMatcher.matches(line, "\\bTotale\\b\\s((\\d+,\\d+))$");
+		    //if(line.matches("(Totale\\s+)(\\d+,\\d+)"))
+		    if(!splitted.isEmpty())
 		    {
 			// Totale
-			ArrayList<String> splitted = SplitLine.splitNewTotale(line);
+			//splitted = SplitLine.splitNewTotale(line);
 
 			if(consumo != null)
 			{
-			    consumo.Totale += Double.parseDouble(splitted.get(1).replace(",","."));
+			    consumo.Totale += Double.parseDouble(splitted.get(0).replace(",","."));
 			}
 		    }   
 		}else
@@ -423,9 +459,9 @@ public class FattureManagement implements Serializable {
                        
             //creo nuova fattura
             if(data == null)
-                FatturaService.insertNewFattura(database, "",totale,contributi,altri);            
+                FatturaService.insertNewFattura(database, "",totale,contributi,altri,prodotti,iva);            
             else            
-                FatturaService.insertNewFattura(database,data,totale,contributi,altri);    
+                FatturaService.insertNewFattura(database,data,totale,contributi,altri,prodotti,iva);    
             
             database.commit();            
             
